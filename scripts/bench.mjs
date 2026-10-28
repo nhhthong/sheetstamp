@@ -189,5 +189,5 @@ const text = `${lines.join("\n")}\n`;
 console.log(text);
 if (process.argv.includes("--write")) {
   await mkdir(".work/proof", { recursive: true });
-  await writeFile(".work/proof/phase-0-benchmark.md", text);
+  await writeFile(arg("out", ".work/proof/phase-0-benchmark.md"), text);
 }
