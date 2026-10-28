@@ -15,6 +15,8 @@ export type ExportRequest = {
   total: number;
   /** Build the file for row `index` (0-based). A thrown error fails that row only. */
   produce: (index: number) => Promise<ZipEntry>;
+  /** How many rows may be in production at once (default 1). Files are still written in row order. */
+  concurrency?: number;
   signal?: AbortSignal;
   onProgress?: (progress: Progress) => void;
 };
@@ -59,6 +61,20 @@ async function freeName(folder: string, name: string): Promise<string> {
  */
 export async function exportZip(request: ExportRequest): Promise<ExportResult> {
   const { folder, total, produce, signal, onProgress } = request;
+  const concurrency = Math.max(1, request.concurrency ?? 1);
+  type Settled = { entry: ZipEntry } | { error: unknown };
+  const started = new Map<number, Promise<Settled>>();
+  const start = (index: number) => {
+    if (index < total && !started.has(index)) {
+      started.set(
+        index,
+        produce(index).then(
+          (entry): Settled => ({ entry }),
+          (error: unknown): Settled => ({ error }),
+        ),
+      );
+    }
+  };
   await mkdir(folder, { recursive: true });
   const tempPath = join(folder, `.sheetstamp-${process.pid}-${Date.now()}.tmp`);
   const output = createWriteStream(tempPath);
@@ -76,13 +92,16 @@ export async function exportZip(request: ExportRequest): Promise<ExportResult> {
   try {
     for (let index = 0; index < total; index++) {
       if (signal?.aborted) throw new ExportCancelledError();
-      try {
-        const entry = await produce(index);
+      for (let ahead = index; ahead < index + concurrency; ahead++) start(ahead);
+      const settled = await started.get(index);
+      started.delete(index);
+      if (settled && "entry" in settled) {
         const added = new Promise<void>((resolve) => archive.once("entry", () => resolve()));
-        archive.append(Buffer.from(entry.data), { name: entry.name });
+        archive.append(Buffer.from(settled.entry.data), { name: settled.entry.name });
         await added;
         written++;
-      } catch (error) {
+      } else {
+        const error = settled?.error;
         if (error instanceof ExportCancelledError) throw error;
         failed.push({
           row: index + 1,

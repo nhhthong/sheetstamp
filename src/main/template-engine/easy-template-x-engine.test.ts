@@ -1,14 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-  makeDocx,
-  normalizedXml,
-  paragraph,
-  run,
-  textOf,
-} from "../../../tests/fixtures/word/make-docx";
 import { CASES } from "../../../tests/fixtures/word/templates";
+import { makeDocx, normalizedXml, paragraph, run, textOf } from "../selftest/make-docx";
 import { EasyTemplateXEngine } from "./easy-template-x-engine";
 import type { TemplateEngine } from "./types";
 

@@ -1,5 +1,11 @@
 /** Why a row failed. Codes only: the report never contains source data. */
-export type RowErrorCode = "missing-tag" | "render-failed" | "invalid-name" | "unknown";
+export type RowErrorCode =
+  | "missing-tag"
+  | "font-missing"
+  | "text-too-long"
+  | "render-failed"
+  | "invalid-name"
+  | "unknown";
 
 export type RowError = { row: number; code: RowErrorCode };
 

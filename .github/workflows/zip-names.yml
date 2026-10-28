@@ -1,0 +1,31 @@
+name: ZIP names (T-8)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/check-zip-names.mjs
+      - src/main/export/**
+      - .github/workflows/zip-names.yml
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    name: extract (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/check-zip-names.mjs

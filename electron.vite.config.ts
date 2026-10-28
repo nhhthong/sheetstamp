@@ -5,7 +5,11 @@ export default defineConfig({
   main: {
     build: {
       rollupOptions: {
-        input: { index: "src/main/index.ts", "canvas-probe": "src/worker/canvas-probe.ts" },
+        input: {
+          index: "src/main/index.ts",
+          "generate-worker": "src/worker/generate-worker.ts",
+          batch: "src/main/export/batch.ts",
+        },
       },
     },
   },

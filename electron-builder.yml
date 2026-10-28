@@ -1,5 +1,6 @@
 appId: io.github.nhhthong.sheetstamp
 productName: Sheetstamp
+copyright: Copyright © 2026 nhhthong
 directories:
   output: release
 files:
@@ -9,7 +10,36 @@ asar: true
 # Native modules cannot load from inside the ASAR archive.
 asarUnpack:
   - "**/*.node"
-extraResources:
-  - from: tests/fixtures/fonts
-    to: test-fonts
 npmRebuild: false
+
+# Fixed file names: the download page links to releases/latest/download/<name>.
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  artifactName: Sheetstamp-Setup-x64.${ext}
+nsis:
+  oneClick: true
+  perMachine: false # per-user install, no administrator rights
+  allowElevation: false
+  deleteAppDataOnUninstall: false
+
+linux:
+  target:
+    - target: deb
+      arch: [x64]
+    - target: AppImage
+      arch: [x64]
+  artifactName: Sheetstamp-x64.${ext}
+  category: Office
+  maintainer: nhhthong <50626102+nhhthong@users.noreply.github.com>
+  synopsis: Fill Word and image templates from CSV or Excel files
+  description: Fill Word and image templates with rows from a CSV or Excel file and export the files in one ZIP. Runs offline.
+
+# macOS builds are for internal testing only: ad hoc signed, never attached to a public release.
+mac:
+  target:
+    - target: dir
+      arch: [arm64]
+  identity: "-"
+  category: public.app-category.productivity

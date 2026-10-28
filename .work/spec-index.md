@@ -12,8 +12,8 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 | R0.1 | Repo setup: 2FA, `LICENSE`, `README`, Pages site with code signing policy, third-party notices | ✅ |
 | R0.2 | 10 self-written Word templates with mock CSV (split runs, tables, header/footer, NFD, diacritic tags, leading zeros) | ✅ |
 | R0.3 | At least 5 real HR/accounting templates | ⚠️ O-1 |
-| R0.4 | Skia rendering of Vietnamese diacritics in four styles on three OSes; `@napi-rs/canvas` in the background process and packaged build | ⚠️ O-4 |
-| R0.5 | Font tests: install while running, uninstalled font, clean machines | ⚠️ O-5 |
+| R0.4 | Skia rendering of Vietnamese diacritics in four styles on three OSes; `@napi-rs/canvas` in the background process and packaged build | ✅ resolved by T-2 |
+| R0.5 | Font tests: install while running, uninstalled font, clean machines | ✅ resolved by T-2 |
 | R0.6 | ZIP filenames with diacritics in Explorer, Archive Utility, Ubuntu tools | ✅ |
 | R0.7 | CSV and `.xlsx` input tests (BOM, Windows-1258, `00000` IDs, renamed `.xls`) | ✅ O-6, O-7 resolved |
 | R0.8 | Benchmark 4,000 rows, Word and image, on 4 cores | ✅ |
@@ -56,7 +56,7 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 |---|---|---|
 | R4.1 | Import PNG or JPEG background | ✅ |
 | R4.2 | Text box properties: position, font family, size, color, style, alignment, max lines | ✅ |
-| R4.3 | Fonts: installed families only, styles offered only if a face exists | ⚠️ O-5 |
+| R4.3 | Fonts: installed families only, styles offered only if a face exists | ✅ resolved by T-2 |
 | R4.4 | Overflow behavior: shrink, wrap, truncate, error for that row | ✅ |
 | R4.5 | Missing font: one message, user picks another, no automatic substitution | ✅ |
 | R4.6 | Preview uses the exact export render function (Skia); react-konva only positions boxes | ✅ |
@@ -161,12 +161,12 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 ### R14 Architecture and technology (sections 3 and 4)
 | ID | Where in the source | Status |
 |---|---|---|
-| R14.1 | Four layers: UI, commands, background process for heavy work, local storage | ⚠️ O-4 |
+| R14.1 | Four layers: UI, commands, background process for heavy work, local storage | ✅ resolved by T-2 |
 | R14.2 | Electron 45, upgraded every 3–4 months; end-of-support date shown | ✅ |
 | R14.3 | electron-vite and electron-builder; `.node` files unpacked from ASAR; test the packaged build | ✅ |
 | R14.4 | React 19, Tailwind v4, shadcn/ui (Base UI), theme tokens via `nativeTheme` | ✅ |
 | R14.5 | Data libraries: papaparse, exceljs (read-only), fuse.js, date-fns, chardet | ✅ O-6, O-7 resolved |
-| R14.6 | `@napi-rs/canvas` for drawing; `DISABLE_SYSTEM_FONTS_LOAD` and test font in tests | ⚠️ O-4 |
+| R14.6 | `@napi-rs/canvas` for drawing; `DISABLE_SYSTEM_FONTS_LOAD` and test font in tests | ✅ resolved by T-2 |
 | R14.7 | archiver for streaming ZIP | ✅ |
 | R14.8 | Vitest, Playwright, Biome; GitHub Actions on three OSes | ✅ |
 | R14.9 | Golden files: normalized XML for Word; pixel threshold on one reference OS for images | ✅ |
@@ -189,8 +189,8 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 - ⚠️ O-1: Which 5+ real HR/accounting templates will be used for R0.3? Owed by owner since 2026-10-26. Needed before ticket T-4.
 - ✅ O-2: easy-template-x handles header/footer, split runs and diacritic tags (prototype spike1, 2026-10-28). Remaining caveats are ticketed in T-3: NFC normalization of keys, missing keys must be flagged, split-run value takes the first run's format.
 - ⚠️ O-3: The six-phase roadmap figure in the source could not be read. Owner to compare the placement in `.work/notes.md` (roadmap) with the figure. Owed by owner since 2026-10-26. Needed before ticket planning past Phase 2.
-- ⚠️ O-4: Worker threads run `@napi-rs/canvas` on Linux (spike4). Still open: Electron `utilityProcess` or worker in the packaged app on Windows and Ubuntu. Owed by ticket T-2. Needed before R14.1 and R4.6.
-- ⚠️ O-5: Styles per family are available from `GlobalFonts.families`; coverage has no API (Preview only). Still open: does a font installed while the app runs appear, and the same on Windows. Owed by ticket T-6. Needed before R4.3.
+- ✅ O-4: `@napi-rs/canvas` 1.0.11 runs in worker threads and utility processes in the packaged app on Windows and Ubuntu, with identical pixels (CI run 40720039038). Versions 1.0.12 and 1.0.13 crash Electron 45 on load, so the version is pinned. Decision in `.work/notes.md` (2026-10-28, canvas).
+- ✅ O-5: styles come from `GlobalFonts.families`; no coverage API (Preview only); a font installed at runtime appears after `loadFontsFromDir` on Linux and Windows (CI). macOS untested.
 - ✅ O-6: exceljs `cell.text` ignores number formats; use `cell.numFmt` with `ssf` (spike3).
 - ✅ O-7: drop chardet; fixed order BOM, strict UTF-8, Windows-1258 (spike3).
 - ✅ O-8: limits 20 MB and 50,000 rows (spike5; revisit after the benchmark).

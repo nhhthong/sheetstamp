@@ -1,0 +1,110 @@
+name: Release
+
+# Push a tag such as v0.1.0 to build and publish. "Run workflow" builds everything and publishes nothing.
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows
+            os: windows-latest
+            builder: --win
+            unpacked: release/win-unpacked/Sheetstamp.exe
+            files: release/Sheetstamp-Setup-x64.exe
+          - name: linux
+            os: ubuntu-latest
+            builder: --linux
+            unpacked: release/linux-unpacked/sheetstamp
+            files: |
+              release/Sheetstamp-x64.deb
+              release/Sheetstamp-x64.AppImage
+          - name: macos-test
+            os: macos-latest
+            builder: --mac
+            unpacked: release/mac-arm64/Sheetstamp.app/Contents/MacOS/Sheetstamp
+            files: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Package
+        run: npx electron-builder ${{ matrix.builder }} --publish never
+      - name: Self-test the packaged app (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a node scripts/check-selftest.mjs ${{ matrix.unpacked }} --no-sandbox
+      - name: Self-test the packaged app
+        if: runner.os != 'Linux'
+        run: node scripts/check-selftest.mjs ${{ matrix.unpacked }}
+      - name: Upload installers
+        if: matrix.files != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.name }}
+          path: ${{ matrix.files }}
+          retention-days: 1
+          if-no-files-found: error
+      # The macOS build stays a one-day workflow artifact and is never attached to a release.
+      - name: Upload macOS test build
+        if: runner.os == 'macOS'
+        run: ditto -c -k --sequesterRsrc --keepParent release/mac-arm64/Sheetstamp.app Sheetstamp-macos-test.zip
+      - name: Keep macOS test build for one day
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-test-build
+          path: Sheetstamp-macos-test.zip
+          retention-days: 1
+
+  publish:
+    name: publish
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag must match package.json
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "v$version" != "$TAG" ]; then echo "Tag $TAG does not match package.json version $version"; exit 1; fi
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: installers-*
+          path: dist
+          merge-multiple: true
+      - name: Checksums
+        working-directory: dist
+        run: |
+          sha256sum Sheetstamp-Setup-x64.exe Sheetstamp-x64.deb Sheetstamp-x64.AppImage > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+      # Create as a draft, upload every file, then publish in one step, so the "latest" link
+      # never points at a release with missing files. Version 0.x is not marked pre-release.
+      - name: Draft, upload, publish
+        run: |
+          gh release create "$TAG" --draft --title "Sheetstamp ${TAG#v}" --generate-notes
+          gh release upload "$TAG" dist/Sheetstamp-Setup-x64.exe dist/Sheetstamp-x64.deb dist/Sheetstamp-x64.AppImage dist/SHA256SUMS.txt
+          gh release edit "$TAG" --draft=false --latest
+      - name: Check the fixed download links
+        run: |
+          for file in Sheetstamp-Setup-x64.exe Sheetstamp-x64.deb Sheetstamp-x64.AppImage SHA256SUMS.txt; do
+            curl -fsSIL --retry 5 --retry-delay 5 "https://github.com/${{ github.repository }}/releases/latest/download/$file" -o /dev/null -w "$file %{http_code}\n"
+          done

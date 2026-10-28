@@ -1,7 +1,7 @@
 import { join } from "node:path";
 import { app, BrowserWindow } from "electron";
 import { registerIpc } from "./ipc";
-import { runProbe } from "./probe";
+import { runSelfTest } from "./selftest/selftest";
 
 function isAppUrl(url: string): boolean {
   const dev = process.env.ELECTRON_RENDERER_URL;
@@ -38,9 +38,13 @@ function createWindow(): BrowserWindow {
 }
 
 app.whenReady().then(async () => {
-  const probe = process.argv.find((arg) => arg.startsWith("--sheetstamp-probe="));
-  if (probe) {
-    await runProbe(probe.slice("--sheetstamp-probe=".length));
+  const selfTest = process.argv.find((arg) => arg.startsWith("--sheetstamp-selftest="));
+  if (selfTest) {
+    await runSelfTest(
+      selfTest.slice("--sheetstamp-selftest=".length),
+      app.isPackaged,
+      import.meta.dirname,
+    );
     app.quit();
     return;
   }

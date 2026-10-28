@@ -1,4 +1,4 @@
-import { type DocxParts, paragraph, run, table } from "./make-docx";
+import { type DocxParts, paragraph, run, table } from "../../../src/main/selftest/make-docx";
 
 export type Case = {
   name: string;

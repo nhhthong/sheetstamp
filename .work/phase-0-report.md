@@ -73,3 +73,9 @@ One entry per ambiguity: where (ticket), what was unclear, the options, the choi
 7. **Preview equals export** is guaranteed by having one render function (`renderImage`) and a determinism test (same input, same bytes), not by comparing two code paths.
 8. **Golden images** compare with a pixel threshold (0.5% of pixels off by more than 16/255) and only on Linux, the reference OS in the spec. Other OSes still run every behavioural test. A test-only font and `DISABLE_SYSTEM_FONTS_LOAD` keep results machine-independent; setting that variable only works if it is set before the canvas module first loads, so the test sets it in `vi.hoisted`.
 9. **Font rescan folders per OS** (`systemFontFolders`): Windows system and per-user folders, macOS three folders, Linux four. The Windows and macOS lists are from documentation, not tested here (Windows evidence comes from the CI probe).
+
+### T-2 evidence from CI (run 40720039038, 2026-10-28)
+
+- **Windows (windows-latest, packaged `win-unpacked`)**: `worker_thread` and `utilityProcess` both ran `@napi-rs/canvas` 1.0.11 from inside `app.asar`, drew the four styles, and produced **the same PNG hashes as Linux** (`54e75d918233`, `28adb70d21c0`, `ba1a6eacdb78`, `ed775b7df7f2`): rendering is pixel-identical across the two OSes for the test font. 65 system families were visible.
+- **Fonts at runtime (Windows)**: copying a font into `%LOCALAPPDATA%\Microsoft\Windows\Fonts` and calling `loadFontsFromDir` on that folder added the family without a restart (65 to 66 families). Same result on Linux. macOS not tested.
+- **Left in the repo on purpose**: `src/worker/canvas-probe.ts`, `src/main/probe.ts`, `--sheetstamp-probe` and `canvas-spike.yml` stay until T-11 replaces them with a packaged self-test that runs the real generator; they guard against a canvas upgrade that crashes Electron (finding 1).

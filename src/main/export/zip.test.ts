@@ -147,3 +147,43 @@ describe("errorReportCsv", () => {
     expect(errorReportCsv([{ row: 7, code: "unknown" }])).toBe("row,error_code\r\n7,unknown\r\n");
   });
 });
+
+describe("exportZip concurrency", () => {
+  it("produces several rows at once but writes them in row order", async () => {
+    let running = 0;
+    let peak = 0;
+    const result = await exportZip({
+      folder,
+      zipName: "song-song.zip",
+      total: 8,
+      concurrency: 4,
+      produce: async (i) => {
+        running++;
+        peak = Math.max(peak, running);
+        await new Promise((resolve) => setTimeout(resolve, (8 - i) * 5)); // later rows finish first
+        running--;
+        return entry(i);
+      },
+    });
+    expect(peak).toBeGreaterThan(1);
+    expect(peak).toBeLessThanOrEqual(4);
+    expect(await names(result.zipPath)).toEqual(
+      [0, 1, 2, 3, 4, 5, 6, 7].map((i) => `Nguyễn ${i}.docx`),
+    );
+  });
+
+  it("still reports a failing row by its number", async () => {
+    const result = await exportZip({
+      folder,
+      zipName: "loi.zip",
+      total: 6,
+      concurrency: 3,
+      produce: async (i) => {
+        if (i === 4) throw new RowFailure("text-too-long");
+        return entry(i);
+      },
+    });
+    expect(result.failed).toEqual([{ row: 5, code: "text-too-long" }]);
+    expect(result.written).toBe(5);
+  });
+});

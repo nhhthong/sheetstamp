@@ -15,7 +15,8 @@
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "bench": "node scripts/bench.mjs --write"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.3",
@@ -30,7 +31,6 @@
     "electron-builder": "^26.18.0",
     "electron-vite": "^6.0.0",
     "iconv-lite": "^0.7.3",
-    "jszip": "^3.10.2",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "typescript": "^7.0.2",
@@ -42,6 +42,7 @@
     "archiver": "^8.0.0",
     "easy-template-x": "^8.0.0",
     "exceljs": "^4.4.0",
+    "jszip": "^3.10.2",
     "papaparse": "^5.7.0",
     "ssf": "^0.11.2"
   }

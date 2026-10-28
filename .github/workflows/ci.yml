@@ -37,12 +37,13 @@ jobs:
       - name: Typecheck
         if: steps.project.outputs.present == 'true'
         run: npm run --if-present typecheck
-      - name: Test
-        if: steps.project.outputs.present == 'true'
-        run: npm run --if-present test
+      # Build first: some tests run the built worker.
       - name: Build
         if: steps.project.outputs.present == 'true'
         run: npm run --if-present build
+      - name: Test
+        if: steps.project.outputs.present == 'true'
+        run: npm run --if-present test
       - name: Smoke test (Linux)
         if: steps.project.outputs.present == 'true' && runner.os == 'Linux'
         run: xvfb-run -a npm run --if-present test:e2e
