@@ -8,10 +8,9 @@ import {
   type UpdateRequest,
 } from "../../shared/ipc/templates";
 import { validatePattern } from "../export/filename";
-import { reconcile } from "../mapping";
+import { reconcile, toProfile, toRecord } from "../mapping";
 import {
-  type MappingEntry,
-  type MappingProfile,
+  type MappingProfile as MappingRecord,
   type Storage,
   StorageError,
   type Template,
@@ -41,22 +40,6 @@ export function patternMessages(pattern: string, keys: readonly string[]): strin
   return [...new Set(out)];
 }
 
-const isObject = (v: unknown): v is Record<string, unknown> =>
-  typeof v === "object" && v !== null && !Array.isArray(v);
-const isWrapped = (v: unknown): v is { version: 1; fields: Record<string, MappingEntry> } =>
-  isObject(v) && v.version === 1 && isObject(v.fields);
-
-/**
- * The saved mapping as per-tag entries. Accepts the bare record and the `{ version, fields }` wrapper of
- * `src/main/mapping`; `wrapMapping` puts entries back in the shape that was found.
- */
-function mappingFields(mapping: unknown): Record<string, MappingEntry> {
-  if (isWrapped(mapping)) return mapping.fields;
-  return isObject(mapping) ? (mapping as Record<string, MappingEntry>) : {};
-}
-const wrapMapping = (original: unknown, fields: Record<string, MappingEntry>): MappingProfile =>
-  (isWrapped(original) ? { ...original, fields } : fields) as MappingProfile;
-
 type Diff = {
   fileName: string;
   fields: FoundTag[];
@@ -75,7 +58,7 @@ async function diffAgainst(template: Template, path: string): Promise<Outcome<Di
   const unsupported = parsed.value.tags.filter((t) => t.kind === "unsupported");
   const have = new Set(template.tags.map((t) => t.name));
   const now = new Set(fields.map((t) => t.key));
-  const mapped = mappingFields(template.mapping);
+  const mapped = toRecord(toProfile(template.mapping));
   const names = template.tags.map((t) => t.name);
   const removed = names.filter((k) => !now.has(k));
   const kept = names.filter((k) => now.has(k));
@@ -119,19 +102,19 @@ export async function replacePreview(
 }
 
 /** Mapping after a file replacement: kept tags keep their entry, removed tags lose it, new tags stay unmatched. */
-function reconcileMapping(template: Template, tagNames: readonly string[]): MappingProfile {
-  const entries = mappingFields(template.mapping);
+function reconcileMapping(template: Template, tagNames: readonly string[]): MappingRecord {
+  const profile = toProfile(template.mapping);
   const stay = new Set(tagNames);
   // Only columns of tags that stay count as present, so no column freed by a removed tag is auto-assigned.
-  const columns = Object.entries(entries).flatMap(([tag, entry]) =>
+  const columns = Object.entries(profile.fields).flatMap(([tag, entry]) =>
     entry.kind === "column" && stay.has(tag) ? [entry.column] : [],
   );
   const result = reconcile(
-    { version: 1, fields: entries },
+    profile,
     tagNames.map((key) => ({ key })),
     columns,
   );
-  return wrapMapping(template.mapping, result.profile.fields as Record<string, MappingEntry>);
+  return toRecord(result.profile);
 }
 
 export async function updateTemplate(

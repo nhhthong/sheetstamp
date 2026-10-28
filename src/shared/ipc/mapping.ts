@@ -4,6 +4,7 @@ import {
   type Channel,
   channel,
   IpcValidationError,
+  integer,
   nothing,
   oneOf,
   record,
@@ -165,6 +166,72 @@ export const useTemplate: Channel<{ templateId: string }, UsedTemplate> = channe
   (value) => ({ templateId: string(record(value).templateId, "templateId", { min: 1, max: 200 }) }),
 );
 
+/** Longest fixed text a user can type for one field. */
+export const MAX_FIXED_TEXT = 1000;
+
+export type MappingFieldView = { key: string; label: string };
+
+/** What step 3 needs to draw its list. The table itself never leaves main: only column names and a row count. */
+export type MappingView = {
+  templateName: string;
+  fields: MappingFieldView[];
+  columns: string[];
+  rowCount: number;
+  /** One entry per resolved field. A field with no entry is unresolved. */
+  entries: Record<string, FieldMapping>;
+  /** Fields with no entry when the step was entered (after automatic matching), in template order. */
+  unmatched: string[];
+  /** Fields that lost their column because the data changed. */
+  lost: LostField[];
+};
+
+export type OpenedMapping = { ok: true; view: MappingView } | { ok: false; message: string };
+
+const templateIdOf = (value: unknown) =>
+  string(record(value).templateId, "templateId", { min: 1, max: 200 });
+
+/**
+ * Enter step 3: load the template and the current data in main, match the fields against the columns, keep the
+ * valid choices of the stored profile and save the result back to the template.
+ */
+export const openMapping: Channel<{ templateId: string }, OpenedMapping> = channel(
+  "mapping:open",
+  (value) => ({ templateId: templateIdOf(value) }),
+);
+
+export type SetEntryRequest = { templateId: string; key: string; entry: FieldMapping | null };
+export type SetEntryResult =
+  | { ok: true; entries: Record<string, FieldMapping> }
+  | { ok: false; message: string };
+
+/** Save one field's choice with the template (null clears it). Column names must exist in the loaded data. */
+export const setEntry: Channel<SetEntryRequest, SetEntryResult> = channel(
+  "mapping:setEntry",
+  (value) => {
+    const r = record(value);
+    return {
+      templateId: templateIdOf(r),
+      key: string(r.key, "key", { min: 1, max: MAX_NAME }),
+      entry: r.entry === null ? null : parseFieldMapping(r.entry),
+    };
+  },
+);
+
+export type RowResult = { ok: true; cells: string[] } | { ok: false; message: string };
+
+/** The cell text of one data row, aligned with `MappingView.columns`. Only this row leaves main. */
+export const getRow: Channel<{ index: number }, RowResult> = channel("mapping:row", (value) => ({
+  index: integer(record(value).index, "index", { min: 0, max: 1_000_000 }),
+}));
+
+export type TemplateBytes = { ok: true; docx: Uint8Array } | { ok: false; message: string };
+
+/** The stored Word file of a template, for the preview. */
+export const getTemplateBytes: Channel<{ templateId: string }, TemplateBytes> = channel(
+  "mapping:templateBytes",
+  (value) => ({ templateId: templateIdOf(value) }),
+);
+
 export const channels = [
   suggest,
   reconcile,
@@ -173,5 +240,9 @@ export const channels = [
   getGroupFilter,
   setGroupFilter,
   useTemplate,
+  openMapping,
+  setEntry,
+  getRow,
+  getTemplateBytes,
 ] as const;
 export const events = [] as const;
