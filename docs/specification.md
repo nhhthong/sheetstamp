@@ -239,11 +239,14 @@ Risk levels are my own estimates and are not backed by measured data. They are o
 - Roadmap placement: Home flow for Word in Phase 1; image templates, theme, Settings, packaging and first release in Phase 2 (details in the project notes; the roadmap figure should be checked against this).
 - Home steps are strictly sequential; minimum window 720×560 until tested on real machines.
 - Vocabulary is defined in `GLOSSARY.md` (Template, Tag, Field, Column, Mapping, Batch).
+- Section 9 UI assumptions confirmed (source-file copy, inline delete confirmation, font-uninstalled message, no undo/redo in v1, filename pattern saved back, diacritics checkbox off by default, confirm on closing during export).
+- easy-template-x pass threshold: all 10 self-written templates and at least 4 of 5 real templates correct; otherwise add run merging before replacing the library.
+- Provisional performance target for 4,000 rows on 4 cores: Word ≤ 60 s, images ≤ 120 s; final after the Phase 0 benchmark.
+- Conventions: electron-vite layout plus `src/worker`, tests beside code, TypeScript strict, Biome defaults, npm, version 0.1.0, English for code and docs.
 
 **Pending decision**
 
-- UI details assumed from the mock, not yet confirmed: the “Bỏ dấu tiếng Việt trong tên file” checkbox lives in the filename editor and defaults to off; closing during an export asks for confirmation.
-- Assumed, not yet confirmed: each saved template keeps a copy of its source file instead of only a file path; deleting a single template asks for confirmation; Update for document templates means rename and replace the file (there is no in-app Word editor); when a saved template's font has been uninstalled (rare), the app shows one message and the user picks another installed font before export (no automatic substitution); the image canvas has no undo or redo in the first version; a filename-pattern change made at the Export step can be saved back to the template.
+- None. The remaining unknowns are the items under “Not yet verified”.
 
 **Phase 0 checklist**
 

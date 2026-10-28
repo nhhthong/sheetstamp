@@ -70,6 +70,12 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
 
+## Conventions
+
+- Layout (electron-vite): `src/main`, `src/preload`, `src/renderer`, `src/shared` (types, IPC contracts), `src/worker` (heavy work). Tests beside code (`*.test.ts`); golden fixtures in `tests/fixtures`.
+- TypeScript `strict`, Biome defaults, npm. Code, identifiers, commits and docs in English; only the UI is Vietnamese.
+- Terms follow `GLOSSARY.md`; decisions in `docs/adr/` and `docs/specification.md`.
+
 ## Agent skills
 
 ### Issue tracker
