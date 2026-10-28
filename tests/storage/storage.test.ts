@@ -25,7 +25,7 @@ const newTemplate = () => ({
   kind: "word" as const,
   tags: [{ name: "ten", label: "Tên" }],
   mapping: { ten: { kind: "column" as const, column: "Họ tên" } },
-  sourcePath: sourceFile,
+  source: { bytes: sourceBytes, fileName: "Hợp đồng lao động.docx" },
 });
 
 describe("round trip", () => {
@@ -243,27 +243,29 @@ describe("source copies", () => {
   it("copies the source byte for byte and reads it back; replace keeps the mapping", async () => {
     const s = await openStorage(dataDir);
     const t = await s.createTemplate(newTemplate());
-    expect(t.sourceCopy).toBe(`sources/${t.id}.docx`);
+    expect(t.sourceCopy).toMatch(new RegExp(`^sources/${t.id}-[0-9a-f-]{36}\\.docx$`));
     expect(Buffer.compare(await s.readSource(t.id), sourceBytes)).toBe(0);
     expect(Buffer.compare(await fsp.readFile(path.join(dataDir, t.sourceCopy)), sourceBytes)).toBe(
       0,
     );
 
-    const other = path.join(root, "khac.docx");
     const bytes2 = randomBytes(1000);
-    await fsp.writeFile(other, bytes2);
-    const r = await s.replaceSource(t.id, other);
+    const r = await s.updateTemplate(t.id, {}, { bytes: bytes2, fileName: "khac.docx" });
     expect(r.sourceFileName).toBe("khac.docx");
     expect(r.mapping).toEqual(t.mapping);
+    expect(r.sourceCopy).not.toBe(t.sourceCopy);
     expect(Buffer.compare(await s.readSource(t.id), bytes2)).toBe(0);
-    expect(await listDir(path.join(dataDir, "sources"))).toEqual([`${t.id}.docx`]);
+    expect(await listDir(path.join(dataDir, "sources"))).toEqual([path.basename(r.sourceCopy)]);
   });
 
-  it("a missing source file is an error and leaves nothing behind", async () => {
-    const s = await openStorage(dataDir);
-    await expect(
-      s.createTemplate({ ...newTemplate(), sourcePath: path.join(root, "missing.docx") }),
-    ).rejects.toMatchObject({ code: "not-found" });
+  it("a failed source write is an error and leaves nothing behind", async () => {
+    const s = await openStorage(dataDir, {
+      rename: async (from, to) => {
+        if (to.includes("sources")) throw new Error("disk full");
+        await fsp.rename(from, to);
+      },
+    });
+    await expect(s.createTemplate(newTemplate())).rejects.toThrow("disk full");
     expect(await listDir(path.join(dataDir, "sources"))).toEqual([]);
     expect(await s.listTemplates()).toEqual([]);
   });

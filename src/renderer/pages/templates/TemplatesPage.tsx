@@ -13,6 +13,7 @@ import { vi } from "../../strings/vi";
 import { EditTemplateDialog } from "./EditTemplateDialog";
 import { GroupsDialog } from "./GroupsDialog";
 import { NewTemplateDialog } from "./NewTemplateDialog";
+import { StorageBanner, useStorageStatus } from "./StorageBanner";
 
 export { NewTemplateDialog } from "./NewTemplateDialog";
 
@@ -35,6 +36,9 @@ export function TemplatesPage() {
   const [confirming, setConfirming] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [groupsOpen, setGroupsOpen] = useState(false);
+  const storage = useStorageStatus();
+  // A data folder that could not be opened (for example written by a newer version) is read-only for the UI.
+  const blocked = storage?.error != null;
 
   const refresh = useCallback(async () => {
     try {
@@ -45,8 +49,8 @@ export function TemplatesPage() {
     }
   }, []);
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    if (storage && !storage.error) void refresh();
+  }, [refresh, storage]);
 
   async function remove(id: string) {
     try {
@@ -67,15 +71,18 @@ export function TemplatesPage() {
       subtitle={vi.pages.templates.subtitle}
       actions={
         <div className="flex gap-3">
-          <Button variant="secondary" onClick={() => setGroupsOpen(true)}>
+          <Button variant="secondary" disabled={blocked} onClick={() => setGroupsOpen(true)}>
             {tpl.manageGroups}
           </Button>
-          <Button onClick={() => setDialogOpen(true)} disabled={tab === "images"}>
+          <Button onClick={() => setDialogOpen(true)} disabled={tab === "images" || blocked}>
             {tpl.newTemplate}
           </Button>
         </div>
       }
     >
+      <div className="mb-6 empty:hidden">
+        <StorageBanner status={storage} />
+      </div>
       <div
         role="group"
         aria-label={tpl.tabsLabel}
@@ -102,7 +109,7 @@ export function TemplatesPage() {
         ))}
       </div>
 
-      {tab === "images" ? (
+      {blocked ? null : tab === "images" ? (
         <Status kind="info">{tpl.imagesSoon}</Status>
       ) : error ? (
         <Status kind="danger">{tpl.loadError}</Status>

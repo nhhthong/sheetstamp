@@ -19,6 +19,7 @@ import { cn } from "../../lib/cn";
 import { call } from "../../lib/ipc";
 import { homeTemplate as t } from "../../strings/home-template";
 import { NewTemplateDialog } from "../templates/NewTemplateDialog";
+import { StorageBanner, useStorageStatus } from "../templates/StorageBanner";
 import { flow, useFlow } from "./flow";
 import { StepFooter } from "./Stepper";
 import { type RankedTemplate, visibleTemplates } from "./template-search";
@@ -27,8 +28,23 @@ type Loaded = { templates: RankedTemplate[]; groups: GroupInfo[]; hasData: boole
 
 const date = (iso: string) => new Date(iso).toLocaleDateString("vi-VN");
 
-/** Step 2, Mẫu: search, group chips and the list of Word templates, best column match first. */
+/**
+ * Step 2, Mẫu: what opening the data folder found comes first. When the folder could not be opened nothing
+ * below it is offered.
+ */
 export function StepTemplate() {
+  const storage = useStorageStatus();
+  if (storage === null) return <p className="text-muted">{t.loading}</p>;
+  return (
+    <div className="flex flex-col gap-4">
+      <StorageBanner status={storage} />
+      {storage.error ? null : <TemplateList />}
+    </div>
+  );
+}
+
+/** The search, group chips and the list of Word templates, best column match first. */
+function TemplateList() {
   const { revision } = useFlow();
   const dataRevision = revision.data;
   const [loaded, setLoaded] = useState<Loaded | null>(null);

@@ -17,7 +17,7 @@ import {
   UNGROUPED_ID,
   UNGROUPED_NAME,
 } from "../storage";
-import { fail, messages, parseFile } from "./library";
+import { fail, messages, readSource, tagsOf } from "./library";
 
 export const editMessages = {
   notFound: "Không tìm thấy mẫu này. Có thể mẫu đã bị xóa.",
@@ -51,11 +51,9 @@ type Diff = {
   keptMapped: number;
 };
 
-async function diffAgainst(template: Template, path: string): Promise<Outcome<Diff>> {
-  const parsed = await parseFile(path);
-  if (!parsed.ok) return parsed;
-  const fields = parsed.value.tags.filter((t) => t.kind === "field");
-  const unsupported = parsed.value.tags.filter((t) => t.kind === "unsupported");
+function diffAgainst(template: Template, fileName: string, tags: FoundTag[]): Diff {
+  const fields = tags.filter((t) => t.kind === "field");
+  const unsupported = tags.filter((t) => t.kind === "unsupported");
   const have = new Set(template.tags.map((t) => t.name));
   const now = new Set(fields.map((t) => t.key));
   const mapped = toRecord(toProfile(template.mapping));
@@ -63,18 +61,24 @@ async function diffAgainst(template: Template, path: string): Promise<Outcome<Di
   const removed = names.filter((k) => !now.has(k));
   const kept = names.filter((k) => now.has(k));
   return {
-    ok: true,
-    value: {
-      fileName: parsed.value.fileName,
-      fields,
-      unsupported,
-      added: fields.filter((t) => !have.has(t.key)),
-      removed,
-      kept,
-      removedMapped: removed.filter((k) => Object.hasOwn(mapped, k)),
-      keptMapped: kept.filter((k) => Object.hasOwn(mapped, k)).length,
-    },
+    fileName,
+    fields,
+    unsupported,
+    added: fields.filter((t) => !have.has(t.key)),
+    removed,
+    kept,
+    removedMapped: removed.filter((k) => Object.hasOwn(mapped, k)),
+    keptMapped: kept.filter((k) => Object.hasOwn(mapped, k)).length,
   };
+}
+
+/** Reads the chosen file once and parses those bytes. */
+async function readAndParse(path: string) {
+  const source = await readSource(path);
+  if (!source.ok) return source;
+  const tags = await tagsOf(source.value.bytes);
+  if (!tags.ok) return tags;
+  return { ok: true as const, value: { ...source.value, tags: tags.value } };
 }
 
 export async function replacePreview(
@@ -84,9 +88,9 @@ export async function replacePreview(
 ): Promise<Outcome<ReplacePreview>> {
   const template = await storage.getTemplate(id);
   if (!template) return fail(editMessages.notFound);
-  const diff = await diffAgainst(template, path);
-  if (!diff.ok) return diff;
-  const d = diff.value;
+  const parsed = await readAndParse(path);
+  if (!parsed.ok) return parsed;
+  const d = diffAgainst(template, parsed.value.fileName, parsed.value.tags);
   return {
     ok: true,
     value: {
@@ -121,8 +125,7 @@ export async function updateTemplate(
   storage: Storage,
   request: UpdateRequest,
 ): Promise<Outcome<{ id: string }>> {
-  const template = await storage.getTemplate(request.id);
-  if (!template) return fail(editMessages.notFound);
+  if (!(await storage.getTemplate(request.id))) return fail(editMessages.notFound);
   const name = request.name.trim();
   if (name === "") return fail(messages.emptyName);
   if (
@@ -132,90 +135,78 @@ export async function updateTemplate(
     return fail(messages.noGroup);
   }
 
-  // Tags come from the new file when it is replaced, else from the stored template; never from the renderer.
-  let tags = template.tags;
-  let mapping = template.mapping;
-  if (request.replacePath !== null) {
-    const diff = await diffAgainst(template, request.replacePath);
-    if (!diff.ok) return diff;
+  // The new file is read once; the tags that are checked and the bytes that are stored come from the same read.
+  const replacement = request.replacePath === null ? null : await readAndParse(request.replacePath);
+  if (replacement && !replacement.ok) return replacement;
+  const fresh = replacement?.value;
+
+  // Computed inside the storage queue from the freshest record, so a concurrent mapping change is never overwritten.
+  const patchFor = (template: Template) => {
+    const fields = fresh ? diffAgainst(template, fresh.fileName, fresh.tags).fields : null;
     const labelOf = new Map(template.tags.map((t) => [t.name, t.label]));
-    tags = diff.value.fields.map((t) => ({
-      name: t.key,
-      label: request.labels[t.key]?.trim() || labelOf.get(t.key) || t.label,
-    }));
-    mapping = reconcileMapping(
-      template,
+    // Tags come from the new file when it is replaced, else from the stored template; never from the renderer.
+    const tags = fields
+      ? fields.map((t) => ({
+          name: t.key,
+          label: request.labels[t.key]?.trim() || labelOf.get(t.key) || t.label,
+        }))
+      : template.tags.map((t) => ({
+          name: t.name,
+          label: request.labels[t.name]?.trim() || t.label,
+        }));
+    const problems = patternMessages(
+      request.filenamePattern,
       tags.map((t) => t.name),
     );
-  } else {
-    tags = template.tags.map((t) => ({
-      name: t.name,
-      label: request.labels[t.name]?.trim() || t.label,
-    }));
-  }
-
-  const problems = patternMessages(
-    request.filenamePattern,
-    tags.map((t) => t.name),
-  );
-  if (problems.length > 0) return fail(problems.join(" "));
-
-  const before = {
-    name: template.name,
-    groupId: template.groupId,
-    note: template.note,
-    tags: template.tags,
-    filenamePattern: template.filenamePattern,
-    mapping: template.mapping,
-  };
-  try {
-    await storage.updateTemplate(request.id, {
+    if (problems.length > 0) throw new StorageError("invalid", problems.join(" "));
+    return {
       name,
       groupId: request.groupId,
       note: request.note.trim(),
       tags,
       filenamePattern: request.filenamePattern,
-      mapping,
-    });
+      ...(fields
+        ? {
+            mapping: reconcileMapping(
+              template,
+              tags.map((t) => t.name),
+            ),
+          }
+        : {}),
+    };
+  };
+  try {
+    await storage.updateTemplate(
+      request.id,
+      patchFor,
+      fresh ? { bytes: fresh.bytes, fileName: fresh.fileName } : undefined,
+    );
   } catch (error) {
-    if (error instanceof StorageError && error.code === "invalid") return fail(error.message);
-    return fail(messages.saveFailed);
-  }
-  if (request.replacePath !== null) {
-    try {
-      await storage.replaceSource(request.id, request.replacePath);
-    } catch {
-      // The new file could not be stored: put the old record back so nothing changes.
-      await storage.updateTemplate(request.id, before).catch(() => {});
-      return fail(messages.saveFailed);
+    if (error instanceof StorageError) {
+      if (error.code === "not-found") return fail(editMessages.notFound);
+      if (error.code === "invalid") return fail(error.message);
     }
+    return fail(messages.saveFailed);
   }
   return { ok: true, value: { id: request.id } };
 }
 
-const groupKey = (name: string) => name.trim().normalize("NFC").toLocaleLowerCase();
-
-/** Shared by create and rename: not empty, not the reserved name, unique ignoring case. */
-async function checkGroupName(
-  storage: Storage,
-  name: string,
-  selfId: string | null,
-): Promise<string | null> {
-  if (name.trim() === "") return editMessages.groupEmpty;
-  if (groupKey(name) === groupKey(UNGROUPED_NAME)) return editMessages.groupReserved;
-  const clash = (await storage.listGroups()).some(
-    (g) => g.id !== selfId && groupKey(g.name) === groupKey(name),
-  );
-  return clash ? editMessages.groupDuplicate : null;
+/** Group rules live in the storage (inside its queue); this only turns their error codes into messages. */
+function groupProblem(error: unknown): string {
+  if (error instanceof StorageError) {
+    if (error.code === "invalid") return editMessages.groupEmpty;
+    if (error.code === "reserved") return editMessages.groupReserved;
+    if (error.code === "duplicate") return editMessages.groupDuplicate;
+    if (error.code === "not-found") return editMessages.groupNotFound;
+  }
+  return messages.saveFailed;
 }
 
 export async function createGroup(storage: Storage, name: string): Promise<Outcome<GroupInfo>> {
-  const problem = await checkGroupName(storage, name, null);
-  if (problem) return fail(problem);
   try {
     return { ok: true, value: await storage.createGroup(name) };
-  } catch {
-    return fail(messages.saveFailed);
+  } catch (error) {
+    return fail(groupProblem(error));
   }
 }
 
@@ -224,15 +215,10 @@ export async function renameGroup(
   id: string,
   name: string,
 ): Promise<Outcome<GroupInfo>> {
-  if (!(await storage.listGroups()).some((g) => g.id === id)) {
-    return fail(editMessages.groupNotFound);
-  }
-  const problem = await checkGroupName(storage, name, id);
-  if (problem) return fail(problem);
   try {
     return { ok: true, value: await storage.renameGroup(id, name) };
-  } catch {
-    return fail(messages.saveFailed);
+  } catch (error) {
+    return fail(groupProblem(error));
   }
 }
 
@@ -240,14 +226,9 @@ export async function deleteGroup(
   storage: Storage,
   id: string,
 ): Promise<Outcome<{ moved: number }>> {
-  if (!(await storage.listGroups()).some((g) => g.id === id)) {
-    return fail(editMessages.groupNotFound);
-  }
-  const moved = (await storage.listTemplates()).filter((t) => t.groupId === id).length;
   try {
-    await storage.deleteGroup(id);
-    return { ok: true, value: { moved } };
-  } catch {
-    return fail(messages.saveFailed);
+    return { ok: true, value: await storage.deleteGroup(id) };
+  } catch (error) {
+    return fail(groupProblem(error));
   }
 }
