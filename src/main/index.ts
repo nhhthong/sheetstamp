@@ -2,6 +2,7 @@ import { join } from "node:path";
 import { app, BrowserWindow } from "electron";
 import { appPageFile, isAppUrl } from "./app-url";
 import { registerIpc } from "./ipc";
+import { guardClose } from "./ipc/export";
 import { runSelfTest } from "./selftest/selftest";
 
 function createWindow(): BrowserWindow {
@@ -30,6 +31,8 @@ function createWindow(): BrowserWindow {
   win.webContents.on("will-navigate", guard);
   win.webContents.on("will-redirect", guard);
   win.webContents.on("will-frame-navigate", guard);
+  // Closing during an export asks first (src/main/ipc/export.ts).
+  guardClose(win);
 
   const devUrl = process.env.ELECTRON_RENDERER_URL;
   if (devUrl) void win.loadURL(devUrl);
