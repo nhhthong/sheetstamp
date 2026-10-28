@@ -234,13 +234,15 @@ Risk levels are my own estimates and are not backed by measured data. They are o
 - Every template has a name, exactly one group, and a note; the group list is shared by both kinds of templates (default groups: Hợp đồng, Nghỉ việc, Tài liệu khác).
 - The filename pattern is saved with the template and reviewed at the Export step before every export.
 - User interface: three sidebar destinations (Tạo file, Mẫu, Cài đặt); document and image templates share one Mẫu page with two tabs; Home shows one step at a time; mapping is a list that highlights only unmatched fields; Settings keeps only theme and About; the output folder and the diacritics option are remembered instead of being settings; concatenation, value transformation and input-at-export are deferred beyond the MVP. Details in section 5.1.
+- Storage: local JSON with atomic writes behind a `Storage` interface (`docs/adr/0001-json-storage.md`).
+- HR dictionary: first draft in `data/hr-dictionary.json`, reviewed by the owner and extended from real templates after Phase 0.
+- Roadmap placement: Home flow for Word in Phase 1; image templates, theme, Settings, packaging and first release in Phase 2 (details in the project notes; the roadmap figure should be checked against this).
+- Home steps are strictly sequential; minimum window 720×560 until tested on real machines.
+- Vocabulary is defined in `GLOSSARY.md` (Template, Tag, Field, Column, Mapping, Batch).
 
 **Pending decision**
 
-- Storage engine for templates, tags, labels, and profiles: local JSON files with atomic writes (temporary file, then rename) behind a `Storage` interface, or SQLite (`better-sqlite3`, native module). Recommendation: JSON for the MVP, because the data is small (dozens of templates, tens of tags each) and SQLite adds a second native module to package on three operating systems. `node:sqlite` is not recommended yet: it is still a release candidate in Node 24, and its availability in Electron 45's Node build has not been checked. Needs the owner's decision.
-- The HR dictionary (tag key → display label, plus column-name synonyms) needs an author and an initial list of entries.
-- Where Home, the template library, theme, and Settings fall in the six-phase roadmap (the roadmap content is an embedded figure that could not be read when this revision was made).
-- UI details assumed from the mock, not yet confirmed: the “Bỏ dấu tiếng Việt trong tên file” checkbox lives in the filename editor and defaults to off; the minimum window size; closing during an export asks for confirmation; the Home steps are strictly sequential (no importing data and choosing a template in either order).
+- UI details assumed from the mock, not yet confirmed: the “Bỏ dấu tiếng Việt trong tên file” checkbox lives in the filename editor and defaults to off; closing during an export asks for confirmation.
 - Assumed, not yet confirmed: each saved template keeps a copy of its source file instead of only a file path; deleting a single template asks for confirmation; Update for document templates means rename and replace the file (there is no in-app Word editor); when a saved template's font has been uninstalled (rare), the app shows one message and the user picks another installed font before export (no automatic substitution); the image canvas has no undo or redo in the first version; a filename-pattern change made at the Export step can be saved back to the template.
 
 **Phase 0 checklist**

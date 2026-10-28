@@ -1,0 +1,423 @@
+{
+  "_comment": "Draft. Tag key (no diacritics) -> display label, plus column-name synonyms. Matching removes diacritics and case. To be extended from the real HR/accounting templates collected in Phase 0.",
+  "entries": [
+    {
+      "key": "ten",
+      "label": "Tên",
+      "synonyms": [
+        "tên",
+        "họ tên",
+        "họ và tên",
+        "tên nhân viên",
+        "tên khách hàng",
+        "name",
+        "full name"
+      ]
+    },
+    {
+      "key": "ho_ten",
+      "label": "Họ và tên",
+      "synonyms": [
+        "họ tên",
+        "họ và tên",
+        "tên đầy đủ",
+        "full name"
+      ]
+    },
+    {
+      "key": "ho",
+      "label": "Họ",
+      "synonyms": [
+        "họ",
+        "last name"
+      ]
+    },
+    {
+      "key": "ngay_sinh",
+      "label": "Ngày sinh",
+      "synonyms": [
+        "ngày sinh",
+        "ngày tháng năm sinh",
+        "sinh nhật",
+        "dob",
+        "birthday"
+      ]
+    },
+    {
+      "key": "gioi_tinh",
+      "label": "Giới tính",
+      "synonyms": [
+        "giới tính",
+        "gender",
+        "sex"
+      ]
+    },
+    {
+      "key": "cccd",
+      "label": "Số CCCD",
+      "synonyms": [
+        "cccd",
+        "căn cước",
+        "căn cước công dân",
+        "số cccd",
+        "cmnd",
+        "số cmnd",
+        "chứng minh nhân dân"
+      ]
+    },
+    {
+      "key": "ngay_cap",
+      "label": "Ngày cấp",
+      "synonyms": [
+        "ngày cấp",
+        "ngày cấp cccd"
+      ]
+    },
+    {
+      "key": "noi_cap",
+      "label": "Nơi cấp",
+      "synonyms": [
+        "nơi cấp",
+        "nơi cấp cccd"
+      ]
+    },
+    {
+      "key": "dia_chi",
+      "label": "Địa chỉ",
+      "synonyms": [
+        "địa chỉ",
+        "address",
+        "nơi ở",
+        "địa chỉ thường trú"
+      ]
+    },
+    {
+      "key": "thuong_tru",
+      "label": "Địa chỉ thường trú",
+      "synonyms": [
+        "thường trú",
+        "hộ khẩu thường trú"
+      ]
+    },
+    {
+      "key": "tam_tru",
+      "label": "Địa chỉ tạm trú",
+      "synonyms": [
+        "tạm trú"
+      ]
+    },
+    {
+      "key": "so_dien_thoai",
+      "label": "Số điện thoại",
+      "synonyms": [
+        "số điện thoại",
+        "sđt",
+        "dt",
+        "điện thoại",
+        "phone",
+        "mobile",
+        "di động"
+      ]
+    },
+    {
+      "key": "email",
+      "label": "Email",
+      "synonyms": [
+        "email",
+        "e-mail",
+        "thư điện tử",
+        "mail"
+      ]
+    },
+    {
+      "key": "ma_nhan_vien",
+      "label": "Mã nhân viên",
+      "synonyms": [
+        "mã nhân viên",
+        "mnv",
+        "mã nv",
+        "manv",
+        "employee id",
+        "id nhân viên"
+      ]
+    },
+    {
+      "key": "phong_ban",
+      "label": "Phòng ban",
+      "synonyms": [
+        "phòng ban",
+        "bộ phận",
+        "department",
+        "phòng"
+      ]
+    },
+    {
+      "key": "chuc_vu",
+      "label": "Chức vụ",
+      "synonyms": [
+        "chức vụ",
+        "vị trí",
+        "chức danh",
+        "position",
+        "title"
+      ]
+    },
+    {
+      "key": "cap_bac",
+      "label": "Cấp bậc",
+      "synonyms": [
+        "cấp bậc",
+        "ngạch",
+        "level"
+      ]
+    },
+    {
+      "key": "ngay_vao_lam",
+      "label": "Ngày vào làm",
+      "synonyms": [
+        "ngày vào làm",
+        "ngày bắt đầu",
+        "ngày nhận việc",
+        "ngày bắt đầu làm việc",
+        "start date",
+        "ngày onboard"
+      ]
+    },
+    {
+      "key": "ngay_nghi_viec",
+      "label": "Ngày nghỉ việc",
+      "synonyms": [
+        "ngày nghỉ việc",
+        "ngày thôi việc",
+        "ngày kết thúc",
+        "ngày chấm dứt",
+        "end date"
+      ]
+    },
+    {
+      "key": "ly_do_nghi_viec",
+      "label": "Lý do nghỉ việc",
+      "synonyms": [
+        "lý do nghỉ việc",
+        "lý do thôi việc",
+        "lý do"
+      ]
+    },
+    {
+      "key": "so_hop_dong",
+      "label": "Số hợp đồng",
+      "synonyms": [
+        "số hợp đồng",
+        "số hđ",
+        "mã hợp đồng",
+        "hợp đồng số",
+        "contract no"
+      ]
+    },
+    {
+      "key": "loai_hop_dong",
+      "label": "Loại hợp đồng",
+      "synonyms": [
+        "loại hợp đồng",
+        "loại hđ",
+        "hình thức hợp đồng"
+      ]
+    },
+    {
+      "key": "ngay_ky",
+      "label": "Ngày ký",
+      "synonyms": [
+        "ngày ký",
+        "ngày ký hợp đồng",
+        "ngày lập"
+      ]
+    },
+    {
+      "key": "tu_ngay",
+      "label": "Từ ngày",
+      "synonyms": [
+        "từ ngày",
+        "ngày hiệu lực",
+        "bắt đầu từ",
+        "from date"
+      ]
+    },
+    {
+      "key": "den_ngay",
+      "label": "Đến ngày",
+      "synonyms": [
+        "đến ngày",
+        "ngày hết hạn",
+        "ngày kết thúc hợp đồng",
+        "to date"
+      ]
+    },
+    {
+      "key": "thoi_han",
+      "label": "Thời hạn",
+      "synonyms": [
+        "thời hạn",
+        "thời hạn hợp đồng",
+        "kỳ hạn"
+      ]
+    },
+    {
+      "key": "luong",
+      "label": "Lương",
+      "synonyms": [
+        "lương",
+        "mức lương",
+        "lương cơ bản",
+        "lương chính",
+        "salary"
+      ]
+    },
+    {
+      "key": "luong_thu_viec",
+      "label": "Lương thử việc",
+      "synonyms": [
+        "lương thử việc",
+        "mức lương thử việc"
+      ]
+    },
+    {
+      "key": "phu_cap",
+      "label": "Phụ cấp",
+      "synonyms": [
+        "phụ cấp",
+        "allowance"
+      ]
+    },
+    {
+      "key": "thuong",
+      "label": "Thưởng",
+      "synonyms": [
+        "thưởng",
+        "tiền thưởng",
+        "bonus"
+      ]
+    },
+    {
+      "key": "tong_thu_nhap",
+      "label": "Tổng thu nhập",
+      "synonyms": [
+        "tổng thu nhập",
+        "thu nhập",
+        "tổng lương",
+        "gross"
+      ]
+    },
+    {
+      "key": "thuc_linh",
+      "label": "Thực lĩnh",
+      "synonyms": [
+        "thực lĩnh",
+        "thực nhận",
+        "lương thực nhận",
+        "net"
+      ]
+    },
+    {
+      "key": "so_tai_khoan",
+      "label": "Số tài khoản",
+      "synonyms": [
+        "số tài khoản",
+        "stk",
+        "tài khoản ngân hàng",
+        "account number"
+      ]
+    },
+    {
+      "key": "ngan_hang",
+      "label": "Ngân hàng",
+      "synonyms": [
+        "ngân hàng",
+        "tên ngân hàng",
+        "bank"
+      ]
+    },
+    {
+      "key": "chi_nhanh",
+      "label": "Chi nhánh",
+      "synonyms": [
+        "chi nhánh",
+        "chi nhánh ngân hàng",
+        "branch"
+      ]
+    },
+    {
+      "key": "ma_so_thue",
+      "label": "Mã số thuế",
+      "synonyms": [
+        "mã số thuế",
+        "mst",
+        "tax code"
+      ]
+    },
+    {
+      "key": "so_bhxh",
+      "label": "Số sổ BHXH",
+      "synonyms": [
+        "bhxh",
+        "số bhxh",
+        "sổ bảo hiểm xã hội",
+        "số sổ bhxh"
+      ]
+    },
+    {
+      "key": "thang",
+      "label": "Tháng",
+      "synonyms": [
+        "tháng",
+        "kỳ lương",
+        "month"
+      ]
+    },
+    {
+      "key": "nam",
+      "label": "Năm",
+      "synonyms": [
+        "năm",
+        "year"
+      ]
+    },
+    {
+      "key": "so_tien",
+      "label": "Số tiền",
+      "synonyms": [
+        "số tiền",
+        "amount",
+        "giá trị"
+      ]
+    },
+    {
+      "key": "noi_dung",
+      "label": "Nội dung",
+      "synonyms": [
+        "nội dung",
+        "diễn giải",
+        "ghi chú",
+        "note",
+        "mô tả"
+      ]
+    },
+    {
+      "key": "ten_cong_ty",
+      "label": "Tên công ty",
+      "synonyms": [
+        "tên công ty",
+        "công ty",
+        "company"
+      ]
+    },
+    {
+      "key": "nguoi_ky",
+      "label": "Người ký",
+      "synonyms": [
+        "người ký",
+        "người đại diện",
+        "đại diện công ty"
+      ]
+    }
+  ]
+}
