@@ -327,7 +327,10 @@ describe("long names and report failures", () => {
       total: 1,
       produce: async () => entry(1),
     });
-    await expect(promise).rejects.toMatchObject({ code: "ENAMETOOLONG" });
+    // Linux and macOS say ENAMETOOLONG; Windows reports a path over its limit as ENOENT.
+    await expect(promise).rejects.toMatchObject({
+      code: expect.stringMatching(/^(ENAMETOOLONG|ENOENT)$/),
+    });
     expect(await readdir(folder)).toEqual([]);
   });
 
