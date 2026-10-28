@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: checks (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for package.json
+        id: project
+        shell: bash
+        run: |
+          if [ -f package.json ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-node@v4
+        if: steps.project.outputs.present == 'true'
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install
+        if: steps.project.outputs.present == 'true'
+        run: npm ci
+      - name: Lint
+        if: steps.project.outputs.present == 'true'
+        run: npm run --if-present lint
+      - name: Typecheck
+        if: steps.project.outputs.present == 'true'
+        run: npm run --if-present typecheck
+      - name: Test
+        if: steps.project.outputs.present == 'true'
+        run: npm run --if-present test
+
+  # Single stable check name for the branch protection rule on main.
+  ci:
+    name: ci
+    if: always()
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all checks to pass
+        run: |
+          if [ "${{ needs.checks.result }}" != "success" ]; then
+            echo "checks result: ${{ needs.checks.result }}"
+            exit 1
+          fi
