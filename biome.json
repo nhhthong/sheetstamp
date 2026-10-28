@@ -1,0 +1,20 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.3/schema.json",
+  "files": {
+    "includes": [
+      "**",
+      "!**/out",
+      "!**/dist",
+      "!**/release",
+      "!**/node_modules",
+      "!**/prototypes",
+      "!**/.claude",
+      "!**/.work",
+      "!**/data",
+      "!**/test-results",
+      "!**/playwright-report"
+    ]
+  },
+  "formatter": { "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },
+  "linter": { "enabled": true, "rules": { "preset": "none" } }
+}

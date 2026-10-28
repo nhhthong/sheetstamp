@@ -40,6 +40,19 @@ jobs:
       - name: Test
         if: steps.project.outputs.present == 'true'
         run: npm run --if-present test
+      - name: Build
+        if: steps.project.outputs.present == 'true'
+        run: npm run --if-present build
+      - name: Smoke test (Linux)
+        if: steps.project.outputs.present == 'true' && runner.os == 'Linux'
+        run: xvfb-run -a npm run --if-present test:e2e
+      - name: Smoke test (Windows)
+        if: steps.project.outputs.present == 'true' && runner.os == 'Windows'
+        run: npm run --if-present test:e2e
+      - name: Audit (report only)
+        if: steps.project.outputs.present == 'true'
+        continue-on-error: true
+        run: npm audit --omit=dev
 
   # Single stable check name for the branch protection rule on main.
   ci:
