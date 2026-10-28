@@ -82,4 +82,4 @@ Single-context. See `docs/agents/domain.md`.
 
 ### Workflow
 
-Delivery: commit on the current branch; notes in-repo. See `docs/agents/workflow.md`.
+Delivery: one branch and pull request per ticket; notes in-repo. See `docs/agents/workflow.md`.

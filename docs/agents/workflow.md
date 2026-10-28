@@ -9,14 +9,14 @@ How work is delivered in this repo, and where memory lives. Skills read this fil
 
 ## Delivery
 
-- **Delivery**: `commit`. `commit` means the work goes onto the current branch. `pr` means a branch and a pull request.
+- **Delivery**: `pr`. `commit` means the work goes onto the current branch. `pr` means a branch and a pull request.
 - **Git writes**: `hand-off`. Skills do not run `git commit`, `git push` or open a pull request. They print the commit message and the exact commands for you to run. Change this to `run` to let skills run the git commands; your `.claude/settings.json` permission rules still apply. A direct request in a session ("commit it") is also honoured for that session.
 - **Tracker and pull request writes**: always printed, even under `Git writes: run`. Skills never run a `gh`, `glab` or tracker command that creates, edits, comments on, labels or closes an issue, or opens, edits or merges a pull or merge request: they print it for the user. Reading (`gh issue view`, `gh pr view`, `gh issue list`) is fine. This line is the single copy of the rule; other files point here.
 - **Review**: `typed`. `implement-ticket` does not stop for review: it names `/dev:review-code <ID>` next to the commit commands, for you to run before committing. Change this to `inline` to let it run the same review itself, against the ticket's `Base:` commit, before delivery.
-- **Branch names**: none stated (solo project; docs/specification.md sets no rule)
-- **Commit messages**: none stated; short imperative subject
-- **PR size cap**: none
-- **PR template**: none
+- **Branch names**: one branch per ticket: `<type>/<issue-number>-<short-description>`, for example `feat/12-template-engine`. `type` is `feat`, `fix`, `chore`, `docs`, `test` or `refactor`.
+- **Commit messages**: Conventional Commits (`feat: ...`, `fix: ...`).
+- **PR size cap**: one ticket per PR; none otherwise
+- **PR template**: none in the repo; the body ends with `Closes #<issue-number>`
 - **Reviewers**: none (single maintainer)
 - **Other rules**: the app identifier `io.github.nhhthong.sheetstamp` is never changed (docs/specification.md section 2). Product decisions live in docs/specification.md; it wins over a skill default.
 - **Always pause**: publishing a release, signing or Store submission, deleting data, a migration on a shared database, a force-push, a deploy, a message to a customer. A skill stops and asks before any of these, even under `Git writes: run`. Add the repo's own items here.
