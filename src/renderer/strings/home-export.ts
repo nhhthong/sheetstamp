@@ -42,12 +42,49 @@ export const homeExport = {
   folderFailed: "Không đọc được thư mục này. Chọn thư mục khác.",
   fixFirst: "Sửa tên file trước khi xuất.",
   export: (n: number) => `Xuất ${n} file`,
+  summary: (n: number) => `${n} file`,
 
+  running: {
+    title: (done: number, total: number) => `Đang tạo file… ${done}/${total}`,
+    barLabel: "Tiến độ tạo file",
+    barText: (done: number, total: number) => `${done} trên ${total} file`,
+    announce: (percent: number) => `Đã xong ${percent}%`,
+    failedSoFar: (k: number) => `${k} dòng bị lỗi cho đến lúc này`,
+    cancel: "Hủy",
+    canceling: "Đang hủy…",
+    keepOpen: "Đừng đóng ứng dụng cho đến khi xong.",
+  },
+
+  canceled: "Đã hủy. Chưa lưu gì cả: không có file ZIP nào được tạo.",
   failed: {
     "invalid-pattern": "Mẫu tên file chưa hợp lệ. Sửa lại rồi xuất.",
     "no-data": "Chưa có dữ liệu. Quay lại bước đầu để mở file dữ liệu.",
     "no-template": "Không tìm thấy mẫu này. Chọn lại mẫu ở bước trước.",
+    busy: "Đang có một đợt xuất khác. Chờ cho xong.",
     "bad-folder": "Không ghi được vào thư mục này. Chọn thư mục khác.",
+    "write-failed": "Không ghi được file ZIP. Kiểm tra chỗ trống của ổ đĩa rồi thử lại.",
     unknown: "Không xuất được file. Thử lại.",
+  },
+
+  done: {
+    title: (n: number) => `Đã tạo ${n} file`,
+    titleNone: "Không tạo được file nào",
+    zipLabel: "File ZIP",
+    open: "Mở thư mục",
+    openFailed: "Không mở được thư mục.",
+    back: "Quay lại",
+    failedRows: (k: number) => `${k} dòng bị lỗi`,
+    failedRowsHint: "Các dòng này không được xuất. Báo cáo chỉ có số dòng và mã lỗi.",
+    report: "Xem báo cáo lỗi",
+    newBatch: "Tạo đợt mới",
+    summary: (n: number, k: number) =>
+      k > 0 ? `Đã tạo ${n} file, ${k} dòng lỗi` : `Đã tạo ${n} file`,
+  },
+
+  closeDialog: {
+    title: "Đang tạo file",
+    message: "Đang tạo file. Đóng ứng dụng bây giờ sẽ hủy và không lưu gì cả.",
+    stay: "Ở lại",
+    close: "Hủy và đóng",
   },
 } as const;

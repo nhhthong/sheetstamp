@@ -21,6 +21,7 @@ let work: string;
 let dataDir: string;
 let out: string;
 let csv: string;
+let big: string;
 let docx: string;
 let templateId: string;
 
@@ -33,6 +34,11 @@ test.beforeAll(async () => {
   mkdirSync(out, { recursive: true });
   csv = join(work, "nhan-vien.csv");
   writeCsv1258(csv, [HEADER, ...PEOPLE]);
+  big = join(work, "lon.csv");
+  writeCsv1258(big, [
+    HEADER,
+    ...Array.from({ length: 4000 }, (_, i) => [`Người số ${i + 1}`, "Nhân viên", `Phòng ${i % 7}`]),
+  ]);
   docx = join(work, "mau.docx");
   await writeTemplate(docx);
   templateId = await seedTemplate(dataDir, docx);
@@ -179,4 +185,100 @@ test("T-22: a stored pattern with an unknown field opens the editor with the pro
   await expect(exportButton(page)).toBeEnabled();
   await app.close();
   await storage.updateTemplate(templateId, { filenamePattern: "{{ho_ten}}" });
+});
+
+const stray = async (folder: string) =>
+  (await readdir(folder)).filter((name) => name.endsWith(".tmp") || name.startsWith(".sheetstamp"));
+
+test("T-23: closing the window during an export asks first; closing at any other time does not", async () => {
+  const closeOut = join(work, "out-close");
+  mkdirSync(closeOut, { recursive: true });
+  const app = await launch(dataDir);
+  const page = await app.firstWindow();
+  await toStepExport(app, page, big);
+  await answerDialog(app, closeOut);
+  await page.getByRole("button", { name: "Đổi thư mục lưu" }).click();
+  await expect(page.getByTestId("export-folder")).toHaveText(closeOut);
+
+  // Not exporting: the window closes without any question (the box is rigged to fail the test if it appears).
+  await app.evaluate(({ dialog }) => {
+    const asked: unknown[] = [];
+    (globalThis as unknown as { __asked: unknown[] }).__asked = asked;
+    dialog.showMessageBox = (async (...args: unknown[]) => {
+      asked.push(args);
+      return { response: 0, checkboxChecked: false };
+    }) as never;
+  });
+  const asked = () =>
+    app.evaluate(() => (globalThis as unknown as { __asked: unknown[] }).__asked.length);
+
+  await exportButton(page, 4000).click();
+  await expect(page.getByTestId("export-progress-text")).toHaveText(
+    /^Đang tạo file… [1-9]\d*\/4000$/,
+  );
+
+  // "Ở lại": the box is shown once, the export goes on.
+  await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.close());
+  await expect.poll(asked).toBe(1);
+  expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length)).toBe(1);
+  await expect(page.getByTestId("export-running")).toBeVisible();
+  const before = await page.getByTestId("export-progress-text").textContent();
+  await expect(page.getByTestId("export-progress-text")).not.toHaveText(before ?? "");
+
+  // "Hủy và đóng": the export is cancelled, nothing is left in the folder, and the app closes.
+  await app.evaluate(({ dialog }) => {
+    dialog.showMessageBox = (async () => ({ response: 1, checkboxChecked: false })) as never;
+  });
+  const closed = app.waitForEvent("close");
+  await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.close());
+  await closed;
+  expect(await readdir(closeOut)).toEqual([]);
+});
+
+test("T-23: with no export running the window closes without asking", async () => {
+  const app = await launch(dataDir);
+  const page = await app.firstWindow();
+  await toStepExport(app, page, csv);
+  await app.evaluate(({ dialog }) => {
+    dialog.showMessageBox = (async () => {
+      throw new Error("The close box must not appear when nothing is exporting");
+    }) as never;
+  });
+  const closed = app.waitForEvent("close");
+  await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.close());
+  await closed;
+});
+
+test("T-23: while exporting the step stays active and a second start is refused", async () => {
+  const runOut = join(work, "out-run");
+  mkdirSync(runOut, { recursive: true });
+  const app = await launch(dataDir);
+  const page = await app.firstWindow();
+  await toStepExport(app, page, big);
+  await answerDialog(app, runOut);
+  await page.getByRole("button", { name: "Đổi thư mục lưu" }).click();
+  await exportButton(page, 4000).click();
+  await expect(page.getByTestId("export-running")).toBeVisible();
+  // The primary button is gone while exporting; every "Đổi" of the earlier steps bounces back.
+  await expect(exportButton(page, 4000)).toHaveCount(0);
+  for (const name of ["Dữ liệu", "Mẫu", "Ghép cột"]) {
+    await page.getByRole("button", { name: `Đổi: ${name}` }).click();
+    await expect(step(page, "export")).toHaveAttribute("data-status", "active");
+  }
+  // Main refuses a second start even if the page asks for one.
+  const second = await page.evaluate(
+    ([id]) =>
+      (
+        window as unknown as { sheetstamp: { invoke: (c: string, r: unknown) => Promise<unknown> } }
+      ).sheetstamp.invoke("export:start", {
+        templateId: id,
+        pattern: "{{ho_ten}}",
+        removeDiacritics: false,
+      }),
+    [templateId],
+  );
+  expect(second).toEqual({ ok: false, code: "busy" });
+  await expect(page.getByTestId("done-title")).toHaveText("Đã tạo 4000 file", { timeout: 60_000 });
+  expect(await stray(runOut)).toEqual([]);
+  await app.close();
 });

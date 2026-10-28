@@ -12,8 +12,11 @@ import { Button } from "../../components/ui/button";
 import { Status } from "../../components/ui/status";
 import { call } from "../../lib/ipc";
 import { homeExport as t } from "../../strings/home-export";
+import { ExportFinished } from "./export-done";
 import { ExportEditor } from "./export-editor";
 import { type Chip, chipsOf, patternOf } from "./export-pattern";
+import { ExportProgress } from "./export-progress";
+import { exportRun, inputsKey, useExportRun } from "./export-run";
 import { flow } from "./flow";
 import { StepFooter } from "./Stepper";
 
@@ -22,15 +25,13 @@ type Load =
   | { kind: "failed"; code: string }
   | { kind: "ready"; view: ExportView };
 
-/** The pattern being edited, kept while the user leaves the step and comes back. */
-let draft: { templateId: string; chips: Chip[]; removeDiacritics: boolean } | undefined;
-
 /**
- * Step 4, Xuất file (options). Main reads the data, the stored mapping and the template; this component edits the
- * filename pattern and shows what main says the first name will be. The export itself comes with T-23.
+ * Step 4, Xuất file. Main reads the data, the stored mapping and the template and writes the ZIP; this component
+ * edits the filename pattern, shows what main says the first name will be, and drives the run store.
  */
 export function StepExport() {
   const templateId = flow.result<{ templateId: string }>("template")?.templateId ?? null;
+  const run = useExportRun();
   const [load, setLoad] = useState<Load>({ kind: "loading" });
 
   const start = useCallback(async () => {
@@ -50,6 +51,16 @@ export function StepExport() {
     void start();
   }, [start]);
 
+  // A finished export belongs to the data, template and mapping it used; when one of them changed, start over.
+  useEffect(() => {
+    if (run.kind === "finished" && run.inputs !== inputsKey()) exportRun.dismiss();
+  }, [run]);
+
+  if (run.kind === "running") return <ExportProgress run={run} />;
+  if (run.kind === "finished" && run.inputs === inputsKey()) {
+    return <ExportFinished result={run.result} onBack={() => exportRun.dismiss()} />;
+  }
+
   if (load.kind === "loading") return <p className="text-muted">{t.loading}</p>;
   if (load.kind === "failed" || !templateId) {
     const code = load.kind === "failed" ? load.code : "no-template";
@@ -64,10 +75,19 @@ export function StepExport() {
       </div>
     );
   }
-  return <Options templateId={templateId} view={load.view} />;
+  return <Options templateId={templateId} view={load.view} run={run} />;
 }
 
-function Options({ templateId, view }: { templateId: string; view: ExportView }) {
+function Options({
+  templateId,
+  view,
+  run,
+}: {
+  templateId: string;
+  view: ExportView;
+  run: ReturnType<typeof useExportRun>;
+}) {
+  const draft = exportRun.draft();
   const resumed = draft?.templateId === templateId ? draft : undefined;
   const [chips, setChips] = useState<Chip[]>(resumed?.chips ?? chipsOf(view.pattern));
   const [removeDiacritics, setRemoveDiacritics] = useState(view.removeDiacritics);
@@ -94,7 +114,7 @@ function Options({ templateId, view }: { templateId: string; view: ExportView })
   }, [templateId, pattern, removeDiacritics]);
 
   useEffect(() => {
-    draft = { templateId, chips, removeDiacritics };
+    exportRun.setDraft({ templateId, chips, removeDiacritics });
   }, [templateId, chips, removeDiacritics]);
 
   // With a problem the editor opens by itself, so the message and the fix are in front of the user.
@@ -131,6 +151,9 @@ function Options({ templateId, view }: { templateId: string; view: ExportView })
 
   return (
     <div className="flex flex-col gap-4">
+      {run.kind === "canceled" ? <Status kind="info">{t.canceled}</Status> : null}
+      {run.kind === "failed" ? <Status kind="danger">{t.failed[run.code]}</Status> : null}
+
       <dl className="m-0 grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-3">
         <dt className="font-semibold">{t.fileName}</dt>
         <dd className="m-0 min-w-0 break-all" data-testid="file-example">
@@ -168,6 +191,9 @@ function Options({ templateId, view }: { templateId: string; view: ExportView })
           size="lg"
           disabled={invalid}
           aria-describedby={invalid ? "export-blocked" : undefined}
+          onClick={() =>
+            void exportRun.start({ templateId, pattern, removeDiacritics }, view.rowCount)
+          }
         >
           {t.export(view.rowCount)}
         </Button>

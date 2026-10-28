@@ -1,6 +1,16 @@
-// IPC channels of the "export" feature (Home step 4, options). Handlers: src/main/ipc/export.ts, logic: src/main/export-session.
+// IPC channels of the "export" feature (Home step 4). Handlers: src/main/ipc/export.ts, logic: src/main/export-session.
 // Nothing here carries a cell of the data: names are built and files written in main.
-import { type Channel, channel, IpcValidationError, nothing, record, string } from "./define";
+import {
+  type Channel,
+  channel,
+  type EventChannel,
+  eventChannel,
+  IpcValidationError,
+  nothing,
+  oneOf,
+  record,
+  string,
+} from "./define";
 
 /** What `validatePattern` found, as plain data. The renderer words it in Vietnamese. */
 export type PatternProblemView =
@@ -12,7 +22,9 @@ export const FAILURE_CODES = [
   "invalid-pattern",
   "no-data",
   "no-template",
+  "busy",
   "bad-folder",
+  "write-failed",
   "unknown",
 ] as const;
 export type FailureCode = (typeof FAILURE_CODES)[number];
@@ -87,5 +99,51 @@ export const savePattern: Channel<{ templateId: string; pattern: string }, Saved
   (value) => ({ templateId: idOf(value), pattern: patternOf(value) }),
 );
 
-export const channels = [openExport, example, pickFolder, setDiacritics, savePattern] as const;
-export const events = [] as const;
+export type ExportDone = {
+  zipPath: string | null;
+  written: number;
+  failed: number;
+  /** Whether a CSV error report exists next to the ZIP. */
+  hasReport: boolean;
+};
+
+export type StartResult =
+  | { ok: true; done: ExportDone }
+  | { ok: false; canceled: true }
+  | { ok: false; canceled?: false; code: FailureCode };
+
+/**
+ * Generate every row and write the ZIP. The call returns when the export ends. The data, the mapping and the
+ * folder are read in main; the request only carries what the user typed (the pattern and the option).
+ */
+export const start: Channel<ExampleRequest, StartResult> = channel("export:start", (value) => ({
+  templateId: idOf(value),
+  pattern: patternOf(value),
+  removeDiacritics: flagOf(value),
+}));
+
+/** Stop the running export. Nothing is saved: no ZIP, no temporary file. */
+export const cancel: Channel<undefined, void> = channel("export:cancel", nothing);
+
+/** Show the ZIP or the error report of the last export in the file manager, selected. The path never comes from the renderer. */
+export const reveal: Channel<{ what: "zip" | "report" }, { ok: boolean }> = channel(
+  "export:reveal",
+  (value) => ({ what: oneOf(record(value).what, "what", ["zip", "report"] as const) }),
+);
+
+export type ExportProgress = { done: number; total: number; failed: number };
+
+/** At most about ten a second, however many rows there are. */
+export const progress: EventChannel<ExportProgress> = eventChannel("export:progress");
+
+export const channels = [
+  openExport,
+  example,
+  pickFolder,
+  setDiacritics,
+  savePattern,
+  start,
+  cancel,
+  reveal,
+] as const;
+export const events = [progress] as const;

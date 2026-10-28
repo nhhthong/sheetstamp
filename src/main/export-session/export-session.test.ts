@@ -1,12 +1,64 @@
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { ExportProgress } from "../../shared/ipc/export";
 import type { DataTable } from "../data";
+import type { BatchRequest } from "../export/batch";
+import { ExportCancelledError, type ExportResult } from "../export/zip";
 import { makeDocx, paragraph, run } from "../selftest/make-docx";
 import { openStorage, type Storage } from "../storage";
 import { buildRows, hasUnwritableCharacter } from "./rows";
 import { ExportSession, effectivePattern, type SessionDeps, zipNameFor } from "./session";
+import { throttle } from "./throttle";
+
+describe("throttle", () => {
+  it("lets the first call through and holds the rest of the same interval", () => {
+    let t = 0;
+    const seen: number[] = [];
+    const send = throttle(
+      (v: number) => seen.push(v),
+      100,
+      () => t,
+    );
+    for (let i = 0; i < 4000; i++) send(i);
+    expect(seen).toEqual([0]);
+    t = 100;
+    send(4000);
+    expect(seen).toEqual([0, 4000]);
+  });
+
+  it("sends about ten a second for 4,000 rows spread over ten seconds", () => {
+    let t = 0;
+    let count = 0;
+    const send = throttle(
+      () => count++,
+      100,
+      () => t,
+    );
+    for (let i = 0; i < 4000; i++) {
+      t = i * 2.5;
+      send(i);
+    }
+    expect(count).toBeGreaterThanOrEqual(95);
+    expect(count).toBeLessThanOrEqual(101);
+  });
+
+  it("flush sends the held value once", () => {
+    let t = 0;
+    const seen: number[] = [];
+    const send = throttle(
+      (v: number) => seen.push(v),
+      100,
+      () => t,
+    );
+    send(1);
+    send(2);
+    send.flush();
+    send.flush();
+    expect(seen).toEqual([1, 2]);
+  });
+});
 
 const table: DataTable = {
   fileName: "x.csv",
@@ -92,11 +144,21 @@ describe("ExportSession", () => {
   let storage: Storage;
   let templateId: string;
   let current: DataTable | undefined;
+  let requests: BatchRequest[];
+  let progress: ExportProgress[];
+  let gate: Promise<void> | undefined;
+  let behaviour: (request: BatchRequest) => Promise<ExportResult>;
 
   const deps = (): SessionDeps => ({
     storage: async () => storage,
     table: () => current,
+    run: async (request) => {
+      requests.push(request);
+      if (gate) await gate;
+      return behaviour(request);
+    },
     defaultFolder: () => join(dir, "documents"),
+    onProgress: (p) => progress.push(p),
     now: () => new Date(2026, 9, 28),
   });
 
@@ -121,6 +183,14 @@ describe("ExportSession", () => {
     });
     templateId = made.id;
     current = { ...table, rows: table.rows.slice(0, 2) };
+    requests = [];
+    progress = [];
+    gate = undefined;
+    behaviour = async (request) => ({
+      zipPath: join(request.folder, request.zipName),
+      written: request.rows.length,
+      failed: [],
+    });
   });
 
   afterEach(async () => {
@@ -200,5 +270,203 @@ describe("ExportSession", () => {
     expect(await session.folder()).toBe(dir);
     await rm(dir, { recursive: true, force: true });
     expect(await session.folder()).toBe(join(dir, "documents"));
+  });
+
+  it("runs the batch with the mapped rows, the stored template and the dated ZIP name, then marks the template used", async () => {
+    const session = new ExportSession(deps());
+    const result = await session.start({
+      templateId,
+      pattern: "{{ho_ten}}",
+      removeDiacritics: true,
+    });
+    expect(result).toEqual({
+      ok: true,
+      done: {
+        zipPath: join(dir, "documents", "Giấy xác nhận 2026-10-28.zip"),
+        written: 2,
+        failed: 0,
+        hasReport: false,
+      },
+    });
+    const [request] = requests;
+    expect(request?.rows).toEqual([
+      { rowNumber: 1, values: { ho_ten: "Nguyễn Văn An", chuc_vu: "Kế toán" } },
+      { rowNumber: 2, values: { ho_ten: "Trần Thị Bình", chuc_vu: "" } },
+    ]);
+    expect(request).toMatchObject({
+      pattern: "{{ho_ten}}",
+      extension: ".docx",
+      removeDiacritics: true,
+      folder: join(dir, "documents"),
+      zipName: "Giấy xác nhận 2026-10-28.zip",
+    });
+    expect(request?.init.kind).toBe("word");
+    expect(request?.signal).toBeInstanceOf(AbortSignal);
+    expect(progress[0]).toEqual({ done: 0, total: 2, failed: 0 });
+    const stored = await storage.getTemplate(templateId);
+    expect(stored?.lastUsedAt).not.toBeNull();
+    expect((await storage.getChoices()).lastOutputFolder).toBe(join(dir, "documents"));
+    expect(session.pathToReveal("zip")).toBe(
+      join(dir, "documents", "Giấy xác nhận 2026-10-28.zip"),
+    );
+  });
+
+  it("refuses an invalid pattern, no data and an unknown template before any work", async () => {
+    const session = new ExportSession(deps());
+    expect(await session.start({ templateId, pattern: "{{x}}", removeDiacritics: false })).toEqual({
+      ok: false,
+      code: "invalid-pattern",
+    });
+    expect(
+      await session.start({ templateId: "nope", pattern: "{{ho_ten}}", removeDiacritics: false }),
+    ).toEqual({
+      ok: false,
+      code: "no-template",
+    });
+    current = undefined;
+    expect(
+      await session.start({ templateId, pattern: "{{ho_ten}}", removeDiacritics: false }),
+    ).toEqual({
+      ok: false,
+      code: "no-data",
+    });
+    expect(requests).toEqual([]);
+    expect(session.running).toBe(false);
+  });
+
+  it("refuses a second start while one runs, then accepts one", async () => {
+    let release = () => {};
+    gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const session = new ExportSession(deps());
+    const first = session.start({ templateId, pattern: "{{ho_ten}}", removeDiacritics: false });
+    const second = await session.start({
+      templateId,
+      pattern: "{{ho_ten}}",
+      removeDiacritics: false,
+    });
+    expect(second).toEqual({ ok: false, code: "busy" });
+    expect(session.running).toBe(true);
+    release();
+    expect((await first).ok).toBe(true);
+    expect(session.running).toBe(false);
+    gate = undefined;
+    expect(
+      (await session.start({ templateId, pattern: "{{ho_ten}}", removeDiacritics: false })).ok,
+    ).toBe(true);
+  });
+
+  it("copies the rows at the start: a data or mapping change during the run does not reach it", async () => {
+    let release = () => {};
+    gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const session = new ExportSession(deps());
+    const running = session.start({ templateId, pattern: "{{ho_ten}}", removeDiacritics: false });
+    await vi.waitFor(() => expect(requests).toHaveLength(1));
+    const taken = requests[0]?.rows.map((r) => ({ ...r.values }));
+    current = { ...table, rows: [["Người Khác", "x"]] };
+    await storage.updateTemplate(templateId, { mapping: {} });
+    release();
+    await running;
+    expect(requests[0]?.rows.map((r) => r.values)).toEqual(taken);
+    expect(requests[0]?.rows).toHaveLength(2);
+  });
+
+  it("cancel aborts the batch signal and the result is canceled, with the session free again", async () => {
+    gate = undefined;
+    behaviour = (request) =>
+      new Promise((_resolve, reject) => {
+        request.signal?.addEventListener("abort", () => reject(new ExportCancelledError()));
+      });
+    const session = new ExportSession(deps());
+    const running = session.start({ templateId, pattern: "{{ho_ten}}", removeDiacritics: false });
+    await vi.waitFor(() => expect(requests).toHaveLength(1));
+    session.cancel();
+    expect(await running).toEqual({ ok: false, canceled: true });
+    await session.settled();
+    expect(session.running).toBe(false);
+    expect((await storage.getTemplate(templateId))?.lastUsedAt).toBeNull();
+    expect(session.pathToReveal("zip")).toBeNull();
+  });
+
+  it("maps a disk problem to a code and keeps the session usable", async () => {
+    behaviour = async () => {
+      throw Object.assign(new Error("full"), { code: "ENOSPC" });
+    };
+    const session = new ExportSession(deps());
+    expect(
+      await session.start({ templateId, pattern: "{{ho_ten}}", removeDiacritics: false }),
+    ).toEqual({
+      ok: false,
+      code: "write-failed",
+    });
+    behaviour = async () => {
+      throw Object.assign(new Error("denied"), { code: "EACCES" });
+    };
+    expect(
+      await session.start({ templateId, pattern: "{{ho_ten}}", removeDiacritics: false }),
+    ).toEqual({
+      ok: false,
+      code: "bad-folder",
+    });
+  });
+
+  it("reports failed rows and the report, and drops an empty ZIP", async () => {
+    behaviour = async (request) => ({
+      zipPath: join(request.folder, request.zipName),
+      written: 1,
+      failed: [{ row: 2, code: "missing-tag" }],
+      reportPath: join(request.folder, "r-errors.csv"),
+    });
+    const session = new ExportSession(deps());
+    expect(
+      await session.start({ templateId, pattern: "{{ho_ten}}", removeDiacritics: false }),
+    ).toMatchObject({
+      ok: true,
+      done: { written: 1, failed: 1, hasReport: true },
+    });
+    expect(session.pathToReveal("report")).toBe(join(dir, "documents", "r-errors.csv"));
+
+    const empty = join(dir, "documents", "empty.zip");
+    await writeFile(empty, "");
+    behaviour = async (request) => ({
+      zipPath: empty,
+      written: 0,
+      failed: [
+        { row: 1, code: "missing-tag" },
+        { row: 2, code: "missing-tag" },
+      ],
+      reportPath: join(request.folder, "e-errors.csv"),
+    });
+    const none = await session.start({
+      templateId,
+      pattern: "{{ho_ten}}",
+      removeDiacritics: false,
+    });
+    expect(none).toMatchObject({ ok: true, done: { zipPath: null, written: 0, failed: 2 } });
+    const { existsSync } = await import("node:fs");
+    expect(existsSync(empty)).toBe(false);
+  });
+
+  it("a 4,000-row progress storm reaches the renderer at about ten a second", async () => {
+    vi.useFakeTimers();
+    try {
+      current = { ...table, rows: Array.from({ length: 4000 }, () => ["A", "B"]) };
+      behaviour = async (request) => {
+        for (let i = 1; i <= 4000; i++) {
+          vi.setSystemTime(Date.now() + 2.5);
+          request.onProgress?.({ done: i, total: 4000, failed: 0 });
+        }
+        return { zipPath: join(request.folder, request.zipName), written: 4000, failed: [] };
+      };
+      const session = new ExportSession(deps());
+      await session.start({ templateId, pattern: "{{ho_ten}}", removeDiacritics: false });
+      expect(progress.length).toBeGreaterThan(80);
+      expect(progress.length).toBeLessThan(110);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
