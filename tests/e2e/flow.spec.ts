@@ -133,10 +133,13 @@ test("the whole flow: data, template, mapping, file name, folder, export, ZIP an
   const tenth = await zip.file(Object.keys(zip.files)[9] as string)?.async("uint8array");
   expect(await textOf(tenth as Uint8Array, "word/document.xml")).toContain("Họ tên: Trần Thị Bình");
 
+  // The failed row is explained by its real cause (a hidden control character), not as a missing tag.
+  await expect(page.getByTestId("invalid-value-hint")).toContainText("1 dòng có ô chứa ký tự");
+
   // The error report names only the bad row (data row 5) and has no source data.
   const reportPath = zipPath.replace(/\.zip$/, "-errors.csv");
   const report = await readFile(reportPath, "utf8");
-  expect(report).toBe("row,error_code\r\n5,missing-tag\r\n");
+  expect(report).toBe("row,error_code\r\n5,invalid-value\r\n");
   for (const [name, title, department] of PEOPLE) {
     for (const value of [name, title, department]) {
       expect(report).not.toContain(value?.replace("\u0001", "") ?? "?");
@@ -202,7 +205,10 @@ test("cancelling in the middle leaves no ZIP, no report and no temporary file", 
   expect((await stray(cancelOut)).length).toBe(1);
   await page.getByRole("button", { name: "Hủy" }).click();
 
-  await expect(page.getByText(/Chưa lưu gì cả/)).toBeVisible({ timeout: 30_000 });
+  const notice = page.getByRole("alert").filter({ hasText: /Chưa lưu gì cả/ });
+  await expect(notice).toBeVisible({ timeout: 30_000 });
+  // "Hủy" has gone: focus moved to the notice (an alert, so it is announced), not to the page body.
+  await expect(notice).toBeFocused();
   await expect(page.getByRole("button", { name: "Xuất 4000 file" })).toBeVisible();
   await shoot(page, "flow", "canceled");
   expect(await readdir(cancelOut)).toEqual([]);

@@ -16,7 +16,7 @@ import { ExportFinished } from "./export-done";
 import { ExportEditor } from "./export-editor";
 import { type Chip, chipsOf, patternOf } from "./export-pattern";
 import { ExportProgress } from "./export-progress";
-import { exportRun, inputsKey, useExportRun } from "./export-run";
+import { exportRun, inputsKey, useExportRun, viewVersion } from "./export-run";
 import { flow } from "./flow";
 import { StepFooter } from "./Stepper";
 
@@ -87,10 +87,13 @@ function Options({
   view: ExportView;
   run: ReturnType<typeof useExportRun>;
 }) {
-  const draft = exportRun.draft();
-  const resumed = draft?.templateId === templateId ? draft : undefined;
+  const version = viewVersion(view);
+  // Resume the unsaved pattern only if the template's saved pattern and fields are still what it began from.
+  const [resumed] = useState(() => exportRun.resume(templateId, version));
   const [chips, setChips] = useState<Chip[]>(resumed?.chips ?? chipsOf(view.pattern));
-  const [removeDiacritics, setRemoveDiacritics] = useState(view.removeDiacritics);
+  const [removeDiacritics, setRemoveDiacritics] = useState(
+    resumed?.removeDiacritics ?? view.removeDiacritics,
+  );
   const [folder, setFolder] = useState(view.folder);
   const [folderError, setFolderError] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -114,8 +117,8 @@ function Options({
   }, [templateId, pattern, removeDiacritics]);
 
   useEffect(() => {
-    exportRun.setDraft({ templateId, chips, removeDiacritics });
-  }, [templateId, chips, removeDiacritics]);
+    exportRun.setDraft({ templateId, version, chips, removeDiacritics });
+  }, [templateId, version, chips, removeDiacritics]);
 
   // With a problem the editor opens by itself, so the message and the fix are in front of the user.
   const invalid = problems.length > 0;
@@ -151,8 +154,16 @@ function Options({
 
   return (
     <div className="flex flex-col gap-4">
-      {run.kind === "canceled" ? <Status kind="info">{t.canceled}</Status> : null}
-      {run.kind === "failed" ? <Status kind="danger">{t.failed[run.code]}</Status> : null}
+      {run.kind === "canceled" ? (
+        <Status kind="info" alert focusOnMount>
+          {t.canceled}
+        </Status>
+      ) : null}
+      {run.kind === "failed" ? (
+        <Status kind="danger" focusOnMount>
+          {t.failed[run.code]}
+        </Status>
+      ) : null}
 
       <dl className="m-0 grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-3">
         <dt className="font-semibold">{t.fileName}</dt>

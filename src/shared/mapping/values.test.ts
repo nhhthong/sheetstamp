@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countUnresolved, isResolved, rowValues } from "./mapping-values";
+import { countUnresolved, isResolved, rowValues } from "./values";
 
 const columns = ["Họ tên", "Lý do"];
 

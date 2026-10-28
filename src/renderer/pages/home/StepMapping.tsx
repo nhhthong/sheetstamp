@@ -6,6 +6,7 @@ import {
   openMapping,
   setEntry,
 } from "../../../shared/ipc/mapping";
+import { countUnresolved, type Entries } from "../../../shared/mapping/values";
 import { Button } from "../../components/ui/button";
 import { Status } from "../../components/ui/status";
 import { call } from "../../lib/ipc";
@@ -14,7 +15,6 @@ import { flow } from "./flow";
 import { FieldRow } from "./mapping-field-row";
 import { MappingPreview } from "./mapping-preview";
 import { markMappingDone, watchMappingInputs } from "./mapping-stale";
-import { countUnresolved, type Entries } from "./mapping-values";
 import { StepFooter } from "./Stepper";
 
 watchMappingInputs();

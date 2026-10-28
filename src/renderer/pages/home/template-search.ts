@@ -1,17 +1,12 @@
 import type { TemplateSummary } from "../../../shared/ipc/templates";
+import { stripDiacritics } from "../../../shared/text/diacritics";
 
 /**
  * Lowercase text without diacritics. Decomposes (NFD) and drops combining marks, so "Hợp" is "hop" whether it
  * was typed precomposed or with combining marks; đ and Đ become d (they are letters, not marks, so NFD keeps them).
  */
 export function fold(text: string): string {
-  return text
-    .normalize("NFD")
-    .replace(/\p{M}+/gu, "")
-    .replace(/đ/gi, "d")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
+  return stripDiacritics(text).toLowerCase().replace(/\s+/g, " ").trim();
 }
 
 export type RankedTemplate = TemplateSummary & { matched: number; total: number };

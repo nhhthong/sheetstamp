@@ -1,4 +1,4 @@
-/** Vietnamese strings of Home step 4 (Xuất file). Main imports the close-window dialog text from here too. */
+/** Vietnamese strings of Home step 4 (Xuất file). The close-window dialog text lives in src/shared/messages/export.ts. */
 export const homeExport = {
   loading: "Đang chuẩn bị…",
   loadError: "Không mở được bước xuất file.",
@@ -42,7 +42,6 @@ export const homeExport = {
   folderFailed: "Không đọc được thư mục này. Chọn thư mục khác.",
   fixFirst: "Sửa tên file trước khi xuất.",
   export: (n: number) => `Xuất ${n} file`,
-  summary: (n: number) => `${n} file`,
 
   running: {
     title: (done: number, total: number) => `Đang tạo file… ${done}/${total}`,
@@ -75,16 +74,10 @@ export const homeExport = {
     back: "Quay lại",
     failedRows: (k: number) => `${k} dòng bị lỗi`,
     failedRowsHint: "Các dòng này không được xuất. Báo cáo chỉ có số dòng và mã lỗi.",
+    invalidValueHint: (k: number) =>
+      `${k} dòng có ô chứa ký tự mà Word không lưu được (ký tự điều khiển ẩn). Sửa ô đó trong file dữ liệu rồi xuất lại.`,
+    reportFailed: "Không ghi được báo cáo lỗi, nhưng file ZIP đã xong.",
     report: "Xem báo cáo lỗi",
     newBatch: "Tạo đợt mới",
-    summary: (n: number, k: number) =>
-      k > 0 ? `Đã tạo ${n} file, ${k} dòng lỗi` : `Đã tạo ${n} file`,
-  },
-
-  closeDialog: {
-    title: "Đang tạo file",
-    message: "Đang tạo file. Đóng ứng dụng bây giờ sẽ hủy và không lưu gì cả.",
-    stay: "Ở lại",
-    close: "Hủy và đóng",
   },
 } as const;

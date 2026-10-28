@@ -1,10 +1,10 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { type FieldMapping, MAX_FIXED_TEXT } from "../../../shared/ipc/mapping";
+import { isResolved } from "../../../shared/mapping/values";
 import { Input, Select } from "../../components/ui/input";
 import { Status } from "../../components/ui/status";
 import { cn } from "../../lib/cn";
 import { homeMapping as t } from "../../strings/home-mapping";
-import { isResolved } from "./mapping-values";
 
 /** Typing fixed text updates the preview and the saved mapping after this pause (and when the box loses focus). */
 export const FIXED_TEXT_DELAY_MS = 250;

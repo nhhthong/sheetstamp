@@ -1,9 +1,15 @@
 // The row values of a whole table, built with the same function the Step 3 preview uses (`rowValues`).
-import { rowValues } from "../../renderer/pages/home/mapping-values";
+
 import type { FieldMapping } from "../../shared/ipc/mapping";
+import { rowValues } from "../../shared/mapping/values";
 import type { DataTable } from "../data";
 
-export type ExportRow = { rowNumber: number; values: Record<string, string> };
+export type ExportRow = {
+  rowNumber: number;
+  values: Record<string, string>;
+  /** A value the Word file cannot hold: the row is reported as `invalid-value` and never made. */
+  invalid?: true;
+};
 
 // Characters XML 1.0 cannot hold: controls other than tab, line feed and carriage return, lone surrogates, U+FFFE and
 // U+FFFF. The Word engine writes them as they are, which makes Word call the file corrupt.
@@ -28,8 +34,9 @@ export function hasUnwritableCharacter(text: string): boolean {
 /**
  * One entry per data row, `rowNumber` counting from 1 (the same number as the "Dòng 3/12" pager and the error report).
  *  - a mapped cell that is empty gives "" and the row is exported;
- *  - a tag with no usable value (no mapping, a column that is not in the data, or a cell the Word file cannot hold)
- *    is left out of `values`, so the worker fails that row with `missing-tag` and it is reported, not exported.
+ *  - a tag with no value (no mapping, or a column that is not in the data) is left out of `values`, so the worker
+ *    fails that row with `missing-tag`;
+ *  - a cell the Word file cannot hold marks the row `invalid`, reported as `invalid-value` (another cause, another fix).
  */
 export function buildRows(
   table: DataTable,
@@ -38,9 +45,8 @@ export function buildRows(
 ): ExportRow[] {
   return table.rows.map((cells, index) => {
     const { values } = rowValues(keys, entries, table.columns, cells);
-    for (const [key, value] of Object.entries(values)) {
-      if (hasUnwritableCharacter(value)) delete values[key];
-    }
-    return { rowNumber: index + 1, values };
+    const row: ExportRow = { rowNumber: index + 1, values };
+    if (Object.values(values).some(hasUnwritableCharacter)) row.invalid = true;
+    return row;
   });
 }

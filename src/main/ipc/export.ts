@@ -1,6 +1,5 @@
 // Handlers of the "export" channels declared in src/shared/ipc/export.ts. Use `handle(channel, fn)` from ./define.
 import { app, BrowserWindow, dialog, type OpenDialogOptions, shell } from "electron";
-import { homeExport } from "../../renderer/strings/home-export";
 import {
   cancel,
   example,
@@ -14,6 +13,7 @@ import {
   setDiacritics,
   start,
 } from "../../shared/ipc/export";
+import { exportMessages } from "../../shared/messages/export";
 import { dataSession, getCurrentTable } from "../data-session";
 import { runBatch, workerFileIn } from "../export/batch";
 import { ExportSession } from "../export-session/session";
@@ -30,6 +30,8 @@ export const exportSession = new ExportSession({
   onProgress: (value) => emit(progress, value),
 });
 
+const CLOSE_WAIT_MS = 10_000;
+
 /**
  * Closing the window while files are being made asks first (a native box: the system needs the answer before the
  * window goes). Any other time the window closes at once. "Hủy và đóng" cancels the export, waits until the
@@ -43,7 +45,7 @@ export function guardClose(win: BrowserWindow, session: ExportSession = exportSe
     event.preventDefault();
     if (asking) return;
     asking = true;
-    const text = homeExport.closeDialog;
+    const text = exportMessages.closeDialog;
     void dialog
       .showMessageBox(win, {
         type: "warning",
@@ -57,7 +59,8 @@ export function guardClose(win: BrowserWindow, session: ExportSession = exportSe
       .then(async ({ response }) => {
         if (response !== 1) return;
         session.cancel();
-        await session.settled();
+        // Bounded: a stuck export must not keep the window (and the process) alive forever.
+        await Promise.race([session.settled(), new Promise((r) => setTimeout(r, CLOSE_WAIT_MS))]);
         closing = true;
         if (!win.isDestroyed()) win.close();
       })

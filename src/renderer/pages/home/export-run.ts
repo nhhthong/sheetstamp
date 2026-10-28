@@ -5,6 +5,7 @@ import {
   cancel,
   type ExportDone,
   type ExportProgress,
+  type ExportView,
   type FailureCode,
   progress,
   resetData,
@@ -28,8 +29,19 @@ export const inputsKey = (): string => {
   return `${revision.data}.${revision.template}.${revision.mapping}`;
 };
 
-/** The pattern being edited, kept while the user leaves the step and comes back. */
-export type Draft = { templateId: string; chips: Chip[]; removeDiacritics: boolean };
+/**
+ * The pattern being edited, kept while the user leaves the step and comes back. `version` is what the template
+ * stored when the draft began (its saved pattern and field list): a draft only fits that same template record.
+ */
+export type Draft = {
+  templateId: string;
+  version: string;
+  chips: Chip[];
+  removeDiacritics: boolean;
+};
+
+export const viewVersion = (view: Pick<ExportView, "pattern" | "fields">): string =>
+  JSON.stringify([view.pattern, view.fields.map((field) => field.key)]);
 
 let run: Run = { kind: "idle" };
 let draft: Draft | undefined;
@@ -46,7 +58,12 @@ export const exportRun = {
     listeners.add(listener);
     return () => listeners.delete(listener);
   },
-  draft: () => draft,
+  /** The draft when it still fits this template as stored now; a stale one (template changed meanwhile) is dropped. */
+  resume(templateId: string, version: string): Draft | undefined {
+    if (draft?.templateId === templateId && draft.version === version) return draft;
+    draft = undefined;
+    return undefined;
+  },
   setDraft(next: Draft | undefined) {
     draft = next;
   },

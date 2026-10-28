@@ -69,6 +69,24 @@ describe.skipIf(!built)("runBatch with the built worker", () => {
     expect(result.reportPath).toBeDefined();
   });
 
+  it("fails a row marked invalid as invalid-value without sending it to a worker", async () => {
+    const template = await makeDocx({ body: paragraph(run("{{ten}}")) });
+    const result = await runBatch(
+      {
+        init: { kind: "word", template },
+        rows: rows(3).map((r, i) => (i === 1 ? { ...r, invalid: true } : r)),
+        pattern: "{{ten}}",
+        extension: "docx",
+        folder,
+        zipName: "sai.zip",
+        poolSize: 1,
+      },
+      WORKER,
+    );
+    expect(result.written).toBe(2);
+    expect(result.failed).toEqual([{ row: 2, code: "invalid-value" }]);
+  });
+
   it("stops all workers and leaves nothing behind when cancelled", async () => {
     const template = await makeDocx({ body: paragraph(run("{{ten}}")) });
     const controller = new AbortController();

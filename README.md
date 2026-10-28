@@ -1,23 +1,28 @@
 # Sheetstamp
 
-Fill Word (`.docx`) or image templates with rows from a CSV or Excel file, then save every generated file in one ZIP.
+Fill Word (`.docx`) templates with rows from a CSV or Excel file, then save every generated file in one ZIP.
 Everything runs on your computer: no upload, no account, no telemetry.
 
 Made for HR, accounting and administrative staff who produce contracts, payroll documents, transfer letters or
-congratulatory images for hundreds of people. The interface is in Vietnamese.
+letters for hundreds of people. The interface is in Vietnamese.
 
-> **Status:** early development (Phase 0). There is no public release yet. See [docs/specification.md](docs/specification.md).
+> **Status:** in development, Phase 1. The Word flow works end to end: import data, template library, column mapping
+> with a preview, filename pattern, ZIP export. Image templates, the theme choice, Settings and installers come
+> later, and there is no public release yet. See [docs/specification.md](docs/specification.md).
 
 ## What it does
 
 - Reads `.csv` and `.xlsx` (several sheets supported). Detects Vietnamese encodings (UTF-8, Windows-1258) and keeps
   leading zeros in ID and phone numbers.
-- Word templates: put `{{ten}}` tags in a normal Word file, including tables, headers and footers.
-- Image templates: place text boxes on a PNG or JPEG, choose any font installed on the computer, preview exactly what
-  will be exported.
-- Matches columns to tags automatically (ignoring diacritics, with an HR synonym list); you only fix what it cannot match.
+- Word templates: put `{{ten}}` tags in a normal Word file, including tables, headers and footers. Templates are kept
+  in a library on your computer.
+- Matches columns to tags automatically (ignoring diacritics, with an HR synonym list); you only fix what it cannot
+  match, and a preview shows the first rows filled in.
 - Names files from a pattern such as `{{ten}}`, avoids duplicates and characters Windows rejects.
 - Exports one ZIP with progress and a Cancel button. One bad row never stops the batch; a CSV report lists the rows that failed.
+
+Not yet in the app: image templates (text boxes on a PNG or JPEG, any installed font), the light/dark theme choice,
+the Settings page and the installers.
 
 ## Platforms
 
@@ -34,8 +39,12 @@ npm run lint       # Biome
 npm run typecheck  # TypeScript
 npm test           # Vitest
 npm run build      # the shipped build; contains no test-only pages
-npm run test:e2e   # builds with `npm run build:e2e` first, then runs Playwright (needs a display; on Linux use xvfb-run)
+npm run test:e2e   # builds with `npm run build:e2e` first, then runs Playwright (needs a display)
 ```
+
+Electron needs a display. On Linux without one, run `xvfb-run -a npm run test:e2e`. Where `NODE_OPTIONS` is set (some
+containers set `--use-openssl-ca`, which Electron rejects), clear it for that command:
+`env -u NODE_OPTIONS xvfb-run -a npm run test:e2e`.
 
 `npm run build:e2e` is `electron-vite build --mode e2e`: it adds the test-only page `out/renderer/preview/demo.html`
 (used by `tests/e2e/preview.spec.ts`). To run one spec by hand, run `npm run build:e2e` first, then

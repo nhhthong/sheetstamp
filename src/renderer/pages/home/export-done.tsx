@@ -50,6 +50,16 @@ export function ExportFinished({ result, onBack }: { result: ExportDone; onBack:
         <div className="flex flex-col gap-1" data-testid="failed-rows">
           <Status kind="warning">{t.done.failedRows(result.failed)}</Status>
           <p className="m-0 pl-7 text-muted">{t.done.failedRowsHint}</p>
+          {result.invalidValues > 0 ? (
+            <p className="m-0 pl-7 text-muted" data-testid="invalid-value-hint">
+              {t.done.invalidValueHint(result.invalidValues)}
+            </p>
+          ) : null}
+          {result.reportFailed ? (
+            <p className="m-0 pl-7 text-muted" data-testid="report-failed">
+              {t.done.reportFailed}
+            </p>
+          ) : null}
           {result.hasReport ? (
             <button
               type="button"

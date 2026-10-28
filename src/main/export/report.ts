@@ -1,6 +1,7 @@
 /** Why a row failed. Codes only: the report never contains source data. */
 export type RowErrorCode =
   | "missing-tag"
+  | "invalid-value"
   | "font-missing"
   | "text-too-long"
   | "render-failed"
