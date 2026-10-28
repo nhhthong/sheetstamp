@@ -23,5 +23,17 @@ export default defineConfig({
       },
     },
   },
-  renderer: { root: "src/renderer", plugins: [react(), tailwindcss()] },
+  renderer: {
+    root: "src/renderer",
+    plugins: [react(), tailwindcss()],
+    build: {
+      rollupOptions: {
+        // preview/demo.html is the test-only host of WordPreview (tests/e2e/preview.spec.ts).
+        input: {
+          index: "src/renderer/index.html",
+          "preview-demo": "src/renderer/preview/demo.html",
+        },
+      },
+    },
+  },
 });
