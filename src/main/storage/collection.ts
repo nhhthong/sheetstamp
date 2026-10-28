@@ -17,6 +17,11 @@ export interface CollectionOptions<T> {
   file: string;
   /** Used when the file is missing or was moved aside. */
   empty: () => T;
+  /**
+   * For array collections: a record that fails this check is skipped instead of condemning the whole file.
+   * The original file is copied aside first and a warning is added.
+   */
+  checkItem?: (item: unknown) => boolean;
   /** Returns true when `data` has the current shape. */
   isValid: (data: unknown) => data is T;
   migrations: Record<number, Migration>;
@@ -28,6 +33,9 @@ export interface CollectionOptions<T> {
 
 const CORRUPT_MESSAGE = (file: string, movedTo: string) =>
   `Không đọc được dữ liệu trong ${file}. File đã được đổi tên thành ${movedTo} và ứng dụng bắt đầu với dữ liệu trống.`;
+
+const SKIPPED_MESSAGE = (file: string, count: number, movedTo: string) =>
+  `${count} mục trong ${file} không hợp lệ nên đã bị bỏ qua. Bản gốc được giữ lại thành ${movedTo}.`;
 
 /**
  * One JSON file holding one collection, kept in memory. All mutations go through a promise queue, so
@@ -93,6 +101,13 @@ export class Collection<T> {
     } catch {
       return Collection.moveAside(opts, target);
     }
+
+    let skipped = 0;
+    if (opts.checkItem && Array.isArray(data)) {
+      const kept = data.filter(opts.checkItem);
+      skipped = data.length - kept.length;
+      data = kept;
+    }
     if (!opts.isValid(data)) return Collection.moveAside(opts, target);
 
     const collection = new Collection(opts, data);
@@ -100,8 +115,19 @@ export class Collection<T> {
       // Keep the pre-migration file once, then rewrite at the current version.
       const backup = await freeBackupName(opts.folder, `${opts.file}.v${envelope.schemaVersion}`);
       await fsp.copyFile(target, path.join(opts.folder, backup));
-      await collection.write(data);
     }
+    if (skipped > 0) {
+      // Keep the original (with the bad records) aside, then rewrite without them so the next start is clean.
+      const movedTo = await freeBackupName(opts.folder, opts.file);
+      await fsp.copyFile(target, path.join(opts.folder, movedTo));
+      opts.warnings.push({
+        code: "invalid-record",
+        file: opts.file,
+        movedTo,
+        message: SKIPPED_MESSAGE(opts.file, skipped, movedTo),
+      });
+    }
+    if (migrated || skipped > 0) await collection.write(data);
     return collection;
   }
 

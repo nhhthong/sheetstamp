@@ -32,7 +32,7 @@ beforeEach(async () => {
   const made = await storage.createTemplate({
     name: "Mẫu",
     kind: "word",
-    sourcePath: source,
+    source: { bytes: await fsp.readFile(source), fileName: "mau.docx" },
     tags: [
       { name: "ho_ten", label: "Họ và tên" },
       { name: "ly_do", label: "Lý do" },

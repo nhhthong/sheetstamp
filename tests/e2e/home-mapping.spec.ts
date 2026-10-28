@@ -11,6 +11,7 @@ import {
 } from "@playwright/test";
 import { makeDocx, paragraph, run } from "../../src/main/selftest/make-docx";
 import { openStorage } from "../../src/main/storage";
+import { fileOf } from "./file-of";
 
 const SHOTS = join(import.meta.dirname, "../../test-results/home-mapping");
 const MAKE_DATA = join(import.meta.dirname, "../fixtures/data/make-data.ts");
@@ -80,7 +81,7 @@ test.beforeAll(async () => {
   const made = await storage.createTemplate({
     name: "Giấy xác nhận",
     kind: "word",
-    sourcePath: docx,
+    source: fileOf(docx),
     tags: [
       { name: "ho_ten", label: "Họ và tên" },
       { name: "cccd", label: "CCCD" },

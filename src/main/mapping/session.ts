@@ -53,15 +53,21 @@ export async function openMapping(
   if ("ok" in template) return template;
 
   const fields = template.tags.map((t) => ({ key: t.name, label: t.label }));
-  const result = reconcile(toProfile(template.mapping), fields, table.columns);
-  const entries = toRecord(result.profile);
-  if (canonical(entries) !== canonical(toRecord(toProfile(template.mapping)))) {
-    try {
-      await storage.updateTemplate(template.id, { mapping: entries });
-    } catch {
-      return fail(mappingMessages.saveFailed);
-    }
+  // Matching and saving happen inside the storage queue, from the freshest mapping.
+  let result: ReturnType<typeof reconcile> | undefined;
+  let entries: Record<string, FieldMapping> = {};
+  try {
+    await storage.patchMapping(template.id, (mapping, current) => {
+      const currentFields = current.tags.map((t) => ({ key: t.name, label: t.label }));
+      const reconciled = reconcile(toProfile(mapping), currentFields, table.columns);
+      result = reconciled;
+      entries = toRecord(reconciled.profile);
+      return canonical(entries) !== canonical(toRecord(toProfile(mapping))) ? entries : null;
+    });
+  } catch {
+    return fail(mappingMessages.saveFailed);
   }
+  if (!result) return fail(mappingMessages.saveFailed);
   return {
     ok: true,
     view: {
@@ -76,42 +82,40 @@ export async function openMapping(
   };
 }
 
-// Saves are queued so two quick changes never overwrite each other (read, merge, write).
-let queue: Promise<unknown> = Promise.resolve();
-const serial = <T>(task: () => Promise<T>): Promise<T> => {
-  const next = queue.then(task, task);
-  queue = next.catch(() => undefined);
-  return next;
-};
+class Refusal extends Error {}
 
 /** Save one field's choice. Everything is checked against the template and the loaded data. */
-export function setMappingEntry(
+export async function setMappingEntry(
   storage: Storage,
   table: DataTable | undefined,
   request: { templateId: string; key: string; entry: FieldMapping | null },
 ): Promise<SetEntryResult> {
-  return serial(async () => {
-    if (!table) return fail(mappingMessages.noData);
-    const template = await wordTemplate(storage, request.templateId);
-    if ("ok" in template) return template;
-    if (!template.tags.some((t) => t.name === request.key)) return fail(mappingMessages.badField);
-    const { entry } = request;
-    if (entry?.kind === "column" && !table.columns.includes(entry.column)) {
-      return fail(mappingMessages.badColumn);
-    }
-    if (entry?.kind === "fixed" && entry.text.length > MAX_FIXED_TEXT) {
-      return fail(mappingMessages.tooLong);
-    }
-    const entries = toRecord(toProfile(template.mapping));
-    if (entry === null) delete entries[request.key];
-    else entries[request.key] = entry;
-    try {
-      await storage.updateTemplate(template.id, { mapping: entries });
-    } catch {
-      return fail(mappingMessages.saveFailed);
-    }
-    return { ok: true, entries };
-  });
+  if (!table) return fail(mappingMessages.noData);
+  const template = await wordTemplate(storage, request.templateId);
+  if ("ok" in template) return template;
+  const { entry } = request;
+  if (entry?.kind === "column" && !table.columns.includes(entry.column)) {
+    return fail(mappingMessages.badColumn);
+  }
+  if (entry?.kind === "fixed" && entry.text.length > MAX_FIXED_TEXT) {
+    return fail(mappingMessages.tooLong);
+  }
+  let entries: Record<string, FieldMapping> = {};
+  try {
+    // Read, merge and write run inside the storage queue, so no other write can slip between them.
+    await storage.patchMapping(template.id, (mapping, current) => {
+      if (!current.tags.some((t) => t.name === request.key)) {
+        throw new Refusal(mappingMessages.badField);
+      }
+      entries = toRecord(toProfile(mapping));
+      if (entry === null) delete entries[request.key];
+      else entries[request.key] = entry;
+      return entries;
+    });
+  } catch (error) {
+    return fail(error instanceof Refusal ? error.message : mappingMessages.saveFailed);
+  }
+  return { ok: true, entries };
 }
 
 /** The cells of one row. Only this row is copied out of the table. */

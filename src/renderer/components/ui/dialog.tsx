@@ -10,12 +10,15 @@ export function Dialog({
   title,
   children,
   footer,
+  hideCancel = false,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
   children: ReactNode;
   footer?: ReactNode;
+  /** Drop the generic "Hủy" button when the footer already closes the dialog. */
+  hideCancel?: boolean;
 }) {
   return (
     <BaseDialog.Root open={open} onOpenChange={onOpenChange}>
@@ -26,7 +29,9 @@ export function Dialog({
           <div className="flex flex-col gap-4">{children}</div>
           <div className="mt-6 flex justify-start gap-3">
             {footer}
-            <BaseDialog.Close render={<Button variant="secondary">{vi.common.cancel}</Button>} />
+            {hideCancel ? null : (
+              <BaseDialog.Close render={<Button variant="secondary">{vi.common.cancel}</Button>} />
+            )}
           </div>
         </BaseDialog.Popup>
       </BaseDialog.Portal>

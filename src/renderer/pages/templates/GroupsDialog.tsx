@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { GroupInfo, TemplateSummary } from "../../../shared/ipc/templates";
 import * as ipc from "../../../shared/ipc/templates";
 import { Button } from "../../components/ui/button";
@@ -31,6 +31,19 @@ function Form({ open, onOpenChange, onChanged }: GroupsDialogProps) {
   const [draft, setDraft] = useState("");
   const [confirming, setConfirming] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const listRef = useRef<HTMLUListElement>(null);
+  const [refocus, setRefocus] = useState(0);
+
+  // The row that held focus is gone after a delete: focus goes to the first remaining row's first button, or
+  // to "Xong" when no group is left, so keyboard users do not start over from the top of the dialog.
+  useEffect(() => {
+    if (refocus === 0) return;
+    const list = listRef.current;
+    const target =
+      list?.querySelector<HTMLElement>("button") ??
+      list?.closest("[role=dialog]")?.querySelector<HTMLElement>("[data-testid=groups-done]");
+    target?.focus();
+  }, [refocus]);
 
   const load = useCallback(async () => {
     const [g, all] = await Promise.all([call(ipc.groupsList), call(ipc.list)]);
@@ -55,12 +68,18 @@ function Form({ open, onOpenChange, onChanged }: GroupsDialogProps) {
 
   async function remove(id: string) {
     setError("");
-    const result = await call(ipc.groupsDelete, { id });
-    setConfirming(null);
-    if (!result.ok) return setError(result.message);
-    toast.show(t.deleted(result.value.moved));
-    await load();
-    onChanged();
+    try {
+      const result = await call(ipc.groupsDelete, { id });
+      setConfirming(null);
+      if (!result.ok) return setError(result.message);
+      toast.show(t.deleted(result.value.moved));
+      await load();
+      setRefocus((n) => n + 1);
+      onChanged();
+    } catch {
+      setConfirming(null);
+      setError(t.actionFailed);
+    }
   }
 
   return (
@@ -68,6 +87,7 @@ function Form({ open, onOpenChange, onChanged }: GroupsDialogProps) {
       open={open}
       onOpenChange={onOpenChange}
       title={t.title}
+      hideCancel
       footer={
         <Button onClick={() => onOpenChange(false)} data-testid="groups-done">
           {t.close}
@@ -75,7 +95,7 @@ function Form({ open, onOpenChange, onChanged }: GroupsDialogProps) {
       }
     >
       {groups !== null && groups.length === 0 ? <p className="text-muted">{t.empty}</p> : null}
-      <ul aria-label={t.list} className="m-0 flex list-none flex-col gap-2 p-0">
+      <ul ref={listRef} aria-label={t.list} className="m-0 flex list-none flex-col gap-2 p-0">
         {(groups ?? []).map((g) => (
           <li
             key={g.id}

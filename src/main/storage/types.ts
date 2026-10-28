@@ -36,7 +36,7 @@ export interface Template {
   note: string;
   /** Original file name, for display. */
   sourceFileName: string;
-  /** Path of the stored copy, relative to the data folder: `sources/<id>.<ext>`. */
+  /** Path of the stored copy, relative to the data folder: `sources/<id>-<uuid>.<ext>` (a new name per replacement). */
   sourceCopy: string;
   tags: TemplateTag[];
   filenamePattern: string;
@@ -76,8 +76,14 @@ export interface NewTemplate {
   filenamePattern?: string;
   mapping?: MappingProfile;
   imageLayout?: unknown;
-  /** File to copy into the data folder. Its base name becomes `sourceFileName`. */
-  sourcePath: string;
+  /** The file to store, already read by the caller: the bytes that were checked are the bytes that are saved. */
+  source: SourceFile;
+}
+
+export interface SourceFile {
+  bytes: Uint8Array;
+  /** Original file name for display; only its extension is used for the stored copy. */
+  fileName: string;
 }
 
 export type TemplatePatch = Partial<
@@ -88,16 +94,23 @@ export type TemplatePatch = Partial<
 >;
 
 export interface StorageWarning {
-  code: "corrupt-file";
+  /** `corrupt-file`: the file was moved aside. `invalid-record`: bad records were skipped and the original was copied aside. */
+  code: "corrupt-file" | "invalid-record";
   /** Collection file name, e.g. `templates.json`. */
   file: string;
-  /** Where the unreadable file was moved, e.g. `templates.json.bak` or `templates.json.bak.2`. */
+  /** Where the original file went, e.g. `templates.json.bak` or `templates.json.bak.2`. */
   movedTo: string;
   /** Vietnamese message for the user. */
   message: string;
 }
 
-export type StorageErrorCode = "newer-schema" | "io" | "not-found" | "invalid";
+export type StorageErrorCode =
+  | "newer-schema"
+  | "io"
+  | "not-found"
+  | "invalid"
+  | "duplicate"
+  | "reserved";
 
 export class StorageError extends Error {
   constructor(
@@ -116,11 +129,27 @@ export interface Storage {
 
   listTemplates(): Promise<Template[]>;
   getTemplate(id: string): Promise<Template | undefined>;
-  /** Copies `sourcePath` into the data folder, then saves the record. */
+  /** Stores the bytes in the data folder, then saves the record. */
   createTemplate(input: NewTemplate): Promise<Template>;
-  updateTemplate(id: string, patch: TemplatePatch): Promise<Template>;
-  /** Replaces the stored copy; the mapping profile is kept. */
-  replaceSource(id: string, sourcePath: string): Promise<Template>;
+  /**
+   * One mutation. `patch` may be a function of the freshest record (it runs inside the storage queue, so it
+   * never works from a stale read). With `source`, the file is replaced together with the patch: the new copy
+   * gets a new name, the record is committed, and only then the old copy is deleted, so a failure at any point
+   * leaves the old record and the old file intact.
+   */
+  updateTemplate(
+    id: string,
+    patch: TemplatePatch | ((current: Template) => TemplatePatch),
+    source?: SourceFile,
+  ): Promise<Template>;
+  /**
+   * Changes only the mapping, inside the storage queue. `change` gets the current mapping and returns the new
+   * one, or `null` for no change (nothing is written). It may throw to refuse; the error propagates.
+   */
+  patchMapping(
+    id: string,
+    change: (mapping: MappingProfile, template: Template) => MappingProfile | null,
+  ): Promise<Template>;
   /** Sets `lastUsedAt` to now. */
   markUsed(id: string): Promise<Template>;
   /** Removes the record, its stored copy and its mapping profile. */
@@ -130,10 +159,12 @@ export interface Storage {
 
   /** Stored groups in order. The virtual "Chưa phân nhóm" group is not listed (see `UNGROUPED_ID`). */
   listGroups(): Promise<Group[]>;
+  /** Rejects with `invalid` (empty), `reserved` ("Chưa phân nhóm") or `duplicate` (same name, ignoring case). */
   createGroup(name: string): Promise<Group>;
+  /** Same rejections as `createGroup`, plus `not-found`. */
   renameGroup(id: string, name: string): Promise<Group>;
-  /** Moves the group's templates to `UNGROUPED_ID`. */
-  deleteGroup(id: string): Promise<void>;
+  /** Rejects with `not-found` when the group is gone. Moves the group's templates to `UNGROUPED_ID`; resolves with how many were moved. */
+  deleteGroup(id: string): Promise<{ moved: number }>;
 
   getChoices(): Promise<Choices>;
   setChoices(patch: Partial<Choices>): Promise<Choices>;

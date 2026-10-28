@@ -20,8 +20,10 @@ export function Status({
   className?: string;
 }) {
   const { icon: Icon, text } = KINDS[kind];
+  // Problems are announced at once; success and info wait their turn.
+  const role = kind === "danger" || kind === "warning" ? "alert" : "status";
   return (
-    <p className={cn("flex items-start gap-2", text, className)}>
+    <p role={role} className={cn("flex items-start gap-2", text, className)}>
       <Icon aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
       <span>{children}</span>
     </p>
