@@ -4,7 +4,7 @@
 **Parent:** E-0
 **Requirements:** R0.2, R3.1, R3.2, R3.3, R3.4, R3.5, R14.9
 **Blocked by:** T-1
-**Status:** in-review
+**Status:** done
 **New infrastructure:** easy-template-x 8.0.0, JSZip
 **Files:** src/main/template-engine, tests/fixtures/word
 **Proof:** `npm test` passes the golden-file suite: normalized XML of each output equals its golden file, for all 10 self-written templates.

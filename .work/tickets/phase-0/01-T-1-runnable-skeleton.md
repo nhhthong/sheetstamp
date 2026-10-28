@@ -4,7 +4,7 @@
 **Parent:** E-0
 **Requirements:** R11.2, R14.2, R14.3, R14.8
 **Blocked by:** None (can start immediately)
-**Status:** in-review
+**Status:** done
 **New infrastructure:** Electron 45, electron-vite 5, electron-builder 26, TypeScript strict, Biome, Vitest, React 19 (bare)
 **Files:** package.json, electron.vite.config.ts, biome.json, tsconfig.json, vitest.config.ts, src/main, src/preload, src/renderer, src/shared, .github/workflows/ci.yml
 **Proof:** `npm ci && npm run lint && npm run typecheck && npm test && npm run build` exit 0 on Ubuntu and Windows, and the `ci` check passes on a pull request.

@@ -155,7 +155,7 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 | R13.6 | macOS test builds only; download page says "Coming soon" | ✅ |
 | R13.7 | Download page: buttons to `latest/download/<name>`, Vietnamese instructions, `SHA256SUMS.txt` | ✅ |
 | R13.8 | Fixed artifact names; draft release, upload, then publish; `0.x` not pre-release | ✅ |
-| R13.9 | macOS CI artifact with `retention-days: 1` | ⚠️ O-13 |
+| R13.9 | macOS CI artifact with `retention-days: 1` | ✅ O-13 resolved |
 | R13.10 | Code signing policy page with attribution (SignPath requirement) | ✅ |
 
 ### R14 Architecture and technology (sections 3 and 4)
@@ -186,7 +186,7 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 | M9 | easy-template-x acceptance | 10/10 own and 4/5 real templates | ✅ |
 
 ## Open points
-- ⚠️ O-1: Which 5+ real HR/accounting templates will be used for R0.3? Owed by owner since 2026-10-26. Needed before ticket T-4.
+- ⚠️ O-1: Which 5+ real HR/accounting templates will be used for R0.3? Owed by owner since 2026-10-26. A stand-in of 12 realistic documents passes after two fixes (tracked changes, footnotes), see `.work/phase-0-report.md` T-4; the threshold on real files is still open.
 - ✅ O-2: easy-template-x handles header/footer, split runs and diacritic tags (prototype spike1, 2026-10-28). Remaining caveats are ticketed in T-3: NFC normalization of keys, missing keys must be flagged, split-run value takes the first run's format.
 - ⚠️ O-3: The six-phase roadmap figure in the source could not be read. Owner to compare the placement in `.work/notes.md` (roadmap) with the figure. Owed by owner since 2026-10-26. Needed before ticket planning past Phase 2.
 - ✅ O-4: `@napi-rs/canvas` 1.0.11 runs in worker threads and utility processes in the packaged app on Windows and Ubuntu, with identical pixels (CI run 40720039038). Versions 1.0.12 and 1.0.13 crash Electron 45 on load, so the version is pinned. Decision in `.work/notes.md` (2026-10-28, canvas).
@@ -198,7 +198,7 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 - ⚠️ O-10: UTF-8 flag is set by archiver 8 (spike5). Still open: display on Windows 10/11, macOS and Ubuntu, including an NFD name. Owed by ticket T-7. Needed before R6.6.
 - ❌ O-11: Will SignPath approve a solo project? No approved example found; one rejection reported. Owed by SignPath since release 1. Needed before R13.3.
 - ❌ O-12: Is Vietnam a supported market for individual Microsoft Store accounts? Owed by Microsoft since 2026-10-26. Needed only if O-11 is rejected (R13.4).
-- ⚠️ O-13: Do public-repository artifacts count toward the 500 MB storage limit? Owed by the first CI run since 2026-10-26. Needed before ticket T-9.
+- ✅ O-13: not in practice: one Release run uploaded 566 MB of artifacts to a public repository without error; all artifacts use `retention-days: 1` (ticket T-9). Owner may confirm on the Billing page.
 
 - ⚠️ O-14: Transitive dependency `buffers@0.1.1` (via exceljs) declares no license. Owed by owner, since 2026-10-28. Needed before the first release (R11.4, R13.10). Options in `.work/phase-0-report.md` (T-12).
 

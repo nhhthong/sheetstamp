@@ -4,7 +4,7 @@
 **Parent:** E-0
 **Requirements:** R0.7, R1.1, R1.2, R1.3, R1.4, R1.5, R1.6, R1.7, R14.5
 **Blocked by:** T-1
-**Status:** in-review
+**Status:** done
 **New infrastructure:** papaparse, exceljs 4.4 (read-only), ssf, iconv-lite or TextDecoder
 **Files:** src/main/data, tests/fixtures/data
 **Proof:** `npm test` passes the data-reading fixtures: UTF-8 with and without BOM, Windows-1258, `00000` ID columns, `.xlsx` with several sheets, a renamed `.xls`.

@@ -275,11 +275,21 @@ Risk levels are my own estimates and are not backed by measured data. They are o
 - archiver 8.0.0 (API: `ZipArchive`) sets the UTF-8 flag for non-ASCII names.
 - exceljs loads 50,000 rows in about 3 s and 280 MB.
 
+**Verified in CI and benchmarks (2026-10-28)**
+
+- `@napi-rs/canvas` 1.0.11 runs in `worker_thread` and `utilityProcess` inside the packaged app on Windows and Ubuntu with identical pixels; 1.0.12 and 1.0.13 crash Electron 45 on load (CI run 40720039038).
+- A font installed while the app runs appears after `GlobalFonts.loadFontsFromDir` on Linux and Windows.
+- 4,000 rows on 4 cores with 3 workers: Word about 11 s, images about 42 s, no failed row, main-thread lag about 15 ms (p99); `.work/proof/`.
+- Packaged self-test passes on windows-latest, ubuntu-latest and macos-latest (Release run 40721739906).
+- Non-ASCII ZIP names extract correctly with `unzip` and Python on Ubuntu and with `ditto` (Archive Utility's engine) and `unzip` on macOS (ZIP names run 1).
+- Public-repository artifacts: 566 MB uploaded in one run without error.
+
 **Not yet verified**
 
-- `@napi-rs/canvas` in Electron `utilityProcess` or a worker inside the packaged app on Windows and Ubuntu.
-- Fonts installed while the app is running; style availability and rendering on Windows and macOS.
-- Display of non-ASCII ZIP names on Windows 10/11, macOS and Ubuntu.
+- Style availability and rendering of installed fonts on macOS; fonts installed at runtime on macOS.
+- Display of non-ASCII ZIP names in Windows Explorer and Ubuntu's archive manager (command-line extraction is checked in CI).
 - Whether SignPath approves a solo project (no approved example found; one rejection reported).
 - Whether Vietnam is a supported market for individual Microsoft Store accounts.
-- Whether artifacts from public repositories count toward the 500 MB storage limit (likely not).
+- The Billing page reading for Actions storage (the API evidence says it does not count).
+- The licence of the transitive dependency `buffers@0.1.1` (no license field; see `THIRD-PARTY-NOTICES.md`).
+- The 5 real HR/accounting templates (a 12-document stand-in passes).

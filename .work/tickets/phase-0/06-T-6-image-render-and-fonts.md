@@ -4,7 +4,7 @@
 **Parent:** E-0
 **Requirements:** R0.5, R4.2, R4.3, R4.4, R4.5, R4.6, R4.8, R4.10
 **Blocked by:** T-2
-**Status:** in-review
+**Status:** done
 **New infrastructure:** @napi-rs/canvas 1.x
 **Files:** src/worker/render, src/main/fonts, tests/fixtures/image
 **Proof:** `npm test` passes the golden-image suite (pixel threshold, one reference OS) with `DISABLE_SYSTEM_FONTS_LOAD` and a test-only font.

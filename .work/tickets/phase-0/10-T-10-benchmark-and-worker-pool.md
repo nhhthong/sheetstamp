@@ -4,7 +4,7 @@
 **Parent:** E-0
 **Requirements:** R0.8, R11.1, R14.1
 **Blocked by:** T-3, T-6, T-7
-**Status:** in-review
+**Status:** done
 **New infrastructure:** none
 **Files:** src/worker/pool, src/main/export, tests/bench
 **Proof:** `npm run bench` prints timings for 4,000 Word and 4,000 image rows on a 4-core machine, with event-loop lag measured on the main process.

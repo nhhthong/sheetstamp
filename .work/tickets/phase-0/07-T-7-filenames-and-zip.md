@@ -4,7 +4,7 @@
 **Parent:** E-0
 **Requirements:** R5.1, R5.2, R5.3, R5.4, R5.5, R5.6, R6.1, R6.2, R6.3, R6.4, R6.5
 **Blocked by:** T-1
-**Status:** in-review
+**Status:** done
 **New infrastructure:** archiver 8 (`ZipArchive`)
 **Files:** src/main/export, tests/export
 **Proof:** `npm test` passes: filename rules (one test per case in the spec), ZIP streaming with cancel and failure cleanup, and the CSV error report.
