@@ -1,17 +1,15 @@
 {
-  "_comment": "Draft. Tag key (no diacritics) -> display label, plus column-name synonyms. Matching removes diacritics and case. To be extended from the real HR/accounting templates collected in Phase 0.",
+  "_comment": "Tag key (no diacritics) -> display label, plus column-name synonyms. Matching removes diacritics and case. A synonym must belong to one entry only (a test checks it). Extend from the real HR/accounting templates.",
   "entries": [
     {
       "key": "ten",
       "label": "Tên",
       "synonyms": [
         "tên",
-        "họ tên",
-        "họ và tên",
         "tên nhân viên",
         "tên khách hàng",
         "name",
-        "full name"
+        "first name"
       ]
     },
     {
@@ -21,7 +19,12 @@
         "họ tên",
         "họ và tên",
         "tên đầy đủ",
-        "full name"
+        "full name",
+        "họ tên nhân viên",
+        "tên nhân viên đầy đủ",
+        "fullname",
+        "họ & tên",
+        "họ tên đầy đủ"
       ]
     },
     {
@@ -62,7 +65,11 @@
         "số cccd",
         "cmnd",
         "số cmnd",
-        "chứng minh nhân dân"
+        "chứng minh nhân dân",
+        "số căn cước công dân",
+        "số căn cước",
+        "số cmnd/cccd",
+        "cmnd/cccd"
       ]
     },
     {
@@ -87,8 +94,7 @@
       "synonyms": [
         "địa chỉ",
         "address",
-        "nơi ở",
-        "địa chỉ thường trú"
+        "nơi ở"
       ]
     },
     {
@@ -116,7 +122,13 @@
         "điện thoại",
         "phone",
         "mobile",
-        "di động"
+        "di động",
+        "số điện thoại di động",
+        "số đt",
+        "sdt",
+        "số điện thoại liên hệ",
+        "điện thoại di động",
+        "tel"
       ]
     },
     {
@@ -138,7 +150,11 @@
         "mã nv",
         "manv",
         "employee id",
-        "id nhân viên"
+        "id nhân viên",
+        "mã số nhân viên",
+        "msnv",
+        "số thẻ nhân viên",
+        "mã nhân sự"
       ]
     },
     {
