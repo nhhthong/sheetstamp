@@ -11,6 +11,8 @@ const sample = readFileSync(join(root, "tests/fixtures/word/preview-contract.doc
 const launch = () =>
   electron.launch({
     args: [root, ...(process.platform === "linux" ? ["--no-sandbox"] : [])],
+    // The test-only demo page may call main only in a run that asks for it (src/main/app-url.ts).
+    env: { ...process.env, SHEETSTAMP_E2E: "1" } as Record<string, string>,
   });
 
 async function open(page: Page) {

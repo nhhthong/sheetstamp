@@ -1,11 +1,11 @@
 import { BrowserWindow, type IpcMainInvokeEvent, ipcMain } from "electron";
 import type { Channel, EventChannel, RequestOf, ResponseOf } from "../../shared/ipc";
+import { isAppUrl } from "../app-url";
 
-/** Only pages of this app may call main. */
+/** Only the app's own page, in the top frame, may call main. */
 function isAppFrame(event: IpcMainInvokeEvent): boolean {
-  const url = event.senderFrame?.url ?? "";
-  const dev = process.env.ELECTRON_RENDERER_URL;
-  return dev ? url.startsWith(dev) : url.startsWith("file://");
+  const frame = event.senderFrame;
+  return frame !== null && frame !== undefined && frame.parent === null && isAppUrl(frame.url);
 }
 
 /**

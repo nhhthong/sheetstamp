@@ -79,9 +79,6 @@ export const padColumn = channel<{ columnIndex: number; width: number }, DataRes
 /** Read the file again from disk, keeping the chosen sheet and encoding where they still apply. */
 export const reload = channel<undefined, DataResult>("data:reload", nothing);
 
-/** Forget the table. */
-export const clear = channel<undefined, DataQuery>("data:clear", nothing);
-
 /** The current snapshot, or null when nothing is loaded (always after a restart). */
 export const current = channel<undefined, DataQuery>("data:current", nothing);
 
@@ -92,7 +89,6 @@ export const channels = [
   setSheet,
   padColumn,
   reload,
-  clear,
   current,
 ] as const;
 export const events = [] as const;

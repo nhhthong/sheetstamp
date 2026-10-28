@@ -19,6 +19,7 @@ import {
   UNGROUPED_NAME,
 } from "../storage";
 import { EasyTemplateXEngine } from "../template-engine/easy-template-x-engine";
+import { ZipLimitError } from "../template-engine/zip-limits";
 
 const engine = new EasyTemplateXEngine();
 
@@ -62,8 +63,8 @@ export async function tagsOf(bytes: Uint8Array): Promise<Outcome<FoundTag[]>> {
         label: t.kind === "field" ? suggestLabel(t.key) : "",
       })),
     };
-  } catch {
-    return fail(messages.notWord);
+  } catch (error) {
+    return fail(error instanceof ZipLimitError ? error.message : messages.notWord);
   }
 }
 

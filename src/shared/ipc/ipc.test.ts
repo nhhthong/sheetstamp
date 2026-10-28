@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ping } from "./app";
+import { appInfo } from "./app";
 import {
   arrayOf,
   bytes,
@@ -13,19 +13,10 @@ import {
 import { CHANNEL_NAMES } from "./registry";
 
 describe("validators", () => {
-  it("accepts a valid ping and rejects bad input", () => {
-    expect(ping.parse({ message: "xin chào" })).toEqual({ message: "xin chào" });
-    for (const bad of [
-      null,
-      undefined,
-      1,
-      "x",
-      {},
-      { message: 1 },
-      { message: "a".repeat(201) },
-      [],
-    ]) {
-      expect(() => ping.parse(bad)).toThrow(IpcValidationError);
+  it("accepts app:info only without an argument", () => {
+    expect(appInfo.parse(undefined)).toBeUndefined();
+    for (const bad of [1, "x", {}, { message: 1 }, []]) {
+      expect(() => appInfo.parse(bad)).toThrow(IpcValidationError);
     }
   });
 
@@ -45,7 +36,6 @@ describe("validators", () => {
   });
 
   it("registers every channel once", () => {
-    expect(CHANNEL_NAMES.has("app:ping")).toBe(true);
     expect(CHANNEL_NAMES.has("app:info")).toBe(true);
   });
 });

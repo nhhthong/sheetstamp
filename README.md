@@ -33,8 +33,13 @@ npm run dev        # start the app with hot reload
 npm run lint       # Biome
 npm run typecheck  # TypeScript
 npm test           # Vitest
-npm run build && npm run test:e2e   # smoke test of the built app (needs a display; on Linux use xvfb-run)
+npm run build      # the shipped build; contains no test-only pages
+npm run test:e2e   # builds with `npm run build:e2e` first, then runs Playwright (needs a display; on Linux use xvfb-run)
 ```
+
+`npm run build:e2e` is `electron-vite build --mode e2e`: it adds the test-only page `out/renderer/preview/demo.html`
+(used by `tests/e2e/preview.spec.ts`). To run one spec by hand, run `npm run build:e2e` first, then
+`npx playwright test tests/e2e/<spec>`. The plain `npm run build` never produces that page.
 
 Layout: `src/main` (Electron main process and the file work), `src/preload`, `src/renderer` (React UI),
 `src/shared` (types and IPC contracts), `src/worker` (heavy work off the main thread). Project notes are in

@@ -11,7 +11,7 @@ export const MARK_CLOSE = "";
 export const MARK_MISSING = "";
 export const MARKER_PATTERN = /[-]/g;
 
-export const MAX_TEMPLATE_BYTES = 50 * 1024 * 1024;
+export const MAX_TEMPLATE_BYTES = 20 * 1024 * 1024;
 
 export type PreviewRequest = {
   /** The template file. */

@@ -9,6 +9,7 @@ import {
 } from "../../shared/ipc/preview";
 import { EasyTemplateXEngine } from "../template-engine/easy-template-x-engine";
 import type { TemplateEngine } from "../template-engine/types";
+import { assertSafeZip } from "../template-engine/zip-limits";
 
 const engine: TemplateEngine = new EasyTemplateXEngine();
 
@@ -28,6 +29,7 @@ function decode(text: string): string {
 
 /** Visible text of the header, body and footer: the fallback when the document cannot be drawn. */
 export async function plainText(docx: Uint8Array): Promise<string> {
+  assertSafeZip(docx);
   const zip = await JSZip.loadAsync(docx);
   const names = Object.keys(zip.files)
     .filter((name) => PARTS.test(name))
