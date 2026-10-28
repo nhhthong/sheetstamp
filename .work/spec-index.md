@@ -219,8 +219,8 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 | Branch protection on `main` and auto-merge | first ticket PR | ⚠️ owner sets up on GitHub |
 | Electron 45, electron-vite, electron-builder | R0.4 | ✅ chosen, not installed |
 | Biome, Vitest, TypeScript | first ticket | ✅ chosen, not installed |
-| easy-template-x | R0.2 | ⚠️ O-2 |
-| papaparse, exceljs, chardet, fuse.js, date-fns | R0.7 | ⚠️ O-6, O-7 |
+| easy-template-x 8.0.0 | R0.2 | ✅ O-2 resolved |
+| papaparse, exceljs, ssf, fuse.js, date-fns (chardet dropped) | R0.7 | ✅ O-6, O-7 resolved |
 | `@napi-rs/canvas` | R0.4 | ⚠️ O-4 |
 | archiver | R0.6 | ✅ |
 | React 19, Tailwind v4, shadcn/ui, react-konva | R9.2 | ✅ |
