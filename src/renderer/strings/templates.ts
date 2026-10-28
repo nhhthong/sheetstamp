@@ -98,5 +98,6 @@ export const tpl = {
       moved === 0 ? "Đã xóa nhóm." : `Đã xóa nhóm. ${moved} mẫu chuyển sang “Chưa phân nhóm”.`,
     renamed: "Đã đổi tên nhóm.",
     close: "Xong",
+    actionFailed: "Không thực hiện được. Thử lại.",
   },
 } as const;

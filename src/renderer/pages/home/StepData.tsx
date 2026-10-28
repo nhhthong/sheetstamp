@@ -42,13 +42,23 @@ export function StepData() {
   const [dragging, setDragging] = useState(false);
   const [showEncoding, setShowEncoding] = useState(false);
   const dragDepth = useRef(0);
+  // Only the newest request may change the screen: a slow answer to an older one is ignored.
+  const latest = useRef(0);
 
   // What main holds now. After a restart it is nothing, and a step that claimed to be done is not.
   const refresh = useCallback(async () => {
-    const { snapshot: next } = await call(current);
-    setSnapshot(next);
-    setLoaded(true);
-    if (!next && flow.getState().done.data) flow.invalidate("data");
+    const mine = ++latest.current;
+    try {
+      const { snapshot: next } = await call(current);
+      if (mine !== latest.current) return;
+      setSnapshot(next);
+      setLoaded(true);
+      if (!next && flow.getState().done.data) flow.invalidate("data");
+    } catch {
+      if (mine !== latest.current) return;
+      setLoaded(true);
+      setError(t.errors.generic);
+    }
   }, []);
 
   useEffect(() => {
@@ -60,6 +70,7 @@ export function StepData() {
   /** Run a command; a snapshot replaces the shown table, a failure shows its message and keeps the old table. */
   async function run(command: () => Promise<DataResult>): Promise<boolean> {
     setBusy(true);
+    latest.current++; // a refresh that started before this command must not overwrite its result
     try {
       const result = await command();
       if (result.ok) {
@@ -73,6 +84,7 @@ export function StepData() {
       setError(t.errors.generic);
       return false;
     } finally {
+      latest.current++; // ...and neither must one that started while it ran
       setBusy(false);
     }
   }

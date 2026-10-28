@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { _electron as electron, expect, type Page, test } from "@playwright/test";
 import { makeDocx, paragraph, run } from "../../src/main/selftest/make-docx";
 import { openStorage } from "../../src/main/storage";
+import { fileOf } from "./file-of";
 
 const SHOTS = join(import.meta.dirname, "../../test-results/templates-edit");
 
@@ -54,7 +55,7 @@ async function seed(work: string, dataDir: string) {
     kind: "word",
     groupId: groups[0]?.id,
     note: "Bản đầu",
-    sourcePath: v1,
+    source: fileOf(v1),
     tags: [
       { name: "ho_ten", label: "Họ và tên" },
       { name: "ngay_sinh", label: "Ngày sinh" },
@@ -245,13 +246,16 @@ test("manage groups: rename, unique names, delete moves templates to Chưa phân
   const rows = dialog.getByTestId("group-row");
   await expect(rows).toHaveCount(3);
   await expect(rows.filter({ hasText: "Hợp đồng" })).toContainText("1 mẫu");
+  // The footer has one way out ("Xong"), not "Xong" plus a "Hủy" that does the same.
+  await expect(dialog.getByRole("button", { name: "Hủy" })).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: "Xong" })).toHaveCount(1);
   await shoot(page, "groups");
 
   // Rename a default group; a name that exists (ignoring case) is refused.
   await dialog.getByRole("button", { name: "Đổi tên nhóm Nghỉ việc" }).click();
   await dialog.getByLabel("Tên mới của nhóm Nghỉ việc").fill("HỢP ĐỒNG");
   await dialog.getByRole("button", { name: "Lưu tên" }).click();
-  await expect(dialog.getByText("Đã có nhóm tên này.")).toBeVisible();
+  await expect(dialog.getByRole("alert")).toContainText("Đã có nhóm tên này.");
   await dialog.getByLabel("Tên mới của nhóm Nghỉ việc").fill("Thôi việc");
   await dialog.getByRole("button", { name: "Lưu tên" }).click();
   await expect(rows.filter({ hasText: "Thôi việc" })).toHaveCount(1);
@@ -266,6 +270,8 @@ test("manage groups: rename, unique names, delete moves templates to Chưa phân
   await dialog.getByRole("button", { name: "Xóa nhóm Hợp đồng" }).click();
   await dialog.getByRole("button", { name: "Xóa nhóm", exact: true }).click();
   await expect(rows).toHaveCount(2);
+  // The row that held focus is gone: focus lands on the first remaining row, not on the page body.
+  await expect(dialog.getByRole("button", { name: /^Đổi tên nhóm/ }).first()).toBeFocused();
   await dialog.getByTestId("groups-done").click();
   await expect(page.getByTestId("template-row")).toContainText("Chưa phân nhóm");
 

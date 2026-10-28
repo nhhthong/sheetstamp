@@ -1,7 +1,6 @@
 // Handlers of the "data" channels declared in src/shared/ipc/data.ts.
 import { BrowserWindow, dialog, type OpenDialogOptions } from "electron";
 import {
-  clear,
   current,
   type DataResult,
   openPath,
@@ -34,9 +33,5 @@ export function register(): void {
   handle(setSheet, ({ sheet }) => dataSession.setSheet(sheet));
   handle(padColumn, ({ columnIndex, width }) => dataSession.pad(columnIndex, width));
   handle(reload, () => dataSession.reload());
-  handle(clear, () => {
-    dataSession.clear();
-    return { snapshot: null };
-  });
   handle(current, async () => ({ snapshot: await dataSession.current() }));
 }

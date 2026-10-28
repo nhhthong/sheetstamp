@@ -19,6 +19,7 @@ import {
   UNGROUPED_NAME,
 } from "../storage";
 import { EasyTemplateXEngine } from "../template-engine/easy-template-x-engine";
+import { ZipLimitError } from "../template-engine/zip-limits";
 
 const engine = new EasyTemplateXEngine();
 
@@ -36,7 +37,9 @@ export const messages = {
 export const fail = (message: string): { ok: false; message: string } => ({ ok: false, message });
 
 /** Read a chosen file after checking it is a .docx of acceptable size. */
-async function readSource(path: string): Promise<Outcome<{ bytes: Uint8Array; fileName: string }>> {
+export async function readSource(
+  path: string,
+): Promise<Outcome<{ bytes: Uint8Array; fileName: string }>> {
   if (!isAbsolute(path) || extname(path).toLowerCase() !== ".docx") return fail(messages.notDocx);
   try {
     const info = await stat(path);
@@ -48,7 +51,7 @@ async function readSource(path: string): Promise<Outcome<{ bytes: Uint8Array; fi
   }
 }
 
-async function tagsOf(bytes: Uint8Array): Promise<Outcome<FoundTag[]>> {
+export async function tagsOf(bytes: Uint8Array): Promise<Outcome<FoundTag[]>> {
   try {
     const tags = await engine.parseTags(bytes);
     return {
@@ -60,8 +63,8 @@ async function tagsOf(bytes: Uint8Array): Promise<Outcome<FoundTag[]>> {
         label: t.kind === "field" ? suggestLabel(t.key) : "",
       })),
     };
-  } catch {
-    return fail(messages.notWord);
+  } catch (error) {
+    return fail(error instanceof ZipLimitError ? error.message : messages.notWord);
   }
 }
 
@@ -139,7 +142,7 @@ export async function createTemplate(
       groupId: request.groupId,
       note: request.note.trim(),
       tags,
-      sourcePath: request.path,
+      source: { bytes: source.value.bytes, fileName: source.value.fileName },
     });
     return { ok: true, value: { id: created.id } };
   } catch (error) {

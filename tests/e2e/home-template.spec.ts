@@ -11,6 +11,7 @@ import {
 } from "@playwright/test";
 import { makeDocx, paragraph, run } from "../../src/main/selftest/make-docx";
 import { openStorage } from "../../src/main/storage";
+import { fileOf } from "./file-of";
 
 const SHOTS = join(import.meta.dirname, "../../test-results/home-template");
 const MAKE_DATA = join(import.meta.dirname, "../fixtures/data/make-data.ts");
@@ -63,7 +64,7 @@ test.beforeAll(async () => {
     groupId: string | undefined,
     note: string,
     tags: { name: string; label: string }[],
-  ) => storage.createTemplate({ name, kind: "word", groupId, note, tags, sourcePath: docx });
+  ) => storage.createTemplate({ name, kind: "word", groupId, note, tags, source: fileOf(docx) });
   await seed("Hợp đồng lao động", contract, "", [
     tag("ho_ten", "Họ và tên"),
     tag("cccd", "CCCD"),

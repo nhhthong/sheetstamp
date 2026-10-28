@@ -85,3 +85,20 @@ describe("export never holds a marker", () => {
     expect(await plainText(data)).toContain("Tên: Hương; mã: ; ghi chú: x.");
   });
 });
+
+describe("a zip bomb", () => {
+  it("is refused by the preview, fast and without inflating", async () => {
+    const zip = new JSZip();
+    zip.file("word/document.xml", `<w:document>${"a".repeat(60 * 1024 * 1024)}</w:document>`);
+    const bomb = await zip.generateAsync({ type: "uint8array", compression: "DEFLATE" });
+    expect(bomb.length).toBeLessThan(5 * 1024 * 1024);
+    const before = process.memoryUsage().arrayBuffers;
+    const t = performance.now();
+    await expect(plainText(bomb)).rejects.toThrow("quá lớn");
+    await expect(fillForPreview({ docx: bomb, values: {}, unmapped: [] })).rejects.toThrow(
+      "quá lớn",
+    );
+    expect(performance.now() - t).toBeLessThan(500);
+    expect(process.memoryUsage().arrayBuffers - before).toBeLessThan(20 * 1024 * 1024);
+  });
+});

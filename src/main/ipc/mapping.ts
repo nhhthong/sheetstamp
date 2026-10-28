@@ -3,24 +3,18 @@ import {
   getGroupFilter,
   getRow,
   getTemplateBytes,
-  labels,
   openMapping,
   rankTemplates,
-  reconcile,
   setEntry,
   setGroupFilter,
-  suggest,
   useTemplate,
 } from "../../shared/ipc/mapping";
 import { getCurrentTable } from "../data-session";
 import {
   getMappingRow,
-  matchFields,
   openMapping as open,
   rankTemplates as rank,
-  reconcile as reconcileProfile,
   setMappingEntry,
-  suggestLabel,
   templateBytes,
 } from "../mapping";
 import { UNGROUPED_ID, UNGROUPED_NAME } from "../storage";
@@ -34,10 +28,6 @@ export const templateMessages = {
 } as const;
 
 export function register(): void {
-  handle(suggest, ({ fields, columns }) => matchFields(fields, columns));
-  handle(reconcile, ({ profile, fields, columns }) => reconcileProfile(profile, fields, columns));
-  handle(labels, ({ keys }) => Object.fromEntries(keys.map((k) => [k, suggestLabel(k)])));
-
   // Step 3: the table and the template bytes stay in main; the renderer gets columns, a row count and one row.
   handle(openMapping, async ({ templateId }) =>
     open(await getStorage(), getCurrentTable(), templateId),

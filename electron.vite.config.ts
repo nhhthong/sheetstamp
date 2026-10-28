@@ -2,7 +2,9 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "electron-vite";
 
-export default defineConfig({
+// `electron-vite build --mode e2e` (npm run build:e2e) also builds preview/demo.html, the test-only host of
+// WordPreview (tests/e2e/preview.spec.ts). The plain `npm run build` never ships it.
+export default defineConfig(({ mode }) => ({
   main: {
     build: {
       rollupOptions: {
@@ -28,12 +30,11 @@ export default defineConfig({
     plugins: [react(), tailwindcss()],
     build: {
       rollupOptions: {
-        // preview/demo.html is the test-only host of WordPreview (tests/e2e/preview.spec.ts).
         input: {
           index: "src/renderer/index.html",
-          "preview-demo": "src/renderer/preview/demo.html",
+          ...(mode === "e2e" ? { "preview-demo": "src/renderer/preview/demo.html" } : {}),
         },
       },
     },
   },
-});
+}));

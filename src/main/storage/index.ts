@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import * as fsp from "node:fs/promises";
 import path from "node:path";
-import { sweepTempFiles } from "./atomic";
+import { sweepTempFiles, writeFileAtomic } from "./atomic";
 import { Collection, type Migration } from "./collection";
 import {
   type Choices,
@@ -9,14 +9,17 @@ import {
   DEFAULT_FILENAME_PATTERN,
   DEFAULT_GROUP_NAMES,
   type Group,
+  type MappingProfile,
   type NewTemplate,
   SCHEMA_VERSION,
+  type SourceFile,
   type Storage,
   StorageError,
   type StorageWarning,
   type Template,
   type TemplatePatch,
   UNGROUPED_ID,
+  UNGROUPED_NAME,
 } from "./types";
 
 export * from "./types";
@@ -34,6 +37,19 @@ export interface OpenOptions {
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
+const isEntry = (v: unknown): boolean => {
+  if (!isObject(v)) return false;
+  if (v.kind === "column") return typeof v.column === "string";
+  if (v.kind === "fixed") return typeof v.text === "string";
+  return v.kind === "empty";
+};
+const isMapping = (v: unknown): boolean => isObject(v) && Object.values(v).every(isEntry);
+const isTag = (v: unknown): boolean =>
+  isObject(v) && typeof v.name === "string" && typeof v.label === "string";
+
+/** `sources/<one file name>`: never a path that leaves the sources folder. */
+const SOURCE_COPY = /^sources\/(?!\.\.?$)[^/\\]+$/;
+
 const isTemplate = (v: unknown): boolean =>
   isObject(v) &&
   typeof v.id === "string" &&
@@ -43,15 +59,18 @@ const isTemplate = (v: unknown): boolean =>
   typeof v.note === "string" &&
   typeof v.sourceFileName === "string" &&
   typeof v.sourceCopy === "string" &&
+  SOURCE_COPY.test(v.sourceCopy) &&
   Array.isArray(v.tags) &&
+  v.tags.every(isTag) &&
   typeof v.filenamePattern === "string" &&
-  isObject(v.mapping) &&
-  typeof v.createdAt === "string";
+  isMapping(v.mapping) &&
+  typeof v.createdAt === "string" &&
+  (v.lastUsedAt === undefined || v.lastUsedAt === null || typeof v.lastUsedAt === "string");
 
 const isTemplates = (v: unknown): v is Template[] => Array.isArray(v) && v.every(isTemplate);
-const isGroups = (v: unknown): v is Group[] =>
-  Array.isArray(v) &&
-  v.every((g) => isObject(g) && typeof g.id === "string" && typeof g.name === "string");
+const isGroup = (g: unknown): boolean =>
+  isObject(g) && typeof g.id === "string" && typeof g.name === "string";
+const isGroups = (v: unknown): v is Group[] => Array.isArray(v) && v.every(isGroup);
 const isChoices = (v: unknown): v is Choices =>
   isObject(v) &&
   (v.lastOutputFolder === null || typeof v.lastOutputFolder === "string") &&
@@ -94,6 +113,7 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
     file: "templates.json",
     empty: () => [],
     isValid: isTemplates,
+    checkItem: isTemplate,
     migrations: migrations["templates.json"] ?? {},
   });
   const groups = await Collection.open<Group[]>({
@@ -101,6 +121,7 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
     file: "groups.json",
     empty: () => DEFAULT_GROUP_NAMES.map((name) => ({ id: randomUUID(), name })),
     isValid: isGroups,
+    checkItem: isGroup,
     migrations: migrations["groups.json"] ?? {},
   });
   const choices = await Collection.open<Choices>({
@@ -149,22 +170,34 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
   };
   const absolute = (relative: string) => path.join(folder, relative);
 
-  /** Copies the file to `sources/<id><ext>` through a temp name, so a half copy is never a source. */
-  async function copySource(id: string, sourcePath: string): Promise<string> {
-    const relative = path.posix.join("sources", `${id}${safeExtension(sourcePath)}`);
-    const tmp = `${absolute(relative)}.${randomUUID()}.tmp`;
-    try {
-      await fsp.copyFile(sourcePath, tmp);
-      await rename(tmp, absolute(relative));
-    } catch (error) {
-      await fsp.rm(tmp, { force: true }).catch(() => {});
-      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-        throw new StorageError("not-found", "Không tìm thấy file mẫu để sao chép.");
-      }
-      throw error;
-    }
+  /**
+   * Writes the bytes to a new `sources/<id>-<uuid><ext>` (temp name, then rename), so a half copy is never a
+   * source and an existing source is never overwritten.
+   */
+  async function writeSource(id: string, source: SourceFile): Promise<string> {
+    const relative = path.posix.join(
+      "sources",
+      `${id}-${randomUUID()}${safeExtension(source.fileName)}`,
+    );
+    await writeFileAtomic(absolute(relative), source.bytes, rename);
     return relative;
   }
+  const removeQuietly = (relative: string) =>
+    fsp.rm(absolute(relative), { force: true }).catch(() => {});
+  const displayName = (fileName: string) => path.basename(fileName.replace(/\\/g, "/"));
+
+  /** Group names are compared ignoring case; the reserved name belongs to the virtual group. */
+  const groupKey = (name: string) => name.trim().normalize("NFC").toLocaleLowerCase();
+  const checkGroupName = (name: string, selfId: string | null): string => {
+    const clean = requireName(name);
+    if (groupKey(clean) === groupKey(UNGROUPED_NAME)) {
+      throw new StorageError("reserved", `Tên “${UNGROUPED_NAME}” dành cho mẫu không có nhóm.`);
+    }
+    if (groups.get().some((g) => g.id !== selfId && groupKey(g.name) === groupKey(clean))) {
+      throw new StorageError("duplicate", "Đã có nhóm tên này.");
+    }
+    return clean;
+  };
 
   const store: Storage = {
     warnings,
@@ -188,14 +221,14 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
         const groupId = input.groupId ?? UNGROUPED_ID;
         checkGroup(groupId);
         const id = randomUUID();
-        const sourceCopy = await copySource(id, input.sourcePath);
+        const sourceCopy = await writeSource(id, input.source);
         const template: Template = {
           id,
           name,
           kind: input.kind,
           groupId,
           note: input.note ?? "",
-          sourceFileName: path.basename(input.sourcePath),
+          sourceFileName: displayName(input.source.fileName),
           sourceCopy,
           tags: input.tags ?? [],
           filenamePattern: input.filenamePattern ?? DEFAULT_FILENAME_PATTERN,
@@ -209,46 +242,58 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
             draft.push(template);
           });
         } catch (error) {
-          await fsp.rm(absolute(sourceCopy), { force: true }).catch(() => {});
+          await removeQuietly(sourceCopy);
           throw error;
         }
         return structuredClone(template);
       }),
 
-    updateTemplate: (id: string, patch: TemplatePatch) =>
+    updateTemplate: (
+      id: string,
+      patchOrFn: TemplatePatch | ((current: Template) => TemplatePatch),
+      source?: SourceFile,
+    ) =>
       serial(async () => {
-        find(id);
+        let patch =
+          typeof patchOrFn === "function" ? patchOrFn(structuredClone(find(id))) : patchOrFn;
+        const old = find(id);
         if (patch.name !== undefined) patch = { ...patch, name: requireName(patch.name) };
         if (patch.groupId !== undefined) checkGroup(patch.groupId);
-        return templates.mutate((draft) => {
-          const t = draft.find((x) => x.id === id) as Template;
-          Object.assign(t, patch);
-          return structuredClone(t);
-        });
-      }),
-
-    replaceSource: (id: string, sourcePath: string) =>
-      serial(async () => {
-        const old = find(id);
-        const sourceCopy = await copySource(id, sourcePath);
+        if (patch.mapping !== undefined && !isMapping(patch.mapping)) {
+          throw new StorageError("invalid", "Cách ghép cột không hợp lệ.");
+        }
+        const sourceCopy = source ? await writeSource(id, source) : undefined;
         let updated: Template;
         try {
           updated = await templates.mutate((draft) => {
             const t = draft.find((x) => x.id === id) as Template;
-            t.sourceCopy = sourceCopy;
-            t.sourceFileName = path.basename(sourcePath);
+            Object.assign(t, patch);
+            if (source && sourceCopy) {
+              t.sourceCopy = sourceCopy;
+              t.sourceFileName = displayName(source.fileName);
+            }
             return structuredClone(t);
           });
         } catch (error) {
-          if (sourceCopy !== old.sourceCopy) {
-            await fsp.rm(absolute(sourceCopy), { force: true }).catch(() => {});
-          }
+          if (sourceCopy) await removeQuietly(sourceCopy);
           throw error;
         }
-        if (old.sourceCopy !== sourceCopy) {
-          await fsp.rm(absolute(old.sourceCopy), { force: true }).catch(() => {});
-        }
+        // Committed: only now is the old copy no longer needed.
+        if (sourceCopy && old.sourceCopy !== sourceCopy) await removeQuietly(old.sourceCopy);
         return updated;
+      }),
+
+    patchMapping: (id, change) =>
+      serial(async () => {
+        const current = find(id);
+        const next = change(structuredClone(current.mapping), structuredClone(current));
+        if (next === null) return structuredClone(current);
+        if (!isMapping(next)) throw new StorageError("invalid", "Cách ghép cột không hợp lệ.");
+        return templates.mutate((draft) => {
+          const t = draft.find((x) => x.id === id) as Template;
+          t.mapping = next;
+          return structuredClone(t);
+        });
       }),
 
     markUsed: (id: string) =>
@@ -284,7 +329,7 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
     },
     createGroup: (name: string) =>
       serial(async () => {
-        const group: Group = { id: randomUUID(), name: requireName(name) };
+        const group: Group = { id: randomUUID(), name: checkGroupName(name, null) };
         await groups.mutate((draft) => {
           draft.push(group);
         });
@@ -292,10 +337,10 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
       }),
     renameGroup: (id: string, name: string) =>
       serial(async () => {
-        const clean = requireName(name);
         if (!groups.get().some((g) => g.id === id)) {
           throw new StorageError("not-found", "Nhóm không tồn tại.");
         }
+        const clean = checkGroupName(name, id);
         return groups.mutate((draft) => {
           const g = draft.find((x) => x.id === id) as Group;
           g.name = clean;
@@ -307,6 +352,7 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
         if (!groups.get().some((g) => g.id === id)) {
           throw new StorageError("not-found", "Nhóm không tồn tại.");
         }
+        const moved = templates.get().filter((t) => t.groupId === id).length;
         // Templates first: a failure between the two writes leaves an empty group, never an orphan.
         await templates.mutate((draft) => {
           for (const t of draft) if (t.groupId === id) t.groupId = UNGROUPED_ID;
@@ -322,6 +368,7 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
             draft.lastGroupFilter = null;
           });
         }
+        return { moved };
       }),
 
     async getChoices() {
