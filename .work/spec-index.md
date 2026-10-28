@@ -200,6 +200,8 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 - ❌ O-12: Is Vietnam a supported market for individual Microsoft Store accounts? Owed by Microsoft since 2026-10-26. Needed only if O-11 is rejected (R13.4).
 - ⚠️ O-13: Do public-repository artifacts count toward the 500 MB storage limit? Owed by the first CI run since 2026-10-26. Needed before ticket T-9.
 
+- ⚠️ O-14: Transitive dependency `buffers@0.1.1` (via exceljs) declares no license. Owed by owner, since 2026-10-28. Needed before the first release (R11.4, R13.10). Options in `.work/phase-0-report.md` (T-12).
+
 ## Decisions
 - notes 2026-10-28 `storage`: local JSON with atomic writes behind `Storage`. ADR: `docs/adr/0001-json-storage.md`.
 - notes 2026-10-28 `workflow, git`: default delivery is one branch and pull request per ticket with auto-merge on `ci`; direct push to `main` only when the owner asks in a session.
