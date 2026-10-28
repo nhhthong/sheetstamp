@@ -1,6 +1,23 @@
 # Phase 0 report: ambiguities, choices and reasons
 
-One entry per ambiguity: where (ticket), what was unclear, the options, the choice and why.
+Written while working through tickets T-1 to T-12 (2026-10-28). Each section below lists, for one ticket, what was unclear, the options, what was chosen and why. Evidence files: `.work/proof/`, `prototypes/phase0/`, CI runs named in the text.
+
+## Status at a glance
+
+| Ticket | Status | Open item |
+|---|---|---|
+| T-1 skeleton | done | none |
+| T-2 canvas packaged | done | none |
+| T-3 Word engine | done | none |
+| T-4 real templates | in review | owner's 5 real templates (stand-in passes) |
+| T-5 CSV and xlsx | done | none |
+| T-6 image and fonts | done | none |
+| T-7 filenames and ZIP | done | none |
+| T-8 ZIP names on OSes | ready | Windows run pending; Explorer and Ubuntu GUI by hand |
+| T-9 artifact quota | done | owner may confirm on Billing page |
+| T-10 benchmark and pool | done | renderer under load not measured |
+| T-11 release pipeline | in review | tag push for the publish path; clean-machine installs; VirusTotal; macOS warning |
+| T-12 repo and Pages | in review | owner: enable Pages (Actions source) and 2FA |
 
 ## T-1 Runnable skeleton
 
