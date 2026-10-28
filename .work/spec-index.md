@@ -188,7 +188,7 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 ## Open points
 - ⚠️ O-1: Which 5+ real HR/accounting templates will be used for R0.3? Owed by owner since 2026-10-26. A stand-in of 12 realistic documents passes after two fixes (tracked changes, footnotes), see `.work/phase-0-report.md` T-4; the threshold on real files is still open.
 - ✅ O-2: easy-template-x handles header/footer, split runs and diacritic tags (prototype spike1, 2026-10-28). Remaining caveats are ticketed in T-3: NFC normalization of keys, missing keys must be flagged, split-run value takes the first run's format.
-- ⚠️ O-3: The six-phase roadmap figure in the source could not be read. Owner to compare the placement in `.work/notes.md` (roadmap) with the figure. Owed by owner since 2026-10-26. Needed before ticket planning past Phase 2.
+- ✅ O-3: owner confirmed the phase placement on 2026-10-28 (see `.work/notes.md`, roadmap).
 - ✅ O-4: `@napi-rs/canvas` 1.0.11 runs in worker threads and utility processes in the packaged app on Windows and Ubuntu, with identical pixels (CI run 40720039038). Versions 1.0.12 and 1.0.13 crash Electron 45 on load, so the version is pinned. Decision in `.work/notes.md` (2026-10-28, canvas).
 - ✅ O-5: styles come from `GlobalFonts.families`; no coverage API (Preview only); a font installed at runtime appears after `loadFontsFromDir` on Linux and Windows (CI). macOS untested.
 - ✅ O-6: exceljs `cell.text` ignores number formats; use `cell.numFmt` with `ssf` (spike3).
