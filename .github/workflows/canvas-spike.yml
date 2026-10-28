@@ -1,0 +1,44 @@
+name: Canvas spike (T-2)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - src/worker/canvas-probe.ts
+      - src/main/probe.ts
+      - scripts/check-probe.mjs
+      - electron-builder.yml
+      - .github/workflows/canvas-spike.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: probe (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Package (Linux)
+        if: runner.os == 'Linux'
+        run: npx electron-builder --linux --dir
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        run: npx electron-builder --win --dir
+      - name: Probe the packaged app (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a node scripts/check-probe.mjs release/linux-unpacked/sheetstamp --no-sandbox
+      - name: Probe the packaged app (Windows)
+        if: runner.os == 'Windows'
+        run: node scripts/check-probe.mjs release/win-unpacked/Sheetstamp.exe

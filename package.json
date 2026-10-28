@@ -27,6 +27,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "electron": "^45.1.0",
+    "electron-builder": "^26.18.0",
     "electron-vite": "^6.0.0",
     "iconv-lite": "^0.7.3",
     "jszip": "^3.10.2",
@@ -37,6 +38,7 @@
     "vitest": "^5.0.5"
   },
   "dependencies": {
+    "@napi-rs/canvas": "1.0.11",
     "archiver": "^8.0.0",
     "easy-template-x": "^8.0.0",
     "exceljs": "^4.4.0",

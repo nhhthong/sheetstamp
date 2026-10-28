@@ -1,0 +1,15 @@
+appId: io.github.nhhthong.sheetstamp
+productName: Sheetstamp
+directories:
+  output: release
+files:
+  - out/**/*
+  - package.json
+asar: true
+# Native modules cannot load from inside the ASAR archive.
+asarUnpack:
+  - "**/*.node"
+extraResources:
+  - from: tests/fixtures/fonts
+    to: test-fonts
+npmRebuild: false
