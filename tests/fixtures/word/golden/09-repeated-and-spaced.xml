@@ -1,0 +1,42 @@
+<!-- word/document.xml -->
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<w:body>
+<w:p>
+<w:r>
+<w:t xml:space="preserve">Nguyễn Thị Hương</w:t>
+<w:t xml:space="preserve"> / </w:t>
+<w:t xml:space="preserve">Nguyễn Thị Hương</w:t>
+<w:t xml:space="preserve"> / </w:t>
+<w:t xml:space="preserve">28/10/2026</w:t>
+<w:t xml:space="preserve">
+</w:t>
+</w:r>
+</w:p>
+<w:sectPr>
+<w:headerReference w:type="default" r:id="rId2"/>
+<w:footerReference w:type="default" r:id="rId3"/>
+</w:sectPr>
+</w:body>
+</w:document>
+<!-- word/header1.xml -->
+<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<w:p>
+<w:r>
+<w:t xml:space="preserve">Phòng nhân sự – </w:t>
+<w:t xml:space="preserve">Nguyễn Thị Hương</w:t>
+<w:t xml:space="preserve">
+</w:t>
+</w:r>
+</w:p>
+</w:hdr>
+<!-- word/footer1.xml -->
+<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<w:p>
+<w:r>
+<w:t xml:space="preserve">Số: </w:t>
+<w:t xml:space="preserve">HD-001</w:t>
+<w:t xml:space="preserve">
+</w:t>
+</w:r>
+</w:p>
+</w:ftr>
