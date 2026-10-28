@@ -21,7 +21,7 @@ export function Dialog({
     <BaseDialog.Root open={open} onOpenChange={onOpenChange}>
       <BaseDialog.Portal>
         <BaseDialog.Backdrop className="fixed inset-0 bg-black/40" />
-        <BaseDialog.Popup className="fixed top-1/2 left-1/2 w-[min(520px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2 rounded-dialog border border-line bg-bg p-6 shadow-lg">
+        <BaseDialog.Popup className="fixed top-1/2 left-1/2 max-h-[calc(100vh-32px)] w-[min(520px,calc(100vw-32px))] overflow-y-auto -translate-x-1/2 -translate-y-1/2 rounded-dialog border border-line bg-bg p-6 shadow-lg">
           <BaseDialog.Title className="mb-4 text-xl font-semibold">{title}</BaseDialog.Title>
           <div className="flex flex-col gap-4">{children}</div>
           <div className="mt-6 flex justify-start gap-3">
