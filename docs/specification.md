@@ -266,14 +266,20 @@ Risk levels are my own estimates and are not backed by measured data. They are o
 - Electron 45: stable October 20, 2026; end of support April 27, 2027; support covers the latest three major versions; there is no LTS.
 - GitHub excludes drafts and pre-releases from `releases/latest` and `latest/download`.
 
+**Verified by prototype on Linux, Node 22 (2026-10-28, `prototypes/phase0/`)**
+
+- easy-template-x 8.0.0 handles split runs, tables, headers, footers, tags with diacritics and loops. Tag keys match literally (normalize to NFC); a missing key silently becomes an empty string; the value takes the format of the tag's first run; about 4 ms per small document.
+- exceljs `cell.text` ignores number formats. `ssf` formats Excel codes such as `00000` correctly.
+- `chardet` is unreliable on short Windows-1258 text; the fixed order BOM, strict UTF-8, Windows-1258 makes it unnecessary.
+- `@napi-rs/canvas` lists families with their styles (`GlobalFonts.families`), has no coverage API, synthesizes bold and italic when a face is missing, and renders Vietnamese diacritics inside a `worker_thread`.
+- archiver 8.0.0 (API: `ZipArchive`) sets the UTF-8 flag for non-ASCII names.
+- exceljs loads 50,000 rows in about 3 s and 280 MB.
+
 **Not yet verified**
 
-- easy-template-x: indirect evidence that split runs are handled (each tag is isolated into its own text node); header/footer support and tags with diacritics are not documented.
-- Whether `@napi-rs/canvas` runs correctly in a worker or utility process. Its image encoding runs in the libuv thread pool, but drawing runs on the calling thread.
-- Whether a solo project can be approved by SignPath; no approved example has been found, and one reported rejection cites insufficient reputation.
+- `@napi-rs/canvas` in Electron `utilityProcess` or a worker inside the packaged app on Windows and Ubuntu.
+- Fonts installed while the app is running; style availability and rendering on Windows and macOS.
+- Display of non-ASCII ZIP names on Windows 10/11, macOS and Ubuntu.
+- Whether SignPath approves a solo project (no approved example found; one rejection reported).
 - Whether Vietnam is a supported market for individual Microsoft Store accounts.
 - Whether artifacts from public repositories count toward the 500 MB storage limit (likely not).
-- Whether exceljs `cell.text` applies custom number formats such as `00000`.
-- How accurately `chardet` detects Windows-1258 on short Vietnamese text.
-- Whether `@napi-rs/canvas` applies synthetic bold or italic when a family has no matching font file (not documented; test in Phase 0).
-- Whether the app can read, for each installed font, which styles it offers and whether it covers Vietnamese diacritics. The library lists families; style and glyph-coverage information is not documented. If it cannot, rely on Preview.

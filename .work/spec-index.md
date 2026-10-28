@@ -15,7 +15,7 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 | R0.4 | Skia rendering of Vietnamese diacritics in four styles on three OSes; `@napi-rs/canvas` in the background process and packaged build | ⚠️ O-4 |
 | R0.5 | Font tests: install while running, uninstalled font, clean machines | ⚠️ O-5 |
 | R0.6 | ZIP filenames with diacritics in Explorer, Archive Utility, Ubuntu tools | ✅ |
-| R0.7 | CSV and `.xlsx` input tests (BOM, Windows-1258, `00000` IDs, renamed `.xls`) | ⚠️ O-6 |
+| R0.7 | CSV and `.xlsx` input tests (BOM, Windows-1258, `00000` IDs, renamed `.xls`) | ✅ O-6, O-7 resolved |
 | R0.8 | Benchmark 4,000 rows, Word and image, on 4 cores | ✅ |
 | R0.9 | Ad hoc-sign macOS build and record the warning | ✅ |
 | R0.10 | Clean-machine install: Windows per-user, Ubuntu `.deb` and AppImage, VirusTotal scan | ✅ |
@@ -26,11 +26,11 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 |---|---|---|
 | R1.1 | Accept `.csv` and `.xlsx` with sheet selection | ✅ |
 | R1.2 | Reject `.xls` by extension and file signature | ✅ |
-| R1.3 | Encoding order: BOM, strict UTF-8, Windows-1258; dropdown with 5-row preview; no TCVN3/VNI | ⚠️ O-7 |
+| R1.3 | Encoding order: BOM, strict UTF-8, Windows-1258; dropdown with 5-row preview; no TCVN3/VNI | ✅ O-7 resolved |
 | R1.4 | Auto delimiter detection, NFC normalization | ✅ |
-| R1.5 | Preserve leading zeros: displayed text for `.xlsx`, warning, per-column zero padding | ⚠️ O-6 |
+| R1.5 | Preserve leading zeros: displayed text for `.xlsx`, warning, per-column zero padding | ✅ O-6 resolved |
 | R1.6 | First five rows shown; background scan for empty cells and mixed types | ✅ |
-| R1.7 | Limit input file size (section 5, security) | ⚠️ O-8 |
+| R1.7 | Limit input file size (section 5, security) | ✅ O-8 resolved |
 
 ### R2 Mapping
 | ID | Where in the source | Status |
@@ -44,10 +44,10 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 ### R3 Word templates
 | ID | Where in the source | Status |
 |---|---|---|
-| R3.1 | Import `.docx`; scan `{{...}}` in body, tables, headers, footers | ⚠️ O-2 |
-| R3.2 | Replace text preserving formatting, including split runs | ⚠️ O-2 |
+| R3.1 | Import `.docx`; scan `{{...}}` in body, tables, headers, footers | ✅ O-2 resolved |
+| R3.2 | Replace text preserving formatting, including split runs | ✅ O-2 resolved |
 | R3.3 | Extract tags on import, dedupe, flag `{{#...}}`/`{{/...}}` as unsupported | ✅ |
-| R3.4 | Tags with diacritics supported (risk table) | ⚠️ O-2 |
+| R3.4 | Tags with diacritics supported (risk table) | ✅ O-2 resolved |
 | R3.5 | `TemplateEngine` interface so easy-template-x can be replaced | ✅ |
 | R3.6 | Edit a template by editing in Word and uploading again | ✅ |
 
@@ -63,7 +63,7 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 | R4.7 | Preview sample: first data row, else tag label | ✅ |
 | R4.8 | Export PNG or JPEG | ✅ |
 | R4.9 | Image editor sub-page (canvas, inspector, "Nâng cao") | ✅ |
-| R4.10 | No synthetic bold or italic until tested | ⚠️ O-9 |
+| R4.10 | No synthetic bold or italic until tested | ✅ O-9 resolved |
 
 ### R5 Filenames
 | ID | Where in the source | Status |
@@ -165,7 +165,7 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 | R14.2 | Electron 45, upgraded every 3–4 months; end-of-support date shown | ✅ |
 | R14.3 | electron-vite and electron-builder; `.node` files unpacked from ASAR; test the packaged build | ✅ |
 | R14.4 | React 19, Tailwind v4, shadcn/ui (Base UI), theme tokens via `nativeTheme` | ✅ |
-| R14.5 | Data libraries: papaparse, exceljs (read-only), fuse.js, date-fns, chardet | ⚠️ O-6, O-7 |
+| R14.5 | Data libraries: papaparse, exceljs (read-only), fuse.js, date-fns, chardet | ✅ O-6, O-7 resolved |
 | R14.6 | `@napi-rs/canvas` for drawing; `DISABLE_SYSTEM_FONTS_LOAD` and test font in tests | ⚠️ O-4 |
 | R14.7 | archiver for streaming ZIP | ✅ |
 | R14.8 | Vitest, Playwright, Biome; GitHub Actions on three OSes | ✅ |
@@ -186,19 +186,19 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 | M9 | easy-template-x acceptance | 10/10 own and 4/5 real templates | ✅ |
 
 ## Open points
-- ⚠️ O-1: Which 5+ real HR/accounting templates will be used for R0.3? Owed by owner since 2026-10-26. Needed before R3.1.
-- ⚠️ O-2: Does easy-template-x handle header/footer, split runs and tags with diacritics? Owed by Phase 0 spike since 2026-10-26. Needed before R3.1.
+- ⚠️ O-1: Which 5+ real HR/accounting templates will be used for R0.3? Owed by owner since 2026-10-26. Needed before ticket T-4.
+- ✅ O-2: easy-template-x handles header/footer, split runs and diacritic tags (prototype spike1, 2026-10-28). Remaining caveats are ticketed in T-3: NFC normalization of keys, missing keys must be flagged, split-run value takes the first run's format.
 - ⚠️ O-3: The six-phase roadmap figure in the source could not be read. Owner to compare the placement in `.work/notes.md` (roadmap) with the figure. Owed by owner since 2026-10-26. Needed before ticket planning past Phase 2.
-- ⚠️ O-4: Does `@napi-rs/canvas` run correctly in a worker or utility process and in the packaged app? Owed by Phase 0 spike since 2026-10-26. Needed before R14.1 and R4.6.
-- ⚠️ O-5: Can the app read each installed font's styles and Vietnamese glyph coverage, and does a font installed at runtime appear without restart? Owed by Phase 0 since 2026-10-26. Needed before R4.3.
-- ⚠️ O-6: Does exceljs `cell.text` apply number formats such as `00000`? Owed by Phase 0 since 2026-10-26. Needed before R1.5.
-- ⚠️ O-7: How accurately does `chardet` detect Windows-1258 on short Vietnamese text? Owed by Phase 0 since 2026-10-26. Needed before R1.3.
-- ⚠️ O-8: What is the input file size limit? Source says "limit input file size" without a value. Owed by owner since 2026-10-26. Needed before R1.7.
-- ⚠️ O-9: Does `@napi-rs/canvas` apply synthetic bold or italic when a family lacks the face? Owed by Phase 0 since 2026-10-26. Needed before R4.10.
-- ⚠️ O-10: Do non-ASCII ZIP names display correctly on Windows 10/11, macOS and Ubuntu, including an NFD name? Owed by Phase 0 (R0.6) since 2026-10-26. Needed before R6.6.
+- ⚠️ O-4: Worker threads run `@napi-rs/canvas` on Linux (spike4). Still open: Electron `utilityProcess` or worker in the packaged app on Windows and Ubuntu. Owed by ticket T-2. Needed before R14.1 and R4.6.
+- ⚠️ O-5: Styles per family are available from `GlobalFonts.families`; coverage has no API (Preview only). Still open: does a font installed while the app runs appear, and the same on Windows. Owed by ticket T-6. Needed before R4.3.
+- ✅ O-6: exceljs `cell.text` ignores number formats; use `cell.numFmt` with `ssf` (spike3).
+- ✅ O-7: drop chardet; fixed order BOM, strict UTF-8, Windows-1258 (spike3).
+- ✅ O-8: limits 20 MB and 50,000 rows (spike5; revisit after the benchmark).
+- ✅ O-9: canvas synthesizes bold and italic; offer only real faces (spike4).
+- ⚠️ O-10: UTF-8 flag is set by archiver 8 (spike5). Still open: display on Windows 10/11, macOS and Ubuntu, including an NFD name. Owed by ticket T-7. Needed before R6.6.
 - ❌ O-11: Will SignPath approve a solo project? No approved example found; one rejection reported. Owed by SignPath since release 1. Needed before R13.3.
 - ❌ O-12: Is Vietnam a supported market for individual Microsoft Store accounts? Owed by Microsoft since 2026-10-26. Needed only if O-11 is rejected (R13.4).
-- ⚠️ O-13: Do public-repository artifacts count toward the 500 MB storage limit? Owed by the first CI run since 2026-10-26. Needed before R13.9.
+- ⚠️ O-13: Do public-repository artifacts count toward the 500 MB storage limit? Owed by the first CI run since 2026-10-26. Needed before ticket T-9.
 
 ## Decisions
 - notes 2026-10-28 `storage`: local JSON with atomic writes behind `Storage`. ADR: `docs/adr/0001-json-storage.md`.
@@ -210,6 +210,7 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 - notes 2026-10-28 `performance`: provisional targets 60 s Word and 120 s images.
 - notes 2026-10-28 `conventions`: electron-vite layout plus `src/worker`, tests beside code, TypeScript strict, Biome, npm, version 0.1.0, English for code and docs.
 - notes 2026-10-28 `glossary`: terms in `GLOSSARY.md`.
+- notes 2026-10-28 `data, encoding, fonts, input limits, word engine, zip`: results of the Phase 0 prototypes in `prototypes/phase0/`.
 
 ## Infrastructure
 | Component | First needed by | Status |

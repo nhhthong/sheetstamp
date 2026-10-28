@@ -1,0 +1,16 @@
+{
+  "name": "sheetstamp-phase0-prototypes",
+  "private": true,
+  "type": "module",
+  "description": "Throwaway scripts that answered Phase 0 questions. Not part of the app.",
+  "dependencies": {
+    "@napi-rs/canvas": "1.0.13",
+    "archiver": "8.0.0",
+    "chardet": "2.2.0",
+    "easy-template-x": "8.0.0",
+    "exceljs": "4.4.0",
+    "iconv-lite": "0.7.3",
+    "jszip": "3.10.2",
+    "ssf": "0.11.2"
+  }
+}
