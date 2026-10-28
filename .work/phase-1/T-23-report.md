@@ -30,3 +30,8 @@ Base: 5a5ed7f (T-22 on top of 7304f19).
 - Control characters could be stripped instead of failing the row.
 - A killed app can leave `.sheetstamp-*.tmp` in the folder (not swept).
 - Real-world 4,000-row timing not re-measured here (the e2e run of 4,000 rows took about 10 s on 4 cores).
+
+## After merging the review fixes (integration tip moved)
+- `createTemplate` takes `source: fileOf(path)` (spec helper and unit test adapted). `data:clear` was removed: "Tạo đợt mới" now uses an own channel `export:resetData`
+  (`src/shared/ipc/export.ts`). The close handler is attached with `guardClose(win)` in `src/main/index.ts` beside the navigation guards (the guards are unchanged; this replaces my
+  `browser-window-created` hook). Result: biome clean, typecheck clean, vitest 24 files 270 passed, `npm run test:e2e` 36 passed.

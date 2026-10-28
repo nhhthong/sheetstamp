@@ -8,12 +8,13 @@ import {
   type PickedFolder,
   pickFolder,
   progress,
+  resetData,
   reveal,
   savePattern,
   setDiacritics,
   start,
 } from "../../shared/ipc/export";
-import { getCurrentTable } from "../data-session";
+import { dataSession, getCurrentTable } from "../data-session";
 import { runBatch, workerFileIn } from "../export/batch";
 import { ExportSession } from "../export-session/session";
 import { getStorage } from "../templates/store";
@@ -69,8 +70,6 @@ export function guardClose(win: BrowserWindow, session: ExportSession = exportSe
 const FOLDER_OPTIONS: OpenDialogOptions = { properties: ["openDirectory", "createDirectory"] };
 
 export function register(): void {
-  app.on("browser-window-created", (_event, win) => guardClose(win));
-
   handle(openExport, ({ templateId }) => exportSession.open(templateId));
   handle(example, (request) => exportSession.example(request));
   handle(savePattern, ({ templateId, pattern }) => exportSession.savePattern(templateId, pattern));
@@ -92,6 +91,7 @@ export function register(): void {
     return { ok: true, folder };
   });
 
+  handle(resetData, () => dataSession.clear());
   handle(start, (request) => exportSession.start(request));
   handle(cancel, () => exportSession.cancel());
   handle(reveal, ({ what }) => {

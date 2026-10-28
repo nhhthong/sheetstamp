@@ -136,7 +136,11 @@ export type ExportProgress = { done: number; total: number; failed: number };
 /** At most about ten a second, however many rows there are. */
 export const progress: EventChannel<ExportProgress> = eventChannel("export:progress");
 
+/** "Tạo đợt mới": forget the loaded data (it lives only in memory in main). */
+export const resetData: Channel<undefined, void> = channel("export:resetData", nothing);
+
 export const channels = [
+  resetData,
   openExport,
   example,
   pickFolder,

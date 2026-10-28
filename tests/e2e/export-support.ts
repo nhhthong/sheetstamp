@@ -11,6 +11,7 @@ import {
 } from "@playwright/test";
 import { makeDocx, paragraph, run, table } from "../../src/main/selftest/make-docx";
 import { openStorage } from "../../src/main/storage";
+import { fileOf } from "./file-of";
 
 const MAKE_DATA = join(import.meta.dirname, "../fixtures/data/make-data.ts");
 
@@ -90,7 +91,7 @@ export async function seedTemplate(
   const made = await storage.createTemplate({
     name,
     kind: "word",
-    sourcePath: docx,
+    source: fileOf(docx),
     tags: NEW_TEMPLATE_FIELDS,
   });
   return made.id;

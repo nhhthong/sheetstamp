@@ -2,6 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { fileOf } from "../../../tests/e2e/file-of";
 import type { ExportProgress } from "../../shared/ipc/export";
 import type { DataTable } from "../data";
 import type { BatchRequest } from "../export/batch";
@@ -171,7 +172,7 @@ describe("ExportSession", () => {
     const made = await storage.createTemplate({
       name: "Giấy xác nhận",
       kind: "word",
-      sourcePath: docx,
+      source: fileOf(docx),
       tags: [
         { name: "ho_ten", label: "Họ tên" },
         { name: "chuc_vu", label: "Chức vụ" },

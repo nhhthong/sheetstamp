@@ -1,13 +1,13 @@
 // The export run as the renderer sees it: one module-level store (like ./flow.ts), so the progress survives the
 // step being unmounted and every part of step 4 reads the same state. The work itself happens in main.
 import { useSyncExternalStore } from "react";
-import { clear } from "../../../shared/ipc/data";
 import {
   cancel,
   type ExportDone,
   type ExportProgress,
   type FailureCode,
   progress,
+  resetData,
   start,
 } from "../../../shared/ipc/export";
 import { call, listen } from "../../lib/ipc";
@@ -97,7 +97,7 @@ export const exportRun = {
 
   /** "Tạo đợt mới": the data in main, the flow and this run all go back to the start. */
   async newBatch() {
-    await call(clear).catch(() => undefined);
+    await call(resetData).catch(() => undefined);
     draft = undefined;
     set({ kind: "idle" });
     flow.reset();
