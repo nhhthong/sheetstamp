@@ -1,0 +1,10 @@
+{
+  "extraKnownMarketplaces": {
+    "nhhthong-skills": {
+      "source": { "source": "github", "repo": "nhhthong/skills" }
+    }
+  },
+  "enabledPlugins": {
+    "dev@nhhthong-skills": true
+  }
+}
