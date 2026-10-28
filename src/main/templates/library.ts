@@ -33,7 +33,7 @@ export const messages = {
   saveFailed: "Không lưu được mẫu. Kiểm tra ổ đĩa còn chỗ trống rồi thử lại.",
 } as const;
 
-const fail = (message: string): { ok: false; message: string } => ({ ok: false, message });
+export const fail = (message: string): { ok: false; message: string } => ({ ok: false, message });
 
 /** Read a chosen file after checking it is a .docx of acceptable size. */
 async function readSource(path: string): Promise<Outcome<{ bytes: Uint8Array; fileName: string }>> {
@@ -105,7 +105,11 @@ export async function getTemplate(storage: Storage, id: string): Promise<Templat
   const t = await storage.getTemplate(id);
   if (!t) return null;
   const names = await groupNames(storage);
-  return { ...summary(t, names), tags: t.tags.map(({ name, label }) => ({ name, label })) };
+  return {
+    ...summary(t, names),
+    tags: t.tags.map(({ name, label }) => ({ name, label })),
+    filenamePattern: t.filenamePattern,
+  };
 }
 
 export async function createTemplate(
