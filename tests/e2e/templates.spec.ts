@@ -108,7 +108,7 @@ test("create, keep across restart, and delete a Word template", async () => {
   await expect(row).toContainText("Hợp đồng lao động");
   await expect(row).toContainText("3 trường, chưa dùng. Bản 2026");
   await expect(row).toContainText("Tuyển dụng");
-  await expect(row.getByRole("button", { name: "Sửa" })).toBeDisabled();
+  await expect(row.getByRole("button", { name: "Sửa" })).toBeEnabled();
   await shoot(page, "list");
 
   // The stored copy exists in the data folder.

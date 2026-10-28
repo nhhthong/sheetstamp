@@ -10,6 +10,8 @@ import { cn } from "../../lib/cn";
 import { call } from "../../lib/ipc";
 import { tpl } from "../../strings/templates";
 import { vi } from "../../strings/vi";
+import { EditTemplateDialog } from "./EditTemplateDialog";
+import { GroupsDialog } from "./GroupsDialog";
 import { NewTemplateDialog } from "./NewTemplateDialog";
 
 export { NewTemplateDialog } from "./NewTemplateDialog";
@@ -31,6 +33,8 @@ export function TemplatesPage() {
   const [error, setError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirming, setConfirming] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [groupsOpen, setGroupsOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -62,9 +66,14 @@ export function TemplatesPage() {
       title={vi.pages.templates.title}
       subtitle={vi.pages.templates.subtitle}
       actions={
-        <Button onClick={() => setDialogOpen(true)} disabled={tab === "images"}>
-          {tpl.newTemplate}
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="secondary" onClick={() => setGroupsOpen(true)}>
+            {tpl.manageGroups}
+          </Button>
+          <Button onClick={() => setDialogOpen(true)} disabled={tab === "images"}>
+            {tpl.newTemplate}
+          </Button>
+        </div>
       }
     >
       <div
@@ -137,8 +146,12 @@ export function TemplatesPage() {
                 </div>
               ) : (
                 <div className="flex shrink-0 gap-2">
-                  {/* T-18 fills this handler; until then the button is disabled with a tooltip. */}
-                  <Button variant="secondary" size="sm" disabled title={tpl.editSoon}>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    aria-label={`${tpl.edit} ${t.name}`}
+                    onClick={() => setEditing(t.id)}
+                  >
                     {tpl.edit}
                   </Button>
                   <Button
@@ -160,6 +173,17 @@ export function TemplatesPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onCreated={() => void refresh()}
+      />
+      <EditTemplateDialog
+        open={editing !== null}
+        templateId={editing}
+        onOpenChange={(open) => !open && setEditing(null)}
+        onSaved={() => void refresh()}
+      />
+      <GroupsDialog
+        open={groupsOpen}
+        onOpenChange={setGroupsOpen}
+        onChanged={() => void refresh()}
       />
     </Page>
   );

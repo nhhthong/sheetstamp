@@ -1,5 +1,6 @@
 // IPC channels of the "templates" feature (template library) and the groups they belong to.
 import {
+  arrayOf,
   type Channel,
   channel,
   IpcValidationError,
@@ -27,6 +28,7 @@ export type TemplateSummary = {
 
 export type TemplateDetail = TemplateSummary & {
   tags: { name: string; label: string }[];
+  filenamePattern: string;
 };
 
 export type GroupInfo = { id: string; name: string };
@@ -47,6 +49,37 @@ export type CreateRequest = {
   /** Display label per tag key; keys not found in the file are ignored. */
   labels: Record<string, string>;
 };
+
+/** What replacing a template's file would change, computed in main from the stored tags and the new file. */
+export type ReplacePreview = {
+  fileName: string;
+  /** Fields of the new file that the template does not have yet; their labels are suggestions. */
+  added: { key: string; label: string }[];
+  /** Tags of the template that the new file no longer has. */
+  removed: string[];
+  /** Tags present in both. */
+  kept: string[];
+  /** Removed tags that had a saved mapping entry; the entry is dropped when the file is replaced. */
+  removedMapped: string[];
+  /** Number of kept tags that have a saved mapping entry (their mapping stays). */
+  keptMapped: number;
+  /** Loop marks and footnote tags in the new file (not supported, not filled). */
+  unsupported: FoundTag[];
+};
+
+export type UpdateRequest = {
+  id: string;
+  name: string;
+  groupId: string;
+  note: string;
+  filenamePattern: string;
+  /** Display label per tag key; keys the template will not have are ignored. */
+  labels: Record<string, string>;
+  /** New source file; null keeps the current one. Tags are read from it in main. */
+  replacePath: string | null;
+};
+
+export type PatternCheckRequest = { pattern: string; keys: string[] };
 
 /** Largest source file accepted, in bytes. */
 export const MAX_SOURCE_BYTES = 20 * 1024 * 1024;
@@ -103,6 +136,53 @@ export const groupsCreate: Channel<{ name: string }, Outcome<GroupInfo>> = chann
   (value) => ({ name: string(record(value).name, "name", { min: 1, max: 200 }) }),
 );
 
+export const replacePreview: Channel<
+  { id: string; path: string },
+  Outcome<ReplacePreview>
+> = channel("templates:replace-preview", (value) => ({
+  id: parseId(value).id,
+  path: parsePath(value).path,
+}));
+export const update: Channel<UpdateRequest, Outcome<{ id: string }>> = channel(
+  "templates:update",
+  (value) => {
+    const r = record(value);
+    const replacePath = r.replacePath === null ? null : parsePath({ path: r.replacePath }).path;
+    return {
+      id: parseId(r).id,
+      name: string(r.name, "name", { min: 1, max: 200 }),
+      groupId: string(r.groupId, "groupId", { min: 1, max: 200 }),
+      note: string(r.note, "note", { max: 2000 }),
+      filenamePattern: string(r.filenamePattern, "filenamePattern", { max: 500 }),
+      labels: parseLabels(r.labels),
+      replacePath,
+    };
+  },
+);
+/** Advisory check for inline messages while typing; saving checks again against the stored tags. */
+export const checkPattern: Channel<PatternCheckRequest, string[]> = channel(
+  "templates:check-pattern",
+  (value) => {
+    const r = record(value);
+    return {
+      pattern: string(r.pattern, "pattern", { max: 500 }),
+      keys: arrayOf(r.keys, "keys", (k) => string(k, "key", { min: 1, max: 500 }), MAX_LABELS),
+    };
+  },
+);
+export const groupsRename: Channel<{ id: string; name: string }, Outcome<GroupInfo>> = channel(
+  "groups:rename",
+  (value) => ({
+    id: parseId(value).id,
+    name: string(record(value).name, "name", { min: 1, max: 200 }),
+  }),
+);
+/** Deleting a group moves its templates to "Chưa phân nhóm"; `moved` is how many. */
+export const groupsDelete: Channel<{ id: string }, Outcome<{ moved: number }>> = channel(
+  "groups:delete",
+  parseId,
+);
+
 export const channels = [
   list,
   get,
@@ -112,5 +192,10 @@ export const channels = [
   create,
   groupsList,
   groupsCreate,
+  replacePreview,
+  update,
+  checkPattern,
+  groupsRename,
+  groupsDelete,
 ] as const;
 export const events = [] as const;

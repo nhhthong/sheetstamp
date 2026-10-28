@@ -1,16 +1,28 @@
 // Handlers of the "templates" channels declared in src/shared/ipc/templates.ts.
 import { BrowserWindow, dialog } from "electron";
 import {
+  checkPattern,
   chooseFile,
   create,
   get,
   groupsCreate,
+  groupsDelete,
   groupsList,
+  groupsRename,
   list,
   parseFile,
   remove,
+  replacePreview,
+  update,
 } from "../../shared/ipc/templates";
-import { StorageError } from "../storage";
+import {
+  createGroup,
+  deleteGroup,
+  patternMessages,
+  replacePreview as previewReplace,
+  renameGroup,
+  updateTemplate,
+} from "../templates/edit";
 import {
   createTemplate,
   getTemplate,
@@ -40,12 +52,10 @@ export function register(): void {
   handle(parseFile, ({ path }) => parseChosenFile(path));
   handle(create, async (request) => createTemplate(await getStorage(), request));
   handle(groupsList, async () => (await getStorage()).listGroups());
-  handle(groupsCreate, async ({ name }) => {
-    try {
-      return { ok: true as const, value: await (await getStorage()).createGroup(name) };
-    } catch (error) {
-      if (error instanceof StorageError) return { ok: false as const, message: error.message };
-      throw error;
-    }
-  });
+  handle(groupsCreate, async ({ name }) => createGroup(await getStorage(), name));
+  handle(groupsRename, async ({ id, name }) => renameGroup(await getStorage(), id, name));
+  handle(groupsDelete, async ({ id }) => deleteGroup(await getStorage(), id));
+  handle(replacePreview, async ({ id, path }) => previewReplace(await getStorage(), id, path));
+  handle(update, async (request) => updateTemplate(await getStorage(), request));
+  handle(checkPattern, ({ pattern, keys }) => patternMessages(pattern, keys));
 }
