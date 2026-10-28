@@ -1,3 +1,5 @@
+import { stripDiacritics } from "../../shared/text/diacritics";
+
 /** A filename pattern such as `{{ten}}_Thử việc`: fixed text and `{{field}}` tags. */
 export type PatternPart = { type: "text"; value: string } | { type: "field"; key: string };
 
@@ -42,26 +44,25 @@ export function validatePattern(pattern: string, knownKeys: readonly string[]): 
 
 const RESERVED = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i;
 
-export function removeDiacritics(text: string): string {
-  return text
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D")
-    .normalize("NFC");
-}
+// Bidi controls and zero-width characters make names that look equal but are not (or read backwards).
+const INVISIBLE = /[​-‍﻿‪-‮⁦-⁩]/g;
 
 /** Make one name safe on Windows, macOS and Linux. The extension is not part of `name`. */
 export function sanitizeName(name: string): string {
   const cleaned = name
     .normalize("NFC")
+    .replace(INVISIBLE, "")
     .replace(/[\u0000-\u001f\u007f<>:"/\\|?*]/g, "_")
     .replace(/\.{2,}/g, "_")
     .replace(/\s+/g, " ")
     // Windows drops trailing dots and spaces, which would make two names collide on extraction.
     .replace(/[. ]+$/g, "")
-    .replace(/^ +/g, "");
-  return RESERVED.test(cleaned) ? `_${cleaned}` : cleaned;
+    .replace(/^ +/g, "")
+    // A leading dot would make a hidden file on macOS and Linux.
+    .replace(/^\.+/, "_");
+  // Windows treats `con.txt` like `con`: only the part before the first dot decides.
+  const stem = (cleaned.split(".")[0] as string).trimEnd();
+  return RESERVED.test(stem) ? `_${cleaned}` : cleaned;
 }
 
 export type NameOptions = {
@@ -81,19 +82,29 @@ export function baseName(
   const raw = parsePattern(pattern)
     .map((part) => (part.type === "text" ? part.value : (lookup.get(part.key) ?? "")))
     .join("");
-  const name = sanitizeName(options.removeDiacritics ? removeDiacritics(raw) : raw);
+  const name = sanitizeName(options.removeDiacritics ? stripDiacritics(raw) : raw);
   return name === "" ? String(options.rowNumber) : name;
 }
 
 const segmenter = new Intl.Segmenter("vi", { granularity: "grapheme" });
 
-/** Cut to at most `max` UTF-16 units without splitting a letter and its marks. */
-export function truncate(text: string, max: number): string {
-  if (text.length <= max) return text;
+const encoder = new TextEncoder();
+
+/**
+ * Cut to at most `max` UTF-16 units (and, when given, `maxBytes` UTF-8 bytes) without splitting a letter and its
+ * marks. Text that is already short enough is returned without running the segmenter.
+ */
+export function truncate(text: string, max: number, maxBytes = Number.POSITIVE_INFINITY): string {
+  // UTF-8 needs at most 3 bytes per UTF-16 unit, so short text cannot exceed `maxBytes`.
+  const bytesFit = text.length * 3 <= maxBytes || encoder.encode(text).length <= maxBytes;
+  if (text.length <= max && bytesFit) return text;
   let out = "";
+  let bytes = 0;
   for (const { segment } of segmenter.segment(text)) {
-    if (out.length + segment.length > max) break;
+    const size = encoder.encode(segment).length;
+    if (out.length + segment.length > max || bytes + size > maxBytes) break;
     out += segment;
+    bytes += size;
   }
   return out.replace(/[. ]+$/g, "");
 }
@@ -118,17 +129,21 @@ export function planFileNames(
   const extension = options.extension.startsWith(".") ? options.extension : `.${options.extension}`;
   const max = options.maxLength ?? 200;
   const used = new Set<string>();
+  // Next number to try per base name: every smaller number is already taken (`used` only grows), so a run of
+  // identical names stays linear instead of restarting at 1 for each of them.
+  const nextNumber = new Map<string, number>();
   return rows.map((row) => {
     const base = baseName(pattern, row.values, {
       rowNumber: row.rowNumber,
       removeDiacritics: options.removeDiacritics,
     });
-    for (let n = 1; ; n++) {
+    for (let n = nextNumber.get(base) ?? 1; ; n++) {
       const suffix = n === 1 ? "" : ` (${n})`;
       const stem = truncate(base, max - extension.length - suffix.length);
       const candidate = `${stem}${suffix}${extension}`;
       if (!used.has(key(candidate))) {
         used.add(key(candidate));
+        nextNumber.set(base, n + 1);
         return candidate;
       }
     }

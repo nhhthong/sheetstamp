@@ -15,15 +15,21 @@ import type {
 } from "../../shared/ipc/export";
 import type { DataTable } from "../data";
 import type { BatchRequest } from "../export/batch";
-import { maxNameLength, planFileNames, sanitizeName, validatePattern } from "../export/filename";
-import { ExportCancelledError, type ExportResult } from "../export/zip";
+import {
+  maxNameLength,
+  planFileNames,
+  sanitizeName,
+  truncate,
+  validatePattern,
+} from "../export/filename";
+import { ExportCancelledError, type ExportResult, sweepStaleTemps } from "../export/zip";
 import { toProfile, toRecord } from "../mapping";
 import { DEFAULT_FILENAME_PATTERN, type Storage, type Template } from "../storage";
 import { buildRows } from "./rows";
 import { throttle } from "./throttle";
 
-export const PROGRESS_INTERVAL_MS = 100;
-export const EXTENSION = ".docx";
+const PROGRESS_INTERVAL_MS = 100;
+const EXTENSION = ".docx";
 
 export type SessionDeps = {
   storage: () => Promise<Storage>;
@@ -40,13 +46,24 @@ export type SessionDeps = {
 
 type Fail = { ok: false; code: FailureCode };
 
+const ZIP_BASE_MAX_CHARS = 100;
+const ZIP_BASE_MAX_BYTES = 200;
+
 const pad = (n: number) => String(n).padStart(2, "0");
 const isoDay = (date: Date) =>
   `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
 /** `<template name> <yyyy-mm-dd>.zip`, sanitized with the filename rules. An existing name is numbered by `exportZip`. */
 export function zipNameFor(templateName: string, date: Date): string {
-  return `${sanitizeName(`${templateName} ${isoDay(date)}`)}.zip`;
+  const day = isoDay(date);
+  // About 100 characters and 200 UTF-8 bytes, cut at grapheme boundaries, so no file system refuses the final name
+  // (255 bytes on most) after every row was done. The date always stays.
+  const name = truncate(
+    sanitizeName(templateName),
+    ZIP_BASE_MAX_CHARS - day.length - 1,
+    ZIP_BASE_MAX_BYTES - day.length - 1,
+  );
+  return `${sanitizeName(`${name} ${day}`)}.zip`;
 }
 
 /** The stored default `{{ten}}` falls back to the first field when the template has no `ten`. */
@@ -131,6 +148,9 @@ export class ExportSession {
     const storage = await this.deps.storage();
     const choices = await storage.getChoices();
     const fields: ExportField[] = template.tags.map((t) => ({ key: t.name, label: t.label }));
+    const folder = await this.folder();
+    // A killed process can leave `.sheetstamp-*.tmp` behind: remove the ones older than a day.
+    await sweepStaleTemps(folder).catch(() => undefined);
     return {
       ok: true,
       view: {
@@ -138,7 +158,7 @@ export class ExportSession {
         fields,
         pattern: effectivePattern(template),
         removeDiacritics: choices.removeDiacritics,
-        folder: await this.folder(),
+        folder,
         rowCount: table.rows.length,
       },
     };
@@ -230,6 +250,8 @@ export class ExportSession {
           written: result.written,
           failed: result.failed.length,
           hasReport: result.reportPath !== undefined,
+          invalidValues: result.failed.filter((f) => f.code === "invalid-value").length,
+          reportFailed: result.reportFailed === true,
         },
       };
     } catch (error) {

@@ -1,12 +1,12 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { getRow } from "../../../shared/ipc/mapping";
+import { type Entries, rowValues } from "../../../shared/mapping/values";
 import { Button } from "../../components/ui/button";
 import { Status } from "../../components/ui/status";
 import { call } from "../../lib/ipc";
 import { WordPreview } from "../../preview/WordPreview";
 import { homeMapping as t } from "../../strings/home-mapping";
-import { type Entries, rowValues } from "./mapping-values";
 
 export type MappingPreviewProps = {
   template: Uint8Array;

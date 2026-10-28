@@ -1,9 +1,8 @@
+import { stripDiacritics } from "../../shared/text/diacritics";
+
 /** Lowercase, remove diacritics (đ -> d), turn `_`, `-`, punctuation into single spaces. */
 export function normalize(text: string): string {
-  return text
-    .normalize("NFD")
-    .replace(/\p{M}+/gu, "")
-    .replace(/đ/gi, "d")
+  return stripDiacritics(text)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .trim();

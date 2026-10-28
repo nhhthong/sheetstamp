@@ -1,6 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 import { basename, isAbsolute } from "node:path";
 import type { DataResult, DataSnapshot, SnapshotWarning } from "../../shared/ipc/data";
+import { stripDiacritics } from "../../shared/text/diacritics";
 import {
   DataError,
   type DataTable,
@@ -27,7 +28,7 @@ type Source = {
 
 /** Zero-padding width suggested for a numeric ID column; the user can change it. */
 export function suggestWidth(column: string, width: number): number {
-  const name = column.normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/gi, "d").toLowerCase();
+  const name = stripDiacritics(column).toLowerCase();
   if (/cccd|can cuoc/.test(name)) return Math.max(12, width);
   if (/cmnd/.test(name)) return Math.max(9, width);
   if (/dien thoai|sdt|phone/.test(name)) return Math.max(10, width);

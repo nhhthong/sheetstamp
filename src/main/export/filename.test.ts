@@ -4,7 +4,6 @@ import {
   maxNameLength,
   parsePattern,
   planFileNames,
-  removeDiacritics,
   sanitizeName,
   truncate,
   validatePattern,
@@ -58,12 +57,62 @@ describe("sanitize", () => {
     expect(sanitizeName(name)).toBe(`_${name}`);
   });
 
+  it.each(["con.report", "COM1.txt", "Nul.tar.gz", "aux .x"])(
+    "prefixes a reserved name that has an extension: %s",
+    (name) => {
+      expect(sanitizeName(name)).toBe(`_${name}`);
+    },
+  );
+
+  it("strips bidi controls and zero-width characters", () => {
+    expect(sanitizeName("a\u202Eb\u2066c\u2069d\u200Be\u200Df\uFEFFg")).toBe("abcdefg");
+    expect(sanitizeName("\u200Bcon")).toBe("_con");
+  });
+
+  it("does not let a leading dot make a hidden file", () => {
+    expect(sanitizeName(" .hid")).toBe("_hid");
+    expect(sanitizeName(".env")).toBe("_env");
+    expect(sanitizeName("a.b")).toBe("a.b");
+  });
+
   it("does not touch names that merely start like a reserved word", () => {
     expect(sanitizeName("CONTRACT")).toBe("CONTRACT");
   });
 
   it("keeps Vietnamese letters composed", () => {
     expect(sanitizeName("Nguyễn Văn A".normalize("NFD"))).toBe("Nguyễn Văn A");
+  });
+});
+
+describe("plan speed", () => {
+  it("gives the same names as before for a small case with clashes between bases", () => {
+    expect(plan(["A", "A", "a", "A (2)", "A", "B", "A (2)"])).toEqual([
+      "A.docx",
+      "A (2).docx",
+      "a (3).docx",
+      "A (2) (2).docx",
+      "A (4).docx",
+      "B.docx",
+      "A (2) (3).docx",
+    ]);
+  });
+
+  it.each([4000, 20000])("plans %i identical names well under a second", (count) => {
+    const started = performance.now();
+    const names = plan(Array.from({ length: count }, () => "Nguyễn Văn An"));
+    expect(performance.now() - started).toBeLessThan(1000);
+    expect(new Set(names).size).toBe(count);
+    expect(names[0]).toBe("Nguyễn Văn An.docx");
+    expect(names[count - 1]).toBe(`Nguyễn Văn An (${count}).docx`);
+  });
+
+  it("cuts by characters and by UTF-8 bytes at grapheme boundaries", () => {
+    const text = "ệ".repeat(100); // 3 bytes each
+    const cut = truncate(text, 100, 200);
+    expect(new TextEncoder().encode(cut).length).toBeLessThanOrEqual(200);
+    expect(cut).toBe("ệ".repeat(66));
+    const decomposed = "e\u0323\u0302".repeat(10); // one letter, two marks
+    expect(truncate(decomposed, 100, 7)).toBe("e\u0323\u0302");
   });
 });
 
@@ -100,7 +149,6 @@ describe("plan", () => {
   });
 
   it("removes Vietnamese diacritics on request, including đ", () => {
-    expect(removeDiacritics("Đặng Thị Ngọc Ánh")).toBe("Dang Thi Ngoc Anh");
     expect(plan(["Đặng Văn Đức"], "{{ten}}", { removeDiacritics: true })).toEqual([
       "Dang Van Duc.docx",
     ]);

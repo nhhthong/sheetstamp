@@ -1,11 +1,14 @@
+import { execFileSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { existsSync } from "node:fs";
-import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { Writable } from "node:stream";
 import JSZip from "jszip";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { errorReportCsv } from "./report";
-import { ExportCancelledError, exportZip, RowFailure, type ZipEntry } from "./zip";
+import { ExportCancelledError, exportZip, RowFailure, sweepStaleTemps, type ZipEntry } from "./zip";
 
 let folder: string;
 beforeEach(async () => {
@@ -185,5 +188,188 @@ describe("exportZip concurrency", () => {
     });
     expect(result.failed).toEqual([{ row: 5, code: "text-too-long" }]);
     expect(result.written).toBe(5);
+  });
+});
+
+describe("write errors", () => {
+  it("fails (instead of hanging) when the output stream breaks, and keeps nothing", async () => {
+    let writes = 0;
+    const promise = exportZip({
+      folder,
+      zipName: "loi-ghi.zip",
+      total: 40,
+      produce: async (i) => ({ name: `f${i}.docx`, data: new Uint8Array(randomBytes(100_000)) }),
+      createOutput: () =>
+        new Writable({
+          write(_chunk, _encoding, done) {
+            writes++;
+            done(writes >= 3 ? Object.assign(new Error("disk full"), { code: "ENOSPC" }) : null);
+          },
+        }),
+    });
+    await expect(promise).rejects.toMatchObject({ code: "ENOSPC" });
+    expect(await readdir(folder)).toEqual([]);
+  }, 10_000);
+
+  it("cancelling after the error is harmless", async () => {
+    const controller = new AbortController();
+    let writes = 0;
+    const promise = exportZip({
+      folder,
+      zipName: "loi-ghi.zip",
+      total: 40,
+      signal: controller.signal,
+      produce: async (i) => {
+        if (i === 10) controller.abort();
+        return { name: `f${i}.docx`, data: new Uint8Array(randomBytes(100_000)) };
+      },
+      createOutput: () =>
+        new Writable({
+          write(_chunk, _encoding, done) {
+            writes++;
+            done(writes >= 2 ? new Error("boom") : null);
+          },
+        }),
+    });
+    await expect(promise).rejects.toBeInstanceOf(Error);
+    expect(await readdir(folder)).toEqual([]);
+  }, 10_000);
+
+  // A real full disk: needs root and `mount`. Skipped with a message where that is not permitted.
+  const tmpfs = (() => {
+    try {
+      const dir = execFileSync("mktemp", ["-d", join(tmpdir(), "sheetstamp-tmpfs-XXXXXX")], {
+        encoding: "utf8",
+      }).trim();
+      execFileSync("mount", ["-t", "tmpfs", "-o", "size=1m", "tmpfs", dir], { stdio: "ignore" });
+      return dir;
+    } catch {
+      console.warn("SKIPPED real disk-full test: mounting a tmpfs is not permitted here");
+      return undefined;
+    }
+  })();
+  it.skipIf(!tmpfs)(
+    "a real full disk fails the export and leaves no temporary file",
+    async () => {
+      const dir = tmpfs as string;
+      try {
+        await expect(
+          exportZip({
+            folder: dir,
+            zipName: "day.zip",
+            total: 40,
+            produce: async (i) => ({
+              name: `f${i}.docx`,
+              data: new Uint8Array(randomBytes(100_000)),
+            }),
+          }),
+        ).rejects.toMatchObject({ code: "ENOSPC" });
+        expect(await readdir(dir)).toEqual([]);
+      } finally {
+        execFileSync("umount", [dir]);
+        await rm(dir, { recursive: true, force: true });
+      }
+    },
+    20_000,
+  );
+});
+
+describe("final names", () => {
+  it("does not overwrite a name that differs only by case or by normalization", async () => {
+    await writeFile(join(folder, "Đợt.zip"), "x");
+    await writeFile(join(folder, "ĐỢT 2.ZIP".normalize("NFD")), "y"); // not a clash: different stem
+    const nfd = "Đợt".normalize("NFD");
+    const result = await exportZip({
+      folder,
+      zipName: `${nfd.toUpperCase()}.zip`,
+      total: 1,
+      produce: async () => entry(1),
+    });
+    expect(result.zipPath.endsWith("(2).zip")).toBe(true);
+    expect(await readFile(join(folder, "Đợt.zip"), "utf8")).toBe("x");
+  });
+
+  it("numbers the report by the same rule", async () => {
+    await writeFile(join(folder, "Dot-errors.CSV"), "keep");
+    const result = await exportZip({
+      folder,
+      zipName: "Dot.zip",
+      total: 1,
+      produce: async () => {
+        throw new RowFailure("missing-tag");
+      },
+    });
+    expect(result.reportPath?.endsWith("Dot-errors (2).csv")).toBe(true);
+    expect(await readFile(join(folder, "Dot-errors.CSV"), "utf8")).toBe("keep");
+  });
+
+  it("does not replace a file that appears after the free name was chosen", async () => {
+    const result = await exportZip({
+      folder,
+      zipName: "race.zip",
+      total: 2,
+      produce: async (i) => {
+        if (i === 1) await writeFile(join(folder, "race.zip"), "other"); // created while exporting
+        return entry(i);
+      },
+    });
+    expect(await readFile(join(folder, "race.zip"), "utf8")).toBe("other");
+    expect(result.zipPath.endsWith("race (2).zip")).toBe(true);
+    expect((await readdir(folder)).sort()).toEqual(["race (2).zip", "race.zip"]);
+  });
+});
+
+describe("long names and report failures", () => {
+  it("removes the temporary file when the final name is refused", async () => {
+    const promise = exportZip({
+      folder,
+      zipName: `${"a".repeat(300)}.zip`,
+      total: 1,
+      produce: async () => entry(1),
+    });
+    await expect(promise).rejects.toMatchObject({ code: "ENAMETOOLONG" });
+    expect(await readdir(folder)).toEqual([]);
+  });
+
+  it("returns the ZIP and says so when only the report cannot be written", async () => {
+    const result = await exportZip({
+      folder,
+      zipName: `${"b".repeat(248)}.zip`, // the report name ("-errors.csv" added) is too long, the ZIP name is not
+      total: 1,
+      produce: async () => {
+        throw new RowFailure("missing-tag");
+      },
+    });
+    // the ZIP has no files, but is still the result of the export
+    expect(result.failed).toHaveLength(1);
+    expect(result.reportPath).toBeUndefined();
+    expect(result.reportFailed).toBe(true);
+    expect((await readdir(folder)).filter((n) => n.endsWith(".tmp"))).toEqual([]);
+  });
+});
+
+describe("sweepStaleTemps", () => {
+  it("deletes only .sheetstamp-*.tmp files older than a day", async () => {
+    const day = 24 * 60 * 60 * 1000;
+    const old = new Date(Date.now() - 2 * day);
+    const files = [
+      ".sheetstamp-1-2.tmp",
+      ".sheetstamp-9-9.tmp",
+      "other.tmp",
+      "keep.zip",
+      ".sheetstamp-old.docx",
+    ];
+    for (const name of files) await writeFile(join(folder, name), "x");
+    for (const name of [".sheetstamp-1-2.tmp", "other.tmp", "keep.zip", ".sheetstamp-old.docx"]) {
+      await utimes(join(folder, name), old, old);
+    }
+    await sweepStaleTemps(folder);
+    expect((await readdir(folder)).sort()).toEqual(
+      [".sheetstamp-9-9.tmp", ".sheetstamp-old.docx", "keep.zip", "other.tmp"].sort(),
+    );
+  });
+
+  it("ignores a folder that does not exist", async () => {
+    await expect(sweepStaleTemps(join(folder, "nope"))).resolves.toBeUndefined();
   });
 });

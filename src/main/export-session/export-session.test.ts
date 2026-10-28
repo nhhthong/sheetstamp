@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, rm, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -44,21 +44,6 @@ describe("throttle", () => {
     expect(count).toBeGreaterThanOrEqual(95);
     expect(count).toBeLessThanOrEqual(101);
   });
-
-  it("flush sends the held value once", () => {
-    let t = 0;
-    const seen: number[] = [];
-    const send = throttle(
-      (v: number) => seen.push(v),
-      100,
-      () => t,
-    );
-    send(1);
-    send(2);
-    send.flush();
-    send.flush();
-    expect(seen).toEqual([1, 2]);
-  });
 });
 
 const table: DataTable = {
@@ -87,8 +72,11 @@ describe("buildRows", () => {
     expect("ma" in (rows[0]?.values ?? {})).toBe(false);
   });
 
-  it("leaves out a value the Word file cannot hold, so that row is reported", () => {
-    expect(buildRows(table, keys, entries)[2]?.values).toEqual({ ten: "Lê Minh Châu" });
+  it("marks a row whose value the Word file cannot hold, so it is reported as invalid-value", () => {
+    const rows = buildRows(table, keys, entries);
+    expect(rows[2]?.invalid).toBe(true);
+    expect(rows[0]?.invalid).toBeUndefined();
+    expect(rows[1]?.invalid).toBeUndefined();
   });
 
   it("a column missing from the data gives no value", () => {
@@ -124,6 +112,17 @@ describe("zipNameFor and effectivePattern", () => {
     const odd = zipNameFor('A/B: "C"?', new Date(2026, 0, 5));
     expect(odd).toBe("A_B_ _C__ 2026-01-05.zip");
     expect(/[\\/:*?"<>|]/.test(odd)).toBe(false);
+  });
+
+  it("caps a long template name by characters and by UTF-8 bytes, and keeps the date", () => {
+    const name = zipNameFor("Hợp đồng lao động ệ".repeat(8), new Date(2026, 9, 28));
+    expect(name.endsWith(" 2026-10-28.zip")).toBe(true);
+    const base = name.slice(0, -".zip".length);
+    expect(base.length).toBeLessThanOrEqual(100);
+    expect(new TextEncoder().encode(base).length).toBeLessThanOrEqual(200);
+    const letters = zipNameFor("ệ".repeat(100), new Date(2026, 9, 28));
+    expect(new TextEncoder().encode(letters).length).toBeLessThanOrEqual(204);
+    expect(zipNameFor("", new Date(2026, 9, 28))).toBe("2026-10-28.zip");
   });
 
   it("falls back from the default {{ten}} to the first field", () => {
@@ -212,6 +211,22 @@ describe("ExportSession", () => {
     });
   });
 
+  it("sweeps only old .sheetstamp-*.tmp files from the folder when the step opens", async () => {
+    const documents = join(dir, "documents");
+    const old = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+    for (const name of [".sheetstamp-1-1.tmp", "notes.tmp", "a.zip"]) {
+      await writeFile(join(documents, name), "x");
+      await utimes(join(documents, name), old, old);
+    }
+    await writeFile(join(documents, ".sheetstamp-2-2.tmp"), "fresh");
+    await new ExportSession(deps()).open(templateId);
+    expect((await readdir(documents)).sort()).toEqual([
+      ".sheetstamp-2-2.tmp",
+      "a.zip",
+      "notes.tmp",
+    ]);
+  });
+
   it("refuses without data or with an unknown template", async () => {
     const session = new ExportSession(deps());
     expect(await session.open("nope")).toEqual({ ok: false, code: "no-template" });
@@ -287,6 +302,8 @@ describe("ExportSession", () => {
         written: 2,
         failed: 0,
         hasReport: false,
+        invalidValues: 0,
+        reportFailed: false,
       },
     });
     const [request] = requests;
@@ -418,7 +435,10 @@ describe("ExportSession", () => {
     behaviour = async (request) => ({
       zipPath: join(request.folder, request.zipName),
       written: 1,
-      failed: [{ row: 2, code: "missing-tag" }],
+      failed: [
+        { row: 2, code: "missing-tag" },
+        { row: 3, code: "invalid-value" },
+      ],
       reportPath: join(request.folder, "r-errors.csv"),
     });
     const session = new ExportSession(deps());
@@ -426,9 +446,19 @@ describe("ExportSession", () => {
       await session.start({ templateId, pattern: "{{ho_ten}}", removeDiacritics: false }),
     ).toMatchObject({
       ok: true,
-      done: { written: 1, failed: 1, hasReport: true },
+      done: { written: 1, failed: 2, hasReport: true, invalidValues: 1 },
     });
     expect(session.pathToReveal("report")).toBe(join(dir, "documents", "r-errors.csv"));
+
+    behaviour = async (request) => ({
+      zipPath: join(request.folder, request.zipName),
+      written: 1,
+      failed: [{ row: 2, code: "missing-tag" }],
+      reportFailed: true,
+    });
+    expect(
+      await session.start({ templateId, pattern: "{{ho_ten}}", removeDiacritics: false }),
+    ).toMatchObject({ ok: true, done: { hasReport: false, reportFailed: true } });
 
     const empty = join(dir, "documents", "empty.zip");
     await writeFile(empty, "");

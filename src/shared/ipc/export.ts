@@ -18,7 +18,7 @@ export type PatternProblemView =
   | { kind: "path-characters"; text: string }
   | { kind: "unknown-field"; key: string };
 
-export const FAILURE_CODES = [
+const FAILURE_CODES = [
   "invalid-pattern",
   "no-data",
   "no-template",
@@ -105,6 +105,10 @@ export type ExportDone = {
   failed: number;
   /** Whether a CSV error report exists next to the ZIP. */
   hasReport: boolean;
+  /** Rows that failed because a cell holds a character Word cannot store (`invalid-value`). */
+  invalidValues: number;
+  /** Rows failed but the report file could not be written; the ZIP is fine. */
+  reportFailed: boolean;
 };
 
 export type StartResult =

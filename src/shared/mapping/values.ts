@@ -1,4 +1,4 @@
-import type { FieldMapping } from "../../../shared/ipc/mapping";
+import type { FieldMapping } from "../ipc/mapping";
 
 export type Entries = Readonly<Record<string, FieldMapping>>;
 

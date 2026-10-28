@@ -1,3 +1,4 @@
+import { stripDiacritics } from "../../shared/text/diacritics";
 import type { DataTable } from "./table";
 
 export type ColumnScan = {
@@ -13,12 +14,7 @@ export type DataWarning =
   | { kind: "mixed-types"; column: string }
   | { kind: "id-stored-as-number"; column: string; width: number };
 
-const strip = (text: string) =>
-  text
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .replace(/đ/gi, "d")
-    .toLowerCase();
+const strip = (text: string) => stripDiacritics(text).toLowerCase();
 
 /** Header words that usually name an identifier whose leading zeros matter. */
 const ID_HEADER = /(cccd|cmnd|can cuoc|dien thoai|sdt|phone|ma so thue|\bmst\b|bhxh|so tai khoan|\bstk\b|ma nv|ma nhan vien)/;
