@@ -14,9 +14,20 @@ export const paragraph = (...runs: string[]) => `<w:p>${runs.join("")}</w:p>`;
 export const table = (...cells: string[]) =>
   `<w:tbl><w:tr>${cells.map((cell) => `<w:tc>${cell}</w:tc>`).join("")}</w:tr></w:tbl>`;
 
-export type DocxParts = { body: string; header?: string; footer?: string };
+export type DocxParts = {
+  body: string;
+  header?: string;
+  footer?: string;
+  /** Extra package parts, for example `word/footnotes.xml`, with their full XML. */
+  extra?: Record<string, string>;
+};
 
-export async function makeDocx({ body, header = "", footer = "" }: DocxParts): Promise<Uint8Array> {
+export async function makeDocx({
+  body,
+  header = "",
+  footer = "",
+  extra = {},
+}: DocxParts): Promise<Uint8Array> {
   const zip = new JSZip();
   zip.file(
     "[Content_Types].xml",
@@ -42,6 +53,7 @@ export async function makeDocx({ body, header = "", footer = "" }: DocxParts): P
     "word/footer1.xml",
     `<?xml version="1.0" encoding="UTF-8"?><w:ftr ${NS}>${footer}</w:ftr>`,
   );
+  for (const [name, xml] of Object.entries(extra)) zip.file(name, xml);
   return zip.generateAsync({ type: "uint8array" });
 }
 

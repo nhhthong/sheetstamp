@@ -4,7 +4,7 @@ first-page headers) with {{tags}} in them, so spike6-run.mjs can show which tags
 
     python3 spike6-realistic-docx.py <output folder>
 """
-import copy
+import re
 import subprocess
 import sys
 import zipfile
@@ -77,7 +77,7 @@ def patched(name, body_xml, header_xml=None, footnote=None):
             body.remove(child)
     sect = body[-1] if body.tag and len(body) else None
     for xml in body_xml:
-        el = parse_xml(xml.replace("<w:p>", f"<w:p {W}>", 1) if xml.startswith("<w:p>") else xml)
+        el = parse_xml(re.sub(r"^<(w:\w+)", rf"<\1 {W}", xml, count=1))
         if sect is not None and sect.tag.endswith("}sectPr"):
             sect.addprevious(el)
         else:
@@ -85,7 +85,7 @@ def patched(name, body_xml, header_xml=None, footnote=None):
     if header_xml:
         h = d.sections[0].header
         hp = h.paragraphs[0]._p
-        hp.getparent().replace(hp, parse_xml(header_xml.replace("<w:p>", f"<w:p {W}>", 1)))
+        hp.getparent().replace(hp, parse_xml(re.sub(r"^<(w:\w+)", rf"<\1 {W}", header_xml, count=1)))
     d.save(OUT / name)
 
 

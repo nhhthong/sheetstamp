@@ -74,3 +74,61 @@ describe("EasyTemplateXEngine: behaviours", () => {
     expect(tags.filter((t) => t.key === "ten")).toHaveLength(1);
   });
 });
+
+describe("EasyTemplateXEngine: documents as Word writes them", () => {
+  it("fills a tag split by a tracked insertion, and ignores deleted text", async () => {
+    const docx = await makeDocx({
+      body:
+        '<w:p><w:r><w:t xml:space="preserve">Lương: </w:t></w:r>' +
+        '<w:ins w:id="10" w:author="HR" w:date="2026-10-01T00:00:00Z"><w:r><w:t>{{lu</w:t></w:r></w:ins>' +
+        "<w:r><w:t>ong}}</w:t></w:r></w:p>" +
+        '<w:p><w:del w:id="11" w:author="HR" w:date="2026-10-01T00:00:00Z"><w:r><w:delText>{{cu_ten}}</w:delText></w:r></w:del>' +
+        "<w:r><w:t>{{ho_ten}}</w:t></w:r></w:p>",
+    });
+    const tags = (await engine.parseTags(docx)).map((t) => t.key).sort();
+    expect(tags).toEqual(["ho_ten", "luong"]);
+    const { data, missing } = await engine.render(docx, {
+      luong: "10.000.000",
+      ho_ten: "Nguyễn Văn A",
+    });
+    expect(missing).toEqual([]);
+    expect(await textOf(data, "word/document.xml")).toBe("Lương: 10.000.000\nNguyễn Văn A");
+  });
+
+  it("fills tags inside a text box, a content control, a hyperlink and a field result", async () => {
+    const docx = await makeDocx({
+      body:
+        '<w:sdt><w:sdtPr><w:tag w:val="x"/></w:sdtPr><w:sdtContent><w:p><w:r><w:t>A {{ten}}</w:t></w:r></w:p></w:sdtContent></w:sdt>' +
+        '<w:p><w:hyperlink w:anchor="x"><w:r><w:t>B {{ten}}</w:t></w:r></w:hyperlink></w:p>' +
+        '<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText> DATE </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>C {{ten}}</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>' +
+        '<w:p><w:r><w:pict><v:shape xmlns:v="urn:schemas-microsoft-com:vml"><v:textbox><w:txbxContent><w:p><w:r><w:t>D {{ten}}</w:t></w:r></w:p></w:txbxContent></v:textbox></v:shape></w:pict></w:r></w:p>',
+    });
+    const { data, missing } = await engine.render(docx, { ten: "X" });
+    expect(missing).toEqual([]);
+    const text = await textOf(data, "word/document.xml");
+    for (const letter of ["A", "B", "C", "D"]) expect(text).toContain(`${letter} X`);
+    expect(text).not.toContain("{{");
+  });
+
+  it("lists tags that sit in footnotes as unsupported, because they are not filled", async () => {
+    const docx = await makeDocx({
+      body: paragraph(run("{{ten}}")),
+      extra: {
+        "word/footnotes.xml":
+          '<?xml version="1.0"?><w:footnotes xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:footnote w:id="1"><w:p><w:r><w:t>Ghi chú {{ten}} và {{chuc_vu}}</w:t></w:r></w:p></w:footnote></w:footnotes>',
+      },
+    });
+    const tags = await engine.parseTags(docx);
+    expect(tags.filter((t) => t.kind === "unsupported").map((t) => t.raw)).toEqual([
+      "{{ten}}",
+      "{{chuc_vu}}",
+    ]);
+  });
+
+  it("treats a non-breaking space inside the braces like a space", async () => {
+    const docx = await makeDocx({ body: paragraph(run("Họ tên: {{ ho_ten }}")) });
+    expect((await engine.parseTags(docx)).map((t) => t.key)).toEqual(["ho_ten"]);
+    const { data } = await engine.render(docx, { ho_ten: "A" });
+    expect(await textOf(data, "word/document.xml")).toBe("Họ tên: A");
+  });
+});

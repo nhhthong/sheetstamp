@@ -5,6 +5,7 @@ import { spawnSync } from "node:child_process";
 import { mkdir, mkdtemp, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { runBatch, workerFileIn } from "../out/main/batch.js";
 import { makeDocx, paragraph, run } from "../src/main/selftest/make-docx.ts";
 
@@ -29,9 +30,13 @@ const result = await runBatch(
     zipName: "ten-tieng-viet.zip",
     poolSize: 1,
   },
-  workerFileIn(new URL("../out/main", import.meta.url).pathname),
+  workerFileIn(fileURLToPath(new URL("../out/main", import.meta.url))),
 );
 console.log(`zip: ${result.zipPath}, written ${result.written}, failed ${result.failed.length}`);
+if (result.written !== NAMES.length) {
+  console.error("the export itself failed; nothing to extract");
+  process.exit(1);
+}
 
 const tools = {
   linux: [

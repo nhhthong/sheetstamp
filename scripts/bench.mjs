@@ -4,6 +4,7 @@ import { mkdir, mkdtemp, rm, stat, writeFile } from "node:fs/promises";
 import { availableParallelism, cpus, loadavg, tmpdir, totalmem } from "node:os";
 import { join } from "node:path";
 import { monitorEventLoopDelay } from "node:perf_hooks";
+import { fileURLToPath } from "node:url";
 import { createCanvas, GlobalFonts } from "@napi-rs/canvas";
 import { runBatch, workerFileIn } from "../out/main/batch.js";
 import { makeDocx, paragraph, run, table } from "../src/main/selftest/make-docx.ts";
@@ -17,7 +18,8 @@ const RUNS = Number(arg("runs", 3));
 const SIZES = arg("sizes", `1,${Math.max(1, availableParallelism() - 1)},${availableParallelism()}`)
   .split(",")
   .map(Number);
-const WORKER = workerFileIn(new URL("../out/main", import.meta.url).pathname);
+const KINDS = arg("kinds", "word,image").split(",");
+const WORKER = workerFileIn(fileURLToPath(new URL("../out/main", import.meta.url)));
 
 const FIELDS = [
   "ten",
@@ -176,7 +178,7 @@ const lines = [
   "| Kind | Pool size | Median s | Range s | Rows/s | Failed | ZIP MB | Main-thread lag p99 ms | Lag max ms | Peak RSS MB |",
   "|---|---|---|---|---|---|---|---|---|---|",
 ];
-for (const kind of ["word", "image"]) {
+for (const kind of KINDS) {
   for (const size of SIZES) {
     const set = results.filter((r) => r.label === kind && r.size === size);
     const t = set.map((r) => r.seconds);
