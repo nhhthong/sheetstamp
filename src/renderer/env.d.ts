@@ -1,7 +1,7 @@
-import type { SheetstampApi } from "../shared/ipc";
+import type { SheetstampBridge } from "../shared/ipc";
 
 declare global {
   interface Window {
-    sheetstamp: SheetstampApi;
+    sheetstamp: SheetstampBridge;
   }
 }
