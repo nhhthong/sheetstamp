@@ -1,0 +1,40 @@
+/** Vietnamese strings of Home step 3 (Ghép cột). */
+export const homeMapping = {
+  loading: "Đang ghép cột…",
+  loadError: "Không mở được bước ghép cột.",
+  retry: "Thử lại",
+  continue: "Tiếp tục",
+  continueFailed: "Không lưu được cách ghép cột. Thử lại.",
+  saveFailed: "Không lưu được thay đổi vừa rồi. Thử lại.",
+  noFields: "Mẫu này chưa có trường nào cần ghép.",
+  needWork: (n: number) => `${n} trường cần bạn chọn cột.`,
+  allDone: (n: number) => `Tất cả ${n} trường đã ghép.`,
+  listLabel: "Các trường cần ghép",
+  unmatchedMarker: "Cần chọn cột",
+  resolvedMarker: "Đã chọn",
+  explanation: (label: string) =>
+    `Chưa có cột nào giống ‘${label}’. Chọn cột khác, nhập chữ cố định hoặc để trống.`,
+  showMatched: (n: number) => `Xem ${n} trường đã khớp`,
+  hideMatched: (n: number) => `Ẩn ${n} trường đã khớp`,
+  matchedLabel: "Các trường đã khớp",
+  columnFor: (label: string) => `Cột cho trường ${label}`,
+  choose: "Chọn cột…",
+  fixedOption: "Nhập chữ cố định",
+  emptyOption: "Để trống",
+  columnsGroup: "Cột trong file",
+  fixedLabel: (label: string) => `Chữ cố định cho trường ${label}`,
+  fixedPlaceholder: "Gõ chữ sẽ điền vào mọi dòng",
+  lostTitle: "File dữ liệu mới không có một số cột đã chọn:",
+  lost: (label: string, previous: string, replacedBy: string | null) =>
+    replacedBy === null
+      ? `Trường ‘${label}’ mất cột ‘${previous}’. Chọn cột khác.`
+      : `Trường ‘${label}’ mất cột ‘${previous}’, đã tự ghép với cột ‘${replacedBy}’. Kiểm tra lại.`,
+  previewTitle: "Xem trước",
+  previewLabel: "Bản xem trước theo từng dòng",
+  pagerLabel: "Chọn dòng xem trước",
+  prev: "Dòng trước",
+  next: "Dòng sau",
+  row: (n: number, total: number) => `Dòng ${n}/${total}`,
+  rowFailed: "Không đọc được dòng này.",
+  summary: (n: number) => `${n} trường đã ghép`,
+} as const;
