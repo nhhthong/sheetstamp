@@ -24,3 +24,45 @@ Rules given by the owner: auto-approve decisions already analysed by prototype; 
 6. **Licenses of bundled development dependencies.** The renderer bundle contains the code of React, Base UI and others although they are development dependencies, so `THIRD-PARTY-NOTICES.md` would have missed them. `package.json` now lists them under `sheetstamp.bundledDevDependencies` and the notices script includes them and their dependencies (253 packages).
 7. **Biome and Tailwind.** Biome needs `css.parser.tailwindDirectives` to read Tailwind's `@theme`; set.
 8. **Checked by eye.** Screenshots of the shell in light and dark were looked at (sidebar, current item, heading, subtitle).
+
+### How the work was run
+
+One integration branch (`claude/project-guidance-y63vpi`), one pull request. T-13 was built directly; T-14, T-15, T-16, T-19 ran in parallel sub-agents (own worktrees), then T-17, then T-18 and T-20 in parallel, T-21, then T-22 and T-23 in one agent. Every report was re-verified by running the ticket's proof in the agent's worktree before merging (lint, typecheck, unit tests, built-app e2e). A reviewer sub-agent read T-13 to T-21 and found 1 blocker, 4 important and 7 minor issues; two fix agents repaired them in parallel; a second reviewer then read the export step and the whole flow (results below). Detailed per-ticket ambiguity lists are in `.work/phase-1/T-<n>-report.md`.
+
+### Ambiguities and choices by ticket (short form)
+
+| Ticket | Ambiguity | Choice and reason |
+|---|---|---|
+| T-13 | How to keep parallel tickets from colliding on IPC and pages | One module per feature, created empty up front, registry lists modules once; generic allow-listed bridge; every argument validated in main |
+| T-13 | shadcn generator needs network and prompts | Components written by hand with the same conventions; native `<select>` |
+| T-13 | Licences of dev dependencies that end up in the renderer bundle | `bundledDevDependencies` list feeds the notices script (255 packages) |
+| T-14 | Unmapped tag versus empty value in the preview | Marker U+E002 + key → "(thiếu)"; empty value → "(trống)"; engine's own `missing` path not used |
+| T-14 | Fonts and images inside docx-preview under the CSP | `ignoreFonts`, base64 images; preview uses system fonts so line breaks can differ a little from Word |
+| T-15 | Fuzzy threshold | Swept 0.10-0.45 on 94 generated cases: Fuse alone maps wrongly at every threshold; Fuse 0.25 plus a word-by-word check never does. Chose 0.25 with the check; abbreviations of 4 letters or fewer are never fuzzy; ties leave the field unmatched |
+| T-15 | One column for two fields | One column goes to one field only (user can still pick twice by hand) |
+| T-15 | Dictionary conflicts | `ten` and `dia_chi` lost synonyms that belonged to `ho_ten` and `thuong_tru`; a test fails if a name belongs to two entries |
+| T-16 | One file or several | Three files plus `sources/`: a corrupt choices file must not cost the templates |
+| T-16 | Corrupt or newer-schema file | Corrupt: renamed `.bak`, start empty, warning; newer: refuse and never overwrite |
+| T-17 | Which tags count in "n trường" | Fields only; unsupported tags (loops, footnotes) are listed in the dialog but not stored |
+| T-17 | Tags on save | Main re-parses the file; the renderer sends labels only |
+| T-18 | Renamed tag: rename or remove plus add | Remove plus add (the file has no tag identity); the dialog says so before saving |
+| T-18 | Mapping profile shape (flat record in storage, wrapper in the matching module) | Flat record persisted; wrapper only inside `src/main/mapping` (decided by me, built in T-21) |
+| T-19 | Padding an ID column | Default width guessed from the header (CCCD 12, CMND 9, phone 10); the warning is replaced by a confirmation |
+| T-19 | Same file dropped again / changed on disk | Drop re-reads from scratch; Reload keeps encoding and sheet; size and mtime checked on focus |
+| T-20 | Search with đ and combining marks | NFD, strip marks, đ to d, lowercase; query words ANDed |
+| T-20 | Template with unsupported tags only | y = 0, hint "Chưa có trường nào" instead of "Khớp 0/0" |
+| T-21 | Empty cell versus missing column | Empty cell = "" shown "(trống)"; no entry, unfinished fixed text, or a column not in the data = unmapped "(thiếu)" |
+| T-21 | Fixed text box left empty | Not resolved; "Để trống" is the way to leave a field empty |
+| T-21 | Invalidating step 3 when earlier steps finish again | Session-long watcher invalidates and reopens the step |
+| T-22 | Where the example file name comes from | Main (`export:example`) from the real first row; the page never builds names |
+| T-22 | Invalid pattern | Editor stays open, primary button disabled with a message; main refuses too |
+| T-23 | Row with an XML-invalid control character in a value | The engine writes it as is, which Word calls corrupt; the row is reported as `missing-tag` instead of exported |
+| T-23 | Progress events for 4,000 rows | At most one per 100 ms; `role="progressbar"` with text value and a live region every 10% |
+| T-23 | Close during export | `win.on("close")` guard with a native confirmation; "Hủy và đóng" cancels, waits for the temp file to go, closes |
+| Review | Navigating the window to a local file gave it the bridge | Exact page URL in one shared helper for navigation and IPC; dragover/drop cancelled outside zones |
+| Review | Zip bomb | Central-directory limits (50 MB a part, 100 MB total, 10,000 entries, no zip64) before any inflate; `maxOutputLength` per entry |
+| Review | Replace-file overwrote the stored copy before the record was committed | New unique copy name, commit, then delete the old file; one storage mutation for source, tags and mapping |
+| Review | Group and mapping races outside the storage queue | Checks and `patchMapping` moved inside the queue |
+| Review | Storage warnings never reached the UI | `storage:status` channel and a banner on Mẫu and Home step 2 |
+| Review | Demo page shipped in production | Built only with `--mode e2e` (`npm run build:e2e`) |
+| Me | Group dialog focus after delete was racy (passed in one run, failed in another) | Real race, not only the test environment: focus now set two frames after the parent reload; 5 of 5 runs pass |
