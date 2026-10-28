@@ -38,11 +38,22 @@ function Form({ open, onOpenChange, onChanged }: GroupsDialogProps) {
   // to "Xong" when no group is left, so keyboard users do not start over from the top of the dialog.
   useEffect(() => {
     if (refocus === 0) return;
-    const list = listRef.current;
-    const target =
-      list?.querySelector<HTMLElement>("button") ??
-      list?.closest("[role=dialog]")?.querySelector<HTMLElement>("[data-testid=groups-done]");
-    target?.focus();
+    // Wait two frames: the parent page reloads its list and the dialog library re-checks focus after a delete;
+    // moving focus before they settle can lose it again.
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => {
+        const list = listRef.current;
+        const target =
+          list?.querySelector<HTMLElement>("button") ??
+          list?.closest("[role=dialog]")?.querySelector<HTMLElement>("[data-testid=groups-done]");
+        target?.focus();
+      });
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
   }, [refocus]);
 
   const load = useCallback(async () => {
@@ -74,8 +85,8 @@ function Form({ open, onOpenChange, onChanged }: GroupsDialogProps) {
       if (!result.ok) return setError(result.message);
       toast.show(t.deleted(result.value.moved));
       await load();
-      setRefocus((n) => n + 1);
       onChanged();
+      setRefocus((n) => n + 1);
     } catch {
       setConfirming(null);
       setError(t.actionFailed);

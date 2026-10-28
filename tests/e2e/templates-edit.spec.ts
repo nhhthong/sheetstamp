@@ -240,6 +240,9 @@ test("manage groups: rename, unique names, delete moves templates to Chưa phân
 
   let app = await launch(dataDir);
   let page = await app.firstWindow();
+  // This test asserts where keyboard focus lands, which needs the window to be the active one: a bare X server
+  // has no window manager to activate it, so do it explicitly before touching the page.
+  await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.focus());
   await openTemplates(page);
   await page.getByRole("button", { name: "Quản lý nhóm" }).click();
   const dialog = page.getByRole("dialog");
