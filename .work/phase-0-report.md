@@ -17,3 +17,8 @@ One entry per ambiguity: where (ticket), what was unclear, the options, the choi
 3. **Golden files made from the engine itself.** A golden file written by the code under test proves only stability. Each case also asserts the visible text explicitly (`body` in `tests/fixtures/word/templates.ts`), so a wrong golden cannot hide a wrong output. Regenerate with `UPDATE_GOLDEN=1 npm test`.
 4. **Test documents.** No real `.docx` was available, so `tests/fixtures/word/make-docx.ts` builds minimal OOXML with JSZip (checked against the engine only; real Word files are T-4).
 5. **Biome and Markdown.** Biome 2.6 reformatted `docs/*.md` on `check --write`. Markdown is now excluded in `biome.json`.
+
+## CI (T-1, found after the first push)
+
+1. **Windows runner checks out CRLF**, which makes Biome's formatter fail on every file and would also break golden-file comparison. Options: `core.autocrlf=false` in the workflow, `.gitattributes`, or Biome `lineEnding: "auto"`. Chose `.gitattributes` (`* text=auto eol=lf`) plus Biome `lineEnding: "lf"`: it fixes every contributor's checkout, not only CI.
+2. **Biome checked Markdown** on the Ubuntu runner (docs tables). Markdown is excluded in `biome.json`; its formatting is not enforced.
