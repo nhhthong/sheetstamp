@@ -1,6 +1,7 @@
 import { TagDisposition, TemplateHandler } from "easy-template-x";
 import JSZip from "jszip";
 import type { RenderResult, TemplateEngine, TemplateTag } from "./types";
+import { assertSafeZip } from "./zip-limits";
 
 export const nfc = (text: string): string => text.normalize("NFC");
 
@@ -40,6 +41,7 @@ export function acceptTrackedChanges(xml: string): string {
 }
 
 async function prepare(docx: Uint8Array): Promise<{ bytes: Uint8Array; notes: string[] }> {
+  assertSafeZip(docx); // before anything inflates
   const zip = await JSZip.loadAsync(docx);
   let changed = false;
   const notes: string[] = [];

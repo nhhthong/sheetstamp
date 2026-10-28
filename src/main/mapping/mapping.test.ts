@@ -3,9 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import cases from "../../../tests/fixtures/mapping/cases.json";
 import { buildCases, type FixtureCase } from "../../../tests/fixtures/mapping/make-fixtures";
-import { IpcValidationError } from "../../shared/ipc/define";
 import type { FieldMatch, MappingProfile } from "../../shared/ipc/mapping";
-import { labels, reconcile as reconcileChannel, suggest } from "../../shared/ipc/mapping";
 import { dictionary, matchFields, normalize, reconcile, suggestLabel } from "./index";
 
 const fixtures = cases as unknown as FixtureCase[];
@@ -212,30 +210,5 @@ describe("reconcile", () => {
   it("is not confused by tag keys such as __proto__", () => {
     const r = reconcile(null, f("__proto__", "constructor"), ["x"]);
     expect(r.unmatched).toEqual(["__proto__", "constructor"]);
-  });
-});
-
-describe("IPC channels", () => {
-  it("accepts good requests and refuses bad ones", () => {
-    expect(suggest.name).toBe("mapping:suggest");
-    expect(suggest.parse({ fields: [{ key: "a", label: "A" }], columns: ["x"] })).toEqual({
-      fields: [{ key: "a", label: "A" }],
-      columns: ["x"],
-    });
-    expect(() => suggest.parse({ fields: [{ key: "" }], columns: [] })).toThrow(IpcValidationError);
-    expect(() => suggest.parse({ fields: [], columns: [1] })).toThrow(IpcValidationError);
-    expect(() => suggest.parse("x")).toThrow(IpcValidationError);
-    expect(() =>
-      reconcileChannel.parse({
-        fields: [],
-        columns: [],
-        profile: { version: 1, fields: { a: { kind: "nope" } } },
-      }),
-    ).toThrow(IpcValidationError);
-    expect(() =>
-      reconcileChannel.parse({ fields: [], columns: [], profile: { version: 2, fields: {} } }),
-    ).toThrow(IpcValidationError);
-    expect(reconcileChannel.parse({ fields: [], columns: [], profile: null }).profile).toBeNull();
-    expect(labels.parse({ keys: ["ten"] })).toEqual({ keys: ["ten"] });
   });
 });

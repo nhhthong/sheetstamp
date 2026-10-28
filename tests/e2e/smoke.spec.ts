@@ -51,12 +51,12 @@ test("the built app opens with its shell, hardened and keyboard friendly", async
   );
   expect(refused).toContain("Unknown channel");
   const invalid = await page.evaluate(() =>
-    window.sheetstamp.invoke("app:ping", { message: 5 }).then(
+    window.sheetstamp.invoke("data:set-sheet", { sheet: 5 }).then(
       () => "ok",
       (e: Error) => e.message,
     ),
   );
-  expect(invalid).toContain("message must be a string");
+  expect(invalid).toContain("sheet must be a string");
 
   await app.close();
 });

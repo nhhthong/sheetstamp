@@ -8,8 +8,6 @@ import type {
 import { matchFields } from "./match";
 import { normalize } from "./normalize";
 
-export const emptyProfile = (): MappingProfile => ({ version: 1, fields: {} });
-
 /** A saved column name that differs from a current one only by case, diacritics or punctuation still counts. */
 function findColumn(saved: string, columns: readonly string[]): string | undefined {
   if (columns.includes(saved)) return saved;
