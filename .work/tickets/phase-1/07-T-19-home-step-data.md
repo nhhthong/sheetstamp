@@ -4,12 +4,12 @@
 **Parent:** E-1
 **Requirements:** R9.1, R9.2, R9.6, R1.1, R1.3, R1.5, R1.6
 **Blocked by:** T-13
-**Status:** ready
+**Status:** done
 **New infrastructure:** none
 **Files:** src/renderer/home, src/main/data-session, src/shared/ipc.ts, tests/e2e
 **Proof:** `npm run test:e2e` drops a Windows-1258 CSV, sees the five-row preview and the empty-cell warning, switches the encoding, and the app holds no copy of the data after restart.
-**Step:**
-**Base:**
+**Step:** build session, IPC, Stepper and flow store, StepData, e2e
+**Base:** b9d2b69
 **Baseline:**
 
 **What to build:** The Tạo file page with its four-step list (active, done with an "Đổi" link, locked) and step 1, Dữ liệu: the drop zone and file picker (the path comes from the preload bridge, since the sandboxed renderer cannot read it), the loaded state (file name, rows, columns, "Chọn file khác"), the five-row table, warnings for empty cells and numeric ID columns with the zero-padding option, "Chữ hiển thị sai? Đổi bảng mã" with a five-row preview, the sheet selector for `.xlsx`, the `.xls` message and a Reload button. The data stays in the main process memory only.
@@ -23,4 +23,8 @@
 
 ## Test plan (added by /dev:implement-ticket)
 
+Unit: `src/main/data-session/session.test.ts` (open, encoding, sheet, pad, .xls, reload, clear), `src/renderer/pages/home/flow.test.ts`. E2E: `tests/e2e/home-data.spec.ts` (drop, encoding, sheets, ID padding, .xls, reload, nothing on disk after restart).
+
 ## Result
+
+Done. Biome, typecheck, vitest (151) and `playwright test` (6) green. Details, choices and open items: `.work/phase-1/T-19-report.md`.
