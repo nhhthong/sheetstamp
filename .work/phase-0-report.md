@@ -31,3 +31,14 @@ One entry per ambiguity: where (ticket), what was unclear, the options, the choi
 4. **Limits are checked in two places.** The 20 MB limit applies to the file's bytes before parsing; the 50,000-row limit applies after parsing the sheet (a zip of 20 MB can still expand). Streaming large files is deferred until the benchmark (T-10) shows a need.
 5. **Windows-1258 test data.** No real file was available. Windows-1258 stores most Vietnamese letters as a base plus a combining mark, and iconv-lite cannot encode composed text (it writes `?`). `tests/fixtures/data/make-data.ts` has a small encoder that follows the real code page rules, so tests use realistic bytes. Real files from HR staff are still wanted (T-4 covers Word only; add CSV samples to that request).
 6. **Blank and repeated headers** are renamed `Cột n` and `Tên (2)`, so every column can be mapped; spec did not say.
+
+## T-7 Filenames and ZIP
+
+1. **"Reject `/`, `\` and `..`" versus "sanitize invalid characters".** The spec lists both for filenames. Options: reject everything (one odd cell fails a row), or sanitize everything (a typo in the pattern goes unnoticed). Chose a split: in the **pattern** the user types, `/`, `\` and `..` are rejected with a message (`validatePattern`); in **values from the data** they are replaced with `_`. The user is told about their own mistake; a stray `/` in a name cell does not stop the batch.
+2. **"Use the row number when a tag is empty".** Unclear whether this is per tag or for the whole name. Chose: when the whole name is empty after sanitizing, the name is the 1-based data row number (`7.docx`). A single empty tag in a longer pattern stays empty.
+3. **"Keep the full path within 260 characters".** The final folder is where the user extracts the ZIP, which is unknown. Chose the layout Windows Explorer's "Extract All" produces (`<folder>\<zip name>\<file>`) and budget the file name from the destination folder and ZIP name (`maxNameLength`, minimum 24). Names are cut at grapheme boundaries and keep their extension; a numbered duplicate still fits.
+4. **Where the error report goes.** Spec says export a CSV but not where. Chose next to the ZIP as `<zip name>-errors.csv`, not inside it, so the ZIP holds only documents and the UI can link to the report. It is never overwritten.
+5. **Existing ZIP name.** Spec silent. The export never overwrites: it writes `name (2).zip`.
+6. **Trailing dots and spaces** are removed from names (Windows would drop them silently, causing collisions on extraction). Not in the spec.
+7. **Backpressure.** archiver buffers entries unless awaited; each entry is awaited (`entry` event) so memory stays flat for 4,000 files. The 4,000-file memory check is part of T-10.
+8. **Not covered by a test:** a real disk-full or permission error (the container runs as root). Cleanup on any non-row error is tested with a stand-in error.
