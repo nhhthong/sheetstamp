@@ -185,6 +185,11 @@ test("the remembered chip survives a restart", async () => {
   await toStepTemplate(app, page);
   await page.getByRole("button", { name: "Nghỉ việc", exact: true }).click();
   await expect(page.getByTestId("template-row")).toHaveCount(1);
+  // The choice is saved in the background; closing at once can beat the write (seen on Windows runners).
+  // Storage commits its memory only after the file is written, so a stored value means it is on disk.
+  await expect
+    .poll(() => page.evaluate(() => window.sheetstamp.invoke("mapping:getGroupFilter")))
+    .not.toBeNull();
   await app.close();
 
   app = await launch();

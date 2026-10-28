@@ -1,6 +1,6 @@
 import { mkdirSync, rmSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { expect, test } from "@playwright/test";
 import JSZip from "jszip";
 import { textOf } from "../../src/main/selftest/make-docx";
@@ -94,10 +94,7 @@ test("the whole flow: data, template, mapping, file name, folder, export, ZIP an
 
   // On disk: the ZIP, its error report, and nothing temporary.
   expect((await readdir(out)).sort()).toEqual(
-    [
-      `${zipPath.split("/").pop()}`,
-      `${(zipPath.split("/").pop() ?? "").replace(/\.zip$/, "")}-errors.csv`,
-    ].sort(),
+    [basename(zipPath), `${basename(zipPath).replace(/\.zip$/, "")}-errors.csv`].sort(),
   );
   expect(await stray(out)).toEqual([]);
 
