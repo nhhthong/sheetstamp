@@ -4,6 +4,7 @@ import {
   type Channel,
   channel,
   IpcValidationError,
+  nothing,
   oneOf,
   record,
   string,
@@ -125,5 +126,52 @@ export const labels: Channel<{ keys: string[] }, Record<string, string>> = chann
   }),
 );
 
-export const channels = [suggest, reconcile, labels] as const;
+/** How well one template fits the loaded data: `matched` of its `total` fields found a column. */
+export type TemplateFit = { templateId: string; matched: number; total: number };
+
+export type RankResult = {
+  /** False when no data is loaded in main; then every fit is 0 of `total`. */
+  hasData: boolean;
+  items: TemplateFit[];
+};
+
+/** Count, for every Word template, the fields that match a column of the data loaded on the Home page. */
+export const rankTemplates: Channel<undefined, RankResult> = channel(
+  "mapping:rankTemplates",
+  nothing,
+);
+
+/** The group chip chosen last time (a group id), or null for "Tất cả". A group that no longer exists reads as null. */
+export const getGroupFilter: Channel<undefined, string | null> = channel(
+  "mapping:getGroupFilter",
+  nothing,
+);
+
+export const setGroupFilter: Channel<{ groupId: string | null }, void> = channel(
+  "mapping:setGroupFilter",
+  (value) => {
+    const r = record(value).groupId;
+    return { groupId: r === null ? null : string(r, "groupId", { min: 1, max: 200 }) };
+  },
+);
+
+export type UsedTemplate =
+  | { ok: true; name: string; groupName: string }
+  | { ok: false; message: string };
+
+/** Mark a Word template as used (sets its last-used date). The id is checked in main. */
+export const useTemplate: Channel<{ templateId: string }, UsedTemplate> = channel(
+  "mapping:useTemplate",
+  (value) => ({ templateId: string(record(value).templateId, "templateId", { min: 1, max: 200 }) }),
+);
+
+export const channels = [
+  suggest,
+  reconcile,
+  labels,
+  rankTemplates,
+  getGroupFilter,
+  setGroupFilter,
+  useTemplate,
+] as const;
 export const events = [] as const;
