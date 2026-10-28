@@ -1,0 +1,163 @@
+import * as fsp from "node:fs/promises";
+import path from "node:path";
+import { freeBackupName, type RenameFn, writeFileAtomic } from "./atomic";
+import { StorageError, type StorageWarning } from "./types";
+
+/** Upgrades `data` from schema version `from` to `from + 1`. */
+export type Migration = (data: unknown) => unknown;
+
+interface Envelope {
+  schemaVersion: number;
+  data: unknown;
+}
+
+export interface CollectionOptions<T> {
+  folder: string;
+  /** File name inside the folder, e.g. `templates.json`. */
+  file: string;
+  /** Used when the file is missing or was moved aside. */
+  empty: () => T;
+  /** Returns true when `data` has the current shape. */
+  isValid: (data: unknown) => data is T;
+  migrations: Record<number, Migration>;
+  rename: RenameFn;
+  /** Version the app writes; tests raise it to exercise migrations. */
+  version: number;
+  warnings: StorageWarning[];
+}
+
+const CORRUPT_MESSAGE = (file: string, movedTo: string) =>
+  `Không đọc được dữ liệu trong ${file}. File đã được đổi tên thành ${movedTo} và ứng dụng bắt đầu với dữ liệu trống.`;
+
+/**
+ * One JSON file holding one collection, kept in memory. All mutations go through a promise queue, so
+ * two concurrent writes in this process never interleave. A mutation is committed in memory only after
+ * the file was written.
+ */
+export class Collection<T> {
+  private value: T;
+  private queue: Promise<unknown> = Promise.resolve();
+
+  private constructor(
+    private readonly opts: CollectionOptions<T>,
+    value: T,
+  ) {
+    this.value = value;
+  }
+
+  static async open<T>(opts: CollectionOptions<T>): Promise<Collection<T>> {
+    const target = path.join(opts.folder, opts.file);
+    let text: string;
+    try {
+      text = await fsp.readFile(target, "utf8");
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+        return new Collection(opts, opts.empty());
+      }
+      return Collection.moveAside(opts, target);
+    }
+
+    let envelope: Envelope;
+    try {
+      const parsed: unknown = JSON.parse(text);
+      if (
+        typeof parsed !== "object" ||
+        parsed === null ||
+        !Number.isInteger((parsed as Envelope).schemaVersion) ||
+        (parsed as Envelope).schemaVersion < 1 ||
+        !("data" in parsed)
+      ) {
+        return Collection.moveAside(opts, target);
+      }
+      envelope = parsed as Envelope;
+    } catch {
+      return Collection.moveAside(opts, target);
+    }
+
+    if (envelope.schemaVersion > opts.version) {
+      throw new StorageError(
+        "newer-schema",
+        `${opts.file} được tạo bởi phiên bản Sheetstamp mới hơn. Hãy cập nhật ứng dụng; dữ liệu chưa bị thay đổi.`,
+        opts.file,
+      );
+    }
+
+    let data = envelope.data;
+    const migrated = envelope.schemaVersion < opts.version;
+    try {
+      for (let v = envelope.schemaVersion; v < opts.version; v++) {
+        const step = opts.migrations[v];
+        if (!step) throw new Error(`no migration from version ${v}`);
+        data = step(data);
+      }
+    } catch {
+      return Collection.moveAside(opts, target);
+    }
+    if (!opts.isValid(data)) return Collection.moveAside(opts, target);
+
+    const collection = new Collection(opts, data);
+    if (migrated) {
+      // Keep the pre-migration file once, then rewrite at the current version.
+      const backup = await freeBackupName(opts.folder, `${opts.file}.v${envelope.schemaVersion}`);
+      await fsp.copyFile(target, path.join(opts.folder, backup));
+      await collection.write(data);
+    }
+    return collection;
+  }
+
+  private static async moveAside<T>(
+    opts: CollectionOptions<T>,
+    target: string,
+  ): Promise<Collection<T>> {
+    const movedTo = await freeBackupName(opts.folder, opts.file);
+    try {
+      await opts.rename(target, path.join(opts.folder, movedTo));
+    } catch {
+      throw new StorageError(
+        "io",
+        `Không đọc được ${opts.file} và không thể chuyển file sang chỗ khác.`,
+        opts.file,
+      );
+    }
+    opts.warnings.push({
+      code: "corrupt-file",
+      file: opts.file,
+      movedTo,
+      message: CORRUPT_MESSAGE(opts.file, movedTo),
+    });
+    return new Collection(opts, opts.empty());
+  }
+
+  /** Current value. Treat as read-only; change it through `mutate`. */
+  get(): T {
+    return this.value;
+  }
+
+  /** Waits for earlier writes, applies `fn` to a copy, writes it, then commits it. */
+  mutate<R>(fn: (draft: T) => R): Promise<R> {
+    const run = async () => {
+      const draft = structuredClone(this.value);
+      const result = fn(draft);
+      await this.write(draft);
+      this.value = draft;
+      return result;
+    };
+    const next = this.queue.then(run, run);
+    this.queue = next.catch(() => {});
+    return next;
+  }
+
+  /** Runs `fn` after queued writes finish (for reads that must see them). */
+  settled(): Promise<void> {
+    return this.queue.then(() => {});
+  }
+
+  private write(data: T): Promise<void> {
+    const envelope: Envelope = { schemaVersion: this.opts.version, data };
+    return writeFileAtomic(
+      path.join(this.opts.folder, this.opts.file),
+      `${JSON.stringify(envelope, null, 2)}\n`,
+      this.opts.rename,
+    );
+  }
+}
