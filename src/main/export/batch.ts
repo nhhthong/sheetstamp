@@ -8,7 +8,12 @@ import { type ExportResult, exportZip, type Progress, RowFailure } from "./zip";
 
 export type BatchRequest = {
   init: GenerateInit;
-  rows: ReadonlyArray<{ rowNumber: number; values: Readonly<Record<string, string>> }>;
+  rows: ReadonlyArray<{
+    rowNumber: number;
+    values: Readonly<Record<string, string>>;
+    /** The row cannot be made (a value Word cannot hold): it fails as `invalid-value` without a worker. */
+    invalid?: boolean;
+  }>;
   pattern: string;
   extension: string;
   removeDiacritics?: boolean;
@@ -48,6 +53,7 @@ export async function runBatch(request: BatchRequest, workerFile: string): Promi
       signal: request.signal,
       onProgress: request.onProgress,
       produce: async (index) => {
+        if (request.rows[index]?.invalid) throw new RowFailure("invalid-value");
         try {
           const data = await pool.run({ values: { ...request.rows[index]?.values } });
           return { name: names[index] as string, data };

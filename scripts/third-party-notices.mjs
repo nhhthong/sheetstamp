@@ -4,10 +4,25 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
 const lock = JSON.parse(readFileSync("package-lock.json", "utf8"));
+const manifest = JSON.parse(readFileSync("package.json", "utf8"));
+
+// Packages the renderer bundle includes although they are development dependencies (the bundler
+// copies their code into the app), plus everything they need at run time.
+const bundled = new Set();
+const visit = (name) => {
+  const key = `node_modules/${name}`;
+  const info = lock.packages[key];
+  if (!info || bundled.has(key)) return;
+  bundled.add(key);
+  for (const dep of Object.keys({ ...info.dependencies, ...info.optionalDependencies })) visit(dep);
+};
+for (const name of manifest.sheetstamp?.bundledDevDependencies ?? []) visit(name);
+
 const rows = [];
 const missing = [];
 for (const [path, info] of Object.entries(lock.packages)) {
-  if (path === "" || info.dev || info.devOptional) continue;
+  if (path === "") continue;
+  if ((info.dev || info.devOptional) && !bundled.has(path)) continue;
   const name = path.slice(path.lastIndexOf("node_modules/") + "node_modules/".length);
   const license = typeof info.license === "string" ? info.license : "";
   if (!license) missing.push(`${name}@${info.version}`);

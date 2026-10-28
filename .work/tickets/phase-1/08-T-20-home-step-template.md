@@ -4,7 +4,7 @@
 **Parent:** E-1
 **Requirements:** R9.3, R10.3, R9.7
 **Blocked by:** T-15, T-17, T-19
-**Status:** ready
+**Status:** done
 **New infrastructure:** none
 **Files:** src/renderer/home, src/main/templates, tests/e2e
 **Proof:** `npm run test:e2e` loads data, types "hop dong" in the search, finds "Hợp đồng" templates, and sees the best-matching template first.
@@ -23,3 +23,5 @@
 ## Test plan (added by /dev:implement-ticket)
 
 ## Result
+
+Done. See `.work/phase-1/T-20-report.md`. Proof: `xvfb-run -a npx playwright test` 15 passed (3 in home-template.spec.ts).

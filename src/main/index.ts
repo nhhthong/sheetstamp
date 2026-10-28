@@ -1,12 +1,9 @@
 import { join } from "node:path";
 import { app, BrowserWindow } from "electron";
+import { appPageFile, isAppUrl } from "./app-url";
 import { registerIpc } from "./ipc";
+import { guardClose } from "./ipc/export";
 import { runSelfTest } from "./selftest/selftest";
-
-function isAppUrl(url: string): boolean {
-  const dev = process.env.ELECTRON_RENDERER_URL;
-  return dev ? url.startsWith(dev) : url.startsWith("file://");
-}
 
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
@@ -27,13 +24,19 @@ function createWindow(): BrowserWindow {
 
   win.once("ready-to-show", () => win.show());
   win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
-  win.webContents.on("will-navigate", (event, url) => {
-    if (!isAppUrl(url)) event.preventDefault();
-  });
+  // Only the app's own page may load, in any frame, including after a redirect.
+  const guard = (event: { url: string; preventDefault(): void }) => {
+    if (!isAppUrl(event.url)) event.preventDefault();
+  };
+  win.webContents.on("will-navigate", guard);
+  win.webContents.on("will-redirect", guard);
+  win.webContents.on("will-frame-navigate", guard);
+  // Closing during an export asks first (src/main/ipc/export.ts).
+  guardClose(win);
 
   const devUrl = process.env.ELECTRON_RENDERER_URL;
   if (devUrl) void win.loadURL(devUrl);
-  else void win.loadFile(join(import.meta.dirname, "../renderer/index.html"));
+  else void win.loadFile(appPageFile());
   return win;
 }
 

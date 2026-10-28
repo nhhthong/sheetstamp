@@ -4,12 +4,12 @@
 **Parent:** E-1
 **Requirements:** R9.5, R9.6, R7.5, R6.1, R6.3, R6.4
 **Blocked by:** T-22
-**Status:** ready
+**Status:** done
 **New infrastructure:** none
 **Files:** src/renderer/home, src/main/export-session, src/shared/ipc.ts, tests/e2e
 **Proof:** `npm run test:e2e` runs the whole flow on generated data (4 rows with one bad), ends with the ZIP on disk with 3 files and a report for row 4, and cancelling mid-way leaves nothing.
-**Step:**
-**Base:**
+**Step:** close
+**Base:** 5a5ed7f (T-22)
 **Baseline:**
 
 **What to build:** The second half of step 4 and the end of the flow: the large "Xuất <n> file" button; progress "Đang tạo file… 5/12" with a bar and a text equivalent; "Hủy" saying nothing was saved; the done state ("Đã tạo <n> file", the ZIP path, "Mở thư mục", "<k> dòng bị lỗi" with a link to the CSV report, and "Tạo đợt mới" that clears everything); closing the window during an export asks for confirmation. Generation runs in the worker pool from Phase 0.
@@ -24,3 +24,5 @@
 ## Test plan (added by /dev:implement-ticket)
 
 ## Result
+
+Delivered in `feat: home step 4 export run (T-23)`. Report: `.work/phase-1/T-23-report.md`.

@@ -1,0 +1,33 @@
+/* Pages stay white like paper in both themes, so the highlight colours below are fixed, not theme tokens. */
+.ss-preview .docx-wrapper {
+  background: var(--panel);
+  padding: 16px;
+}
+
+.ss-preview mark {
+  border-radius: 2px;
+  color: inherit;
+}
+
+.ss-preview .ss-filled {
+  background: #ffe08a;
+  color: #15181d;
+}
+
+.ss-preview .ss-empty {
+  background: transparent;
+  color: #c00000;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.ss-preview .ss-missing {
+  background: #ffd9b3;
+  color: #5c2800;
+  font-style: italic;
+  outline: 1px dashed #5c2800;
+}
+
+.ss-preview a {
+  cursor: default;
+}

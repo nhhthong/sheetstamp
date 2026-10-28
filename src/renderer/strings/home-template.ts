@@ -1,0 +1,23 @@
+/** Vietnamese strings of Home step 2 (Mẫu). */
+export const homeTemplate = {
+  search: "Tìm mẫu theo tên, nhóm hoặc ghi chú",
+  groupsLabel: "Lọc theo nhóm",
+  all: "Tất cả",
+  listLabel: "Các mẫu tài liệu",
+  newTemplate: "+ Mẫu mới",
+  createFirst: "Tạo mẫu đầu tiên",
+  empty: "Chưa có mẫu tài liệu nào. Tạo mẫu đầu tiên để tiếp tục.",
+  noResults: "Không có mẫu nào khớp. Đổi từ khóa hoặc chọn nhóm khác.",
+  loading: "Đang tải danh sách mẫu…",
+  loadError: "Không tải được danh sách mẫu. Thử lại, hoặc khởi động lại ứng dụng.",
+  retry: "Thử lại",
+  continue: "Tiếp tục",
+  selected: "Đã chọn",
+  fit: (matched: number, total: number) => `Khớp ${matched}/${total} trường`,
+  noFields: "Chưa có trường nào",
+  fieldsOnly: (total: number) => `${total} trường`,
+  neverUsed: "chưa dùng",
+  usedOn: (date: string) => `dùng ${date}`,
+  summary: (name: string, group: string) => `${name} (${group})`,
+  useFailed: "Không chọn được mẫu này. Thử lại.",
+} as const;

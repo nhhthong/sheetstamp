@@ -1,20 +1,16 @@
-import { StrictMode, useEffect, useState } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { App } from "./app/App";
+import "./styles.css";
 
-function App() {
-  const [version, setVersion] = useState<string>("");
-
-  useEffect(() => {
-    window.sheetstamp.ping({ message: "ping" }).then((res) => setVersion(res.version));
-  }, []);
-
-  return (
-    <main>
-      <h1>Sheetstamp</h1>
-      <p data-testid="version">{version ? `Phiên bản ${version}` : "Đang tải…"}</p>
-    </main>
-  );
-}
+// A file dropped outside a drop zone must never be opened by the window (it would navigate to it).
+// The zones handle their own events first (React listens on #root, below window); this is the fallback.
+window.addEventListener("dragover", (event) => {
+  if (event.defaultPrevented) return;
+  event.preventDefault();
+  if (event.dataTransfer) event.dataTransfer.dropEffect = "none";
+});
+window.addEventListener("drop", (event) => event.preventDefault());
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Missing #root");
