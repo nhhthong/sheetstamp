@@ -1,5 +1,6 @@
 // Editing a saved template: fields, replacing the Word file, groups. Pure Node: the storage is passed in.
 
+import { lazy } from "../../shared/i18n";
 import type { FoundTag } from "../../shared/ipc/templates";
 import {
   type GroupInfo,
@@ -15,20 +16,36 @@ import {
   StorageError,
   type Template,
   UNGROUPED_ID,
-  UNGROUPED_NAME,
+  ungroupedName,
 } from "../storage";
 import { fail, messages, readSource, tagsOf } from "./library";
 
-export const editMessages = {
-  notFound: "Không tìm thấy mẫu này. Có thể mẫu đã bị xóa.",
-  groupNotFound: "Nhóm không tồn tại. Có thể nhóm đã bị xóa.",
-  groupEmpty: "Nhập tên nhóm.",
-  groupReserved: `Tên “${UNGROUPED_NAME}” dành cho mẫu không có nhóm. Đặt tên khác.`,
-  groupDuplicate: "Đã có nhóm tên này. Đặt tên khác.",
-  patternEmpty: "Nhập mẫu tên file, ví dụ {{ten}}.",
-  patternPath: "Mẫu tên file không được chứa / \\ hoặc ..",
-  patternUnknown: (key: string) => `{{${key}}} không có trong mẫu này.`,
-} as const;
+export const editMessages = lazy(
+  {
+    notFound: "Không tìm thấy mẫu này. Có thể mẫu đã bị xóa.",
+    groupNotFound: "Nhóm không tồn tại. Có thể nhóm đã bị xóa.",
+    groupEmpty: "Nhập tên nhóm.",
+    get groupReserved() {
+      return `Tên “${ungroupedName()}” dành cho mẫu không có nhóm. Đặt tên khác.`;
+    },
+    groupDuplicate: "Đã có nhóm tên này. Đặt tên khác.",
+    patternEmpty: "Nhập mẫu tên file, ví dụ {{ten}}.",
+    patternPath: "Mẫu tên file không được chứa / \\ hoặc ..",
+    patternUnknown: (key: string) => `{{${key}}} không có trong mẫu này.`,
+  },
+  {
+    notFound: "This template was not found. It may have been deleted.",
+    groupNotFound: "The group does not exist. It may have been deleted.",
+    groupEmpty: "Enter a group name.",
+    get groupReserved() {
+      return `The name “${ungroupedName()}” is for templates without a group. Use another name.`;
+    },
+    groupDuplicate: "A group with this name already exists. Use another name.",
+    patternEmpty: "Enter a file name pattern, for example {{ten}}.",
+    patternPath: "The file name pattern cannot contain / \\ or ..",
+    patternUnknown: (key: string) => `{{${key}}} is not in this template.`,
+  },
+);
 
 /** Inline messages for a filename pattern, checked against the template's tag keys. */
 export function patternMessages(pattern: string, keys: readonly string[]): string[] {

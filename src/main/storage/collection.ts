@@ -1,5 +1,6 @@
 import * as fsp from "node:fs/promises";
 import path from "node:path";
+import { t } from "../../shared/i18n";
 import { freeBackupName, type RenameFn, writeFileAtomic } from "./atomic";
 import { StorageError, type StorageWarning } from "./types";
 
@@ -32,10 +33,16 @@ export interface CollectionOptions<T> {
 }
 
 const CORRUPT_MESSAGE = (file: string, movedTo: string) =>
-  `Không đọc được dữ liệu trong ${file}. File đã được đổi tên thành ${movedTo} và ứng dụng bắt đầu với dữ liệu trống.`;
+  t(
+    `Không đọc được dữ liệu trong ${file}. File đã được đổi tên thành ${movedTo} và ứng dụng bắt đầu với dữ liệu trống.`,
+    `Could not read the data in ${file}. The file was renamed to ${movedTo} and the app started with empty data.`,
+  );
 
 const SKIPPED_MESSAGE = (file: string, count: number, movedTo: string) =>
-  `${count} mục trong ${file} không hợp lệ nên đã bị bỏ qua. Bản gốc được giữ lại thành ${movedTo}.`;
+  t(
+    `${count} mục trong ${file} không hợp lệ nên đã bị bỏ qua. Bản gốc được giữ lại thành ${movedTo}.`,
+    `${count} items in ${file} were not valid and were skipped. The original was kept as ${movedTo}.`,
+  );
 
 /**
  * One JSON file holding one collection, kept in memory. All mutations go through a promise queue, so
@@ -85,7 +92,10 @@ export class Collection<T> {
     if (envelope.schemaVersion > opts.version) {
       throw new StorageError(
         "newer-schema",
-        `${opts.file} được tạo bởi phiên bản Sheetstamp mới hơn. Hãy cập nhật ứng dụng; dữ liệu chưa bị thay đổi.`,
+        t(
+          `${opts.file} được tạo bởi phiên bản Sheetstamp mới hơn. Hãy cập nhật ứng dụng; dữ liệu chưa bị thay đổi.`,
+          `${opts.file} was created by a newer version of Sheetstamp. Update the app; the data has not been changed.`,
+        ),
         opts.file,
       );
     }
@@ -141,7 +151,10 @@ export class Collection<T> {
     } catch {
       throw new StorageError(
         "io",
-        `Không đọc được ${opts.file} và không thể chuyển file sang chỗ khác.`,
+        t(
+          `Không đọc được ${opts.file} và không thể chuyển file sang chỗ khác.`,
+          `Could not read ${opts.file} and could not move it aside.`,
+        ),
         opts.file,
       );
     }

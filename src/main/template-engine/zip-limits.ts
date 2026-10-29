@@ -1,16 +1,25 @@
 import { inflateRawSync } from "node:zlib";
+import { lazy } from "../../shared/i18n";
 
 /** Largest inflated size of one part, and of all parts together. A real .docx stays far below both. */
 export const MAX_PART_BYTES = 50 * 1024 * 1024;
 export const MAX_TOTAL_BYTES = 100 * 1024 * 1024;
 const MAX_ENTRIES = 10_000;
 
-export const zipMessages = {
-  tooBig:
-    "File Word này giải nén ra quá lớn (hơn 50 MB một phần hoặc 100 MB tổng cộng) nên không được mở. Chọn file khác.",
-  unsupported:
-    "File Word này dùng định dạng nén không được hỗ trợ. Mở bằng Word, lưu lại thành .docx rồi thử lại.",
-} as const;
+export const zipMessages = lazy(
+  {
+    tooBig:
+      "File Word này giải nén ra quá lớn (hơn 50 MB một phần hoặc 100 MB tổng cộng) nên không được mở. Chọn file khác.",
+    unsupported:
+      "File Word này dùng định dạng nén không được hỗ trợ. Mở bằng Word, lưu lại thành .docx rồi thử lại.",
+  },
+  {
+    tooBig:
+      "This Word file expands to too much data (more than 50 MB for one part or 100 MB in total), so it is not opened. Choose another file.",
+    unsupported:
+      "This Word file uses a compression format that is not supported. Open it in Word, save it as .docx and try again.",
+  },
+);
 
 /** The message is Vietnamese and safe to show to the user. */
 export class ZipLimitError extends Error {

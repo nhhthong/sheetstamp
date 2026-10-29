@@ -1,6 +1,8 @@
 // The app-wide storage singleton. Other features import `getStorage()` instead of opening the folder again.
+
 import { join } from "node:path";
 import { app } from "electron";
+import { t } from "../../shared/i18n";
 import type { StorageStatus } from "../../shared/ipc/storage";
 import { openStorage, type Storage, StorageError } from "../storage";
 
@@ -25,7 +27,13 @@ export async function storageStatus(): Promise<StorageStatus> {
     }
     return {
       warnings: [],
-      error: { code: "io", message: "Không mở được thư mục dữ liệu của ứng dụng." },
+      error: {
+        code: "io",
+        message: t(
+          "Không mở được thư mục dữ liệu của ứng dụng.",
+          "Could not open the app's data folder.",
+        ),
+      },
     };
   }
 }

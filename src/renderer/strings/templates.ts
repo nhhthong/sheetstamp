@@ -1,5 +1,7 @@
+import { pick } from "../../shared/i18n";
+
 /** User-visible strings of the Mẫu page and the new-template dialog. */
-export const tpl = {
+const viTpl = {
   tabsLabel: "Loại mẫu",
   tabDocs: "Tài liệu",
   tabImages: "Ảnh",
@@ -129,4 +131,140 @@ export const tpl = {
     close: "Xong",
     actionFailed: "Không thực hiện được. Thử lại.",
   },
-} as const;
+};
+
+const enTpl: typeof viTpl = {
+  tabsLabel: "Template type",
+  tabDocs: "Documents",
+  tabImages: "Images",
+  newTemplate: "+ New template",
+  emptyDocs: "No document templates yet.",
+  emptyImages: "No image templates yet.",
+  listImages: "Image templates",
+  createFirst: "Create your first template",
+  loadError:
+    "Could not load the templates. Restart the app; if it keeps failing, check the data folder.",
+  list: "Document templates",
+  fieldsCount: (n: number) => `${n} fields`,
+  neverUsed: "never used",
+  usedOn: (date: string) => `used ${date}`,
+  edit: "Edit",
+  editImage: "Edit image",
+  editImageInfo: "Edit details",
+  delete: "Delete",
+  confirmDelete: "Delete this template?",
+  confirmYes: "Delete",
+  keep: "Keep",
+  deleted: "Template deleted.",
+  deleteFailed: "Could not delete the template. Try again.",
+  saved: "Template saved.",
+  dialog: {
+    title: "New template",
+    dropHere: "Drop a Word file (.docx) here",
+    orChoose: "or choose a file",
+    chooseButton: "Choose a file…",
+    changeFile: "Choose another file",
+    dropLabel: "Drop zone for a Word file",
+    reading: "Reading the file…",
+    name: "Template name",
+    group: "Group",
+    newGroupOption: "+ Add a new group…",
+    newGroupName: "Name of the new group",
+    addNote: "+ Add a note",
+    note: "Note",
+    fieldsFound: (n: number) => `Found ${n} fields in the file.`,
+    showLabels: "Show display names",
+    labelFor: (key: string) => `Display name of ${key}`,
+    noFields:
+      "No fields found in the file. Write fields like {{ten}} in the Word file and try again.",
+    unsupportedTitle: (n: number) => `${n} items are not supported and will not be filled in:`,
+    unsupportedReason: {
+      loop: "loop",
+      note: "inside a footnote",
+    },
+    duplicate:
+      "A template with the same name already exists in this group. You can still save it, but a different name is easier to tell apart.",
+    save: "Save template",
+    saving: "Saving…",
+    fileNeeded: "Choose a Word file first.",
+    nameNeeded: "Enter a template name.",
+    groupNeeded: "Enter the name of the new group.",
+  },
+  imageDialog: {
+    dropHere: "Drop a background image (PNG, JPG) here",
+    dropLabel: "Drop zone for a background image",
+    chooseButton: "Choose an image…",
+    changeFile: "Choose another image",
+    size: (width: number, height: number) => `${width} × ${height} pixels`,
+    large: "Large image, each file may take a few seconds.",
+    fileNeeded: "Choose a background image first.",
+  },
+  manageGroups: "Manage groups",
+  editDialog: {
+    title: "Edit template",
+    loading: "Loading the template…",
+    loadFailed: "Could not open this template. Close the dialog and try again.",
+    currentFile: "Current Word file",
+    replaceFile: "Replace the Word file…",
+    newFile: "New file",
+    undoReplace: "Keep the old file",
+    filenamePattern: "File name pattern",
+    patternHint: "Write {{field name}} to insert data, for example {{ho_ten}}_Probation.",
+    fieldsTitle: (n: number) => `${n} fields in the template.`,
+    removedBadge: "no longer in the file",
+    addedBadge: "new",
+    changesTitle: "Replacing the file will change:",
+    keptLine: (n: number) => `${n} fields stay as they are.`,
+    mappingKept: (n: number) => `The saved column matching of ${n} fields is kept.`,
+    addedLine: (keys: string) => `New fields, not matched to a column yet: ${keys}.`,
+    removedLine: (keys: string) => `No longer in the file: ${keys}.`,
+    removedMapped: (keys: string) =>
+      `The column matching of ${keys} will be dropped when you save.`,
+    noChanges: "The fields in the new file are exactly the same as in the current template.",
+    save: "Save template",
+    saving: "Saving…",
+  },
+  editImageDialog: {
+    title: "Edit image template",
+    currentFile: "Current background image",
+    newFile: "New background image",
+    replaceFile: "Replace the background image…",
+    undoReplace: "Keep the old image",
+    changesTitle: "Replacing the background keeps the text boxes and the column matching.",
+    noBoxes: "The template has no text boxes yet.",
+    allInside: (n: number) => `All ${n} text boxes are inside the new image.`,
+    outsideTitle: (n: number) =>
+      `${n} text boxes are outside the new image. They are not moved; fix their position in “Edit image”:`,
+    partly: "partly outside",
+    outside: "completely outside",
+    confirm: (n: number) =>
+      `Replace the image even though ${n} text boxes are outside the new one?`,
+    confirmYes: "Replace anyway",
+    confirmBack: "Go back",
+  },
+  groupsDialog: {
+    title: "Manage groups",
+    empty: "No groups yet.",
+    list: "Groups",
+    templateCount: (n: number) => (n === 0 ? "no templates" : `${n} templates`),
+    rename: "Rename",
+    renameLabel: (name: string) => `New name of the group ${name}`,
+    renameSave: "Save name",
+    delete: "Delete",
+    deleteLabel: (name: string) => `Delete the group ${name}`,
+    renameButtonLabel: (name: string) => `Rename the group ${name}`,
+    confirm: (name: string, n: number) =>
+      n === 0
+        ? `Delete the group “${name}”?`
+        : `Delete the group “${name}”? ${n} templates will move to “Ungrouped”.`,
+    confirmYes: "Delete group",
+    keep: "Keep",
+    deleted: (moved: number) =>
+      moved === 0 ? "Group deleted." : `Group deleted. ${moved} templates moved to “Ungrouped”.`,
+    renamed: "Group renamed.",
+    close: "Done",
+    actionFailed: "Could not do that. Try again.",
+  },
+};
+
+export const tpl: typeof viTpl = pick(viTpl, enTpl);

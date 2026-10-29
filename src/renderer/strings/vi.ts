@@ -1,8 +1,11 @@
+import { pick } from "../../shared/i18n";
+
 /**
- * Every user-visible string, in Vietnamese, sentence case, plain verbs.
+ * Every user-visible string, in English and Vietnamese, sentence case, plain verbs.
  * An action has one name everywhere. Errors say what happened and how to fix it, without apology.
+ * The language is picked once per page load (src/shared/i18n.ts).
  */
-export const vi = {
+const viStrings = {
   app: { name: "Sheetstamp" },
   nav: {
     label: "Điều hướng chính",
@@ -29,6 +32,37 @@ export const vi = {
   errors: {
     generic: "Có lỗi xảy ra. Thử lại; nếu vẫn lỗi, khởi động lại ứng dụng.",
   },
-} as const;
+};
 
-export type Strings = typeof vi;
+export type Strings = typeof viStrings;
+
+const enStrings: Strings = {
+  app: { name: "Sheetstamp" },
+  nav: {
+    label: "Main navigation",
+    home: "Create files",
+    templates: "Templates",
+    settings: "Settings",
+  },
+  pages: {
+    home: { title: "Create files in bulk", subtitle: "Follow the steps. One thing at a time." },
+    templates: { title: "Templates", subtitle: "Make one once, reuse it for every export." },
+    settings: { title: "Settings", subtitle: "Only what you really need." },
+  },
+  common: {
+    continue: "Continue",
+    cancel: "Cancel",
+    save: "Save",
+    change: "Change",
+    delete: "Delete",
+    keep: "Keep",
+    close: "Close",
+    loading: "Loading…",
+  },
+  toast: { region: "Notifications" },
+  errors: {
+    generic: "Something went wrong. Try again; if it keeps failing, restart the app.",
+  },
+};
+
+export const vi: Strings = pick(viStrings, enStrings);

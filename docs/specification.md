@@ -28,7 +28,7 @@ The following decisions have been finalized.
 | Platforms | Windows 10 and 11 x64; Ubuntu 22.04 and 24.04 x64; macOS on Apple Silicon for internal testing only |
 | Distribution | GitHub Releases for installers (fixed filenames, e.g. `Sheetstamp-Setup-x64.exe`); GitHub Pages for the download page. macOS is marked “Coming soon”; no public macOS build yet |
 | Code signing | Windows: unsigned for the first release, then apply to SignPath (free for open-source projects). **If SignPath rejects the application, publish through the Microsoft Store (MSIX) as the backup; otherwise do not publish to the Store.** Ubuntu: not required; macOS: ad hoc signing for test builds |
-| Data and networking | Do not store CSV/Excel data; no telemetry; no automatic updates; Vietnamese UI |
+| Data and networking | Do not store CSV/Excel data; no telemetry; no automatic updates; UI in English (default) and Vietnamese, chosen in Settings (owner decision, 2026-10-29) |
 | MVP scope | Both export modules (Word and image) stay in the MVP. The owner has accepted that the scope is large for one person. |
 | Theme and settings | Light, Dark, and System themes (default: System). A simple Settings screen (see section 5). |
 | Fonts | Only fonts installed on the user's computer are listed and used. The app bundles no fonts and does not let users add font files; users install new fonts through the operating system. |
@@ -86,7 +86,7 @@ The MVP includes two export modules—Word templates and image templates—that 
 
 ### 5.1 User Interface Specification
 
-All user-visible text is Vietnamese, in sentence case, with plain verbs. An action keeps one name everywhere (the button “Xuất 12 file” leads to “Đã tạo 12 file”). Errors say what happened and how to fix it, without apology.
+All user-visible text is written twice, English (default) and Vietnamese, in sentence case, with plain verbs; the language is chosen in Settings and applied by reloading the page (owner decision, 2026-10-29). The examples below are the Vietnamese texts. An action keeps one name everywhere (the button “Xuất 12 file” leads to “Đã tạo 12 file”). Errors say what happened and how to fix it, without apology.
 
 **Design principles**
 

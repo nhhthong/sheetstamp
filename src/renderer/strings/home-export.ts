@@ -1,9 +1,16 @@
-/** Vietnamese strings of Home step 4 (Xuất file). The close-window dialog text lives in src/shared/messages/export.ts. */
-const NO_BOXES = "Mẫu này chưa có khung chữ. Vào Mẫu, bấm Sửa ảnh để thêm.";
-const BAD_TEMPLATE =
-  "Không đọc được ảnh nền hoặc bố cục của mẫu này. Vào Mẫu, bấm Sửa ảnh để kiểm tra lại.";
+import { pick } from "../../shared/i18n";
 
-export const homeExport = {
+/** Strings of Home step 4 (Xuất file). The close-window dialog text lives in src/shared/messages/export.ts. */
+const NO_BOXES = pick(
+  "Mẫu này chưa có khung chữ. Vào Mẫu, bấm Sửa ảnh để thêm.",
+  "This template has no text boxes yet. Go to Templates and click Edit image to add some.",
+);
+const BAD_TEMPLATE = pick(
+  "Không đọc được ảnh nền hoặc bố cục của mẫu này. Vào Mẫu, bấm Sửa ảnh để kiểm tra lại.",
+  "Could not read the background image or the layout of this template. Go to Templates and click Edit image to check it.",
+);
+
+const viHomeExport = {
   loading: "Đang chuẩn bị…",
   loadError: "Không mở được bước xuất file.",
   retry: "Thử lại",
@@ -106,4 +113,113 @@ export const homeExport = {
     report: "Xem báo cáo lỗi",
     newBatch: "Tạo đợt mới",
   },
-} as const;
+};
+
+const enHomeExport: typeof viHomeExport = {
+  loading: "Getting ready…",
+  loadError: "Could not open the export step.",
+  retry: "Try again",
+  change: "Change",
+  fileName: "File name",
+  saveTo: "Save to",
+  changeFileName: "Change file name",
+  changeFolder: "Change save folder",
+  exampleLoading: "…",
+  exampleNone: "(no name yet)",
+
+  editor: {
+    label: "Edit the file name",
+    patternLabel: "File name pattern",
+    chipsEmpty: "Nothing yet. Add a field or text below.",
+    fieldChip: (label: string) => `Field ${label}`,
+    textChip: (text: string) => `Fixed text ${text}`,
+    remove: (label: string) => `Remove ${label}`,
+    add: "Add:",
+    addField: (label: string) => `+ ${label}`,
+    addFieldLabel: (label: string) => `Add field ${label}`,
+    textLabel: "Add text",
+    textPlaceholder: "for example _Probation",
+    textAdd: "Add",
+    removeDiacritics: "Remove Vietnamese diacritics from file names",
+    savePattern: "Save this pattern to the template",
+    saved: "File name pattern saved to the template.",
+    saveFailed: "Could not save to the template. Try again.",
+    done: "Done",
+  },
+
+  problem: {
+    empty: "The file name pattern is empty. Add at least one field or some text.",
+    pathCharacters: (text: string) =>
+      `The fixed text “${text}” has /, \\ or .. so it cannot be used in a file name.`,
+    unknownField: (key: string) =>
+      `The field “${key}” is not in this template. Remove it or choose another field.`,
+  },
+
+  image: {
+    formatLabel: "Image format",
+    png: "PNG",
+    jpg: "JPG",
+    pngNote:
+      "PNG is slower to make and the files are many times larger than JPG. JPG suits photos.",
+    estimating: "Estimating the size…",
+    estimate: (mb: string) =>
+      `About ${mb} MB (estimated from the first few rows, the real size may differ).`,
+    estimateNone: "Could not estimate the size.",
+  },
+
+  blocked: {
+    "no-boxes": NO_BOXES,
+    "bad-template": BAD_TEMPLATE,
+    fontMissing: (fonts: readonly string[]) =>
+      `The ${fonts.length === 1 ? "font" : "fonts"} ${fonts.map((f) => `“${f}”`).join(", ")} ${fonts.length === 1 ? "is" : "are"} no longer on this computer. Install ${fonts.length === 1 ? "it" : "them"} again, or go to Templates, click Edit image and choose another font for the text boxes that use ${fonts.length === 1 ? "it" : "them"}.`,
+  },
+
+  folderFailed: "Could not read this folder. Choose another folder.",
+  fixFirst: "Fix the file name before exporting.",
+  export: (n: number) => `Export ${n} files`,
+
+  running: {
+    title: (done: number, total: number) => `Creating files… ${done}/${total}`,
+    barLabel: "Progress of creating files",
+    barText: (done: number, total: number) => `${done} of ${total} files`,
+    announce: (percent: number) => `${percent}% done`,
+    failedSoFar: (k: number) => `${k} rows failed so far`,
+    cancel: "Cancel",
+    canceling: "Canceling…",
+    keepOpen: "Do not close the app until it is done.",
+  },
+
+  canceled: "Canceled. Nothing was saved: no ZIP file was created.",
+  failed: {
+    "invalid-pattern": "The file name pattern is not valid. Fix it and export again.",
+    "no-data": "No data yet. Go back to the first step to open a data file.",
+    "no-template": "This template was not found. Choose the template again in the previous step.",
+    busy: "Another export is running. Wait for it to finish.",
+    "bad-folder": "Could not write to this folder. Choose another folder.",
+    "write-failed": "Could not write the ZIP file. Check the free space on the disk and try again.",
+    "no-boxes": NO_BOXES,
+    "bad-template": BAD_TEMPLATE,
+    "font-missing":
+      "Some fonts are no longer on this computer. Install them again or choose other fonts in the template.",
+    unknown: "Could not export the files. Try again.",
+  },
+
+  done: {
+    title: (n: number) => `Created ${n} files`,
+    titleNone: "No file could be created",
+    zipLabel: "ZIP file",
+    open: "Open folder",
+    openFailed: "Could not open the folder.",
+    back: "Back",
+    failedRows: (k: number) => `${k} rows failed`,
+    failedRowsHint:
+      "These rows were not exported. The report has only the row numbers and the error codes.",
+    invalidValueHint: (k: number) =>
+      `${k} rows have a cell with a character Word cannot store (a hidden control character). Fix that cell in the data file and export again.`,
+    reportFailed: "Could not write the error report, but the ZIP file is done.",
+    report: "Show the error report",
+    newBatch: "Start a new batch",
+  },
+};
+
+export const homeExport: typeof viHomeExport = pick(viHomeExport, enHomeExport);

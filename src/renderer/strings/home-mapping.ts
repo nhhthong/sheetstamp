@@ -1,5 +1,7 @@
+import { pick } from "../../shared/i18n";
+
 /** Vietnamese strings of Home step 3 (Ghép cột). */
-export const homeMapping = {
+const viHomeMapping = {
   loading: "Đang ghép cột…",
   loadError: "Không mở được bước ghép cột.",
   retry: "Thử lại",
@@ -46,4 +48,57 @@ export const homeMapping = {
   badBackground: "Không đọc được ảnh nền. Vào Mẫu, bấm Sửa ảnh và tải lại ảnh nền.",
   renderFailed: "Không vẽ được ảnh xem trước. Thử đổi dòng hoặc cách ghép.",
   summary: (n: number) => `${n} trường đã ghép`,
-} as const;
+};
+
+const enHomeMapping: typeof viHomeMapping = {
+  loading: "Matching columns…",
+  loadError: "Could not open the column matching step.",
+  retry: "Try again",
+  continue: "Continue",
+  continueFailed: "Could not save how the columns are matched. Try again.",
+  saveFailed: "Could not save the last change. Try again.",
+  noFields: "This template has no fields to match.",
+  needWork: (n: number) => `${n} fields need a column from you.`,
+  allDone: (n: number) => `All ${n} fields are matched.`,
+  listLabel: "Fields to match",
+  unmatchedMarker: "Choose a column",
+  resolvedMarker: "Chosen",
+  explanation: (label: string) =>
+    `No column looks like ‘${label}’. Choose another column, type a fixed text or leave it empty.`,
+  showMatched: (n: number) => `Show ${n} matched fields`,
+  hideMatched: (n: number) => `Hide ${n} matched fields`,
+  matchedLabel: "Matched fields",
+  columnFor: (label: string) => `Column for field ${label}`,
+  choose: "Choose a column…",
+  fixedOption: "Type a fixed text",
+  emptyOption: "Leave empty",
+  columnsGroup: "Columns in the file",
+  fixedLabel: (label: string) => `Fixed text for field ${label}`,
+  fixedPlaceholder: "Type the text to fill in every row",
+  lostTitle: "The new data file does not have some of the columns you chose:",
+  lost: (label: string, previous: string, replacedBy: string | null) =>
+    replacedBy === null
+      ? `Field ‘${label}’ lost its column ‘${previous}’. Choose another column.`
+      : `Field ‘${label}’ lost its column ‘${previous}’ and was matched to column ‘${replacedBy}’. Please check.`,
+  previewTitle: "Preview",
+  previewLabel: "Preview row by row",
+  pagerLabel: "Choose the row to preview",
+  prev: "Previous row",
+  next: "Next row",
+  row: (n: number, total: number) => `Row ${n}/${total}`,
+  rowFailed: "Could not read this row.",
+  imageAlt: "Preview image of this row",
+  drawing: "Drawing…",
+  imageUnmapped: (labels: string[]) =>
+    `Not matched yet, so there is no text on the image: ${labels.join(", ")}.`,
+  fontMissing: (family: string) =>
+    `The font “${family}” is no longer on this computer. Install it again, or go to Templates, click Edit image and choose another font for the text boxes that use it.`,
+  textTooLong: (field: string) =>
+    `The text of field ‘${field}’ in this row is too long for its box. Go to Templates, click Edit image, and make the box wider or give it more lines.`,
+  badBackground:
+    "Could not read the background image. Go to Templates, click Edit image and load the background again.",
+  renderFailed: "Could not draw the preview image. Try another row or another matching.",
+  summary: (n: number) => `${n} fields matched`,
+};
+
+export const homeMapping: typeof viHomeMapping = pick(viHomeMapping, enHomeMapping);

@@ -1,10 +1,13 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { getLang } from "../shared/i18n";
 import { get } from "../shared/ipc/settings";
 import { App } from "./app/App";
 import { call } from "./lib/ipc";
 import { applyTheme } from "./lib/theme";
 import "./styles.css";
+
+document.documentElement.lang = getLang();
 
 // A file dropped outside a drop zone must never be opened by the window (it would navigate to it).
 // The zones handle their own events first (React listens on #root, below window); this is the fallback.

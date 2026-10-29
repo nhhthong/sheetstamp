@@ -73,7 +73,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ## Conventions
 
 - Layout (electron-vite): `src/main`, `src/preload`, `src/renderer`, `src/shared` (types, IPC contracts), `src/worker` (heavy work). Tests beside code (`*.test.ts`); golden fixtures in `tests/fixtures`.
-- TypeScript `strict`, Biome defaults, npm. Code, identifiers, commits and docs in English; only the UI is Vietnamese.
+- TypeScript `strict`, Biome defaults, npm. Code, identifiers, commits and docs in English; the UI is English (default) and Vietnamese, chosen in Settings (`src/shared/i18n.ts`).
 - Terms follow `GLOSSARY.md`; decisions in `docs/adr/` and `docs/specification.md`.
 
 ## Agent skills

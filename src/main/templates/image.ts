@@ -1,6 +1,8 @@
 // Image templates in the library: reading and checking the background, creating the record. Pure Node.
+
 import { readFile, stat } from "node:fs/promises";
 import { basename, isAbsolute } from "node:path";
+import { lazy } from "../../shared/i18n";
 import { emptyImageLayout } from "../../shared/image-layout";
 import { MAX_BACKGROUND_BYTES } from "../../shared/ipc/images";
 import type { CreateImageRequest, Outcome, ParsedImage } from "../../shared/ipc/templates";
@@ -8,13 +10,26 @@ import { type Storage, StorageError, UNGROUPED_ID } from "../storage";
 import { checkImage, type ImageCheck, type ImageInfo, type ImageProblem } from "./image-file";
 import { fail, messages } from "./library";
 
-export const imageMessages: Record<ImageProblem, string> = {
-  "not-image": "Chỉ nhận ảnh PNG hoặc JPG. Chọn một ảnh khác.",
-  "too-big": "Ảnh lớn hơn 20 MB. Thu nhỏ ảnh rồi thử lại.",
-  "too-many-pixels": "Ảnh lớn hơn 25 megapixel. Thu nhỏ ảnh rồi thử lại.",
-  "cut-off": "Ảnh bị cắt dở. Tải lại ảnh gốc hoặc chọn ảnh khác.",
-  unreadable: messages.unreadable,
-};
+export const imageMessages: Record<ImageProblem, string> = lazy<Record<ImageProblem, string>>(
+  {
+    "not-image": "Chỉ nhận ảnh PNG hoặc JPG. Chọn một ảnh khác.",
+    "too-big": "Ảnh lớn hơn 20 MB. Thu nhỏ ảnh rồi thử lại.",
+    "too-many-pixels": "Ảnh lớn hơn 25 megapixel. Thu nhỏ ảnh rồi thử lại.",
+    "cut-off": "Ảnh bị cắt dở. Tải lại ảnh gốc hoặc chọn ảnh khác.",
+    get unreadable() {
+      return messages.unreadable;
+    },
+  },
+  {
+    "not-image": "Only PNG or JPG images are accepted. Choose another image.",
+    "too-big": "The image is larger than 20 MB. Make it smaller and try again.",
+    "too-many-pixels": "The image is larger than 25 megapixels. Make it smaller and try again.",
+    "cut-off": "The image is cut off. Load the original image again or choose another one.",
+    get unreadable() {
+      return messages.unreadable;
+    },
+  },
+);
 
 /** Reads a chosen file (checking its size before reading it) and checks the bytes, not the extension. */
 export async function readImage(

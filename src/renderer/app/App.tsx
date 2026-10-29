@@ -1,6 +1,7 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { ToastProvider } from "../components/ui/toast";
 import { cn } from "../lib/cn";
+import { STAY_ON_SETTINGS } from "../lib/stay-on-settings";
 import { vi } from "../strings/vi";
 import { PAGES, type PageId } from "./pages";
 
@@ -8,12 +9,28 @@ type Navigation = { go: (page: PageId) => void; current: PageId };
 const NavigationContext = createContext<Navigation>({ go: () => undefined, current: "home" });
 export const useNavigation = () => useContext(NavigationContext);
 
+function firstPage(): PageId {
+  try {
+    if (sessionStorage.getItem(STAY_ON_SETTINGS) === "1") return "settings";
+  } catch {
+    // Storage not available: start on the first page.
+  }
+  return "home";
+}
+
 /**
  * The shell: a left sidebar of about 224 px with the three destinations. Below about 820 px it becomes a
  * top bar. The sidebar holds nothing else.
  */
 export function App() {
-  const [current, setCurrent] = useState<PageId>("home");
+  const [current, setCurrent] = useState<PageId>(firstPage);
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem(STAY_ON_SETTINGS);
+    } catch {
+      // Nothing to clear.
+    }
+  }, []);
   const active = PAGES.find((p) => p.id === current) ?? PAGES[0];
   const Active = active?.Page;
 

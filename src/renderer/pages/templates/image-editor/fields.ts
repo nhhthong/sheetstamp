@@ -1,11 +1,12 @@
 import dictionary from "../../../../../data/hr-dictionary.json";
+import { getLang } from "../../../../shared/i18n";
 import { fieldKeyOf } from "../../../../shared/image-layout/field-key";
 
 export type FieldOption = { key: string; label: string };
 
 /** The HR dictionary as the dropdown's first part: compiled into the bundle, never read at run time. */
 export const dictionaryFields: readonly FieldOption[] = dictionary.entries.map(
-  ({ key, label }) => ({ key, label }),
+  ({ key, label, labelEn }) => ({ key, label: getLang() === "vi" ? label : labelEn }),
 );
 
 /**

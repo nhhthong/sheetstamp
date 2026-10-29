@@ -42,7 +42,7 @@ Sheetstamp does it on your own computer. Pick a template, pick a spreadsheet, ch
 | **Safe file names** | Names files from a pattern such as `{{name}}`, avoids duplicates and characters Windows rejects. |
 | **One ZIP** | Progress and a Cancel button. One bad row never stops the batch; a CSV report lists the rows that failed. |
 | **Private by design** | Works offline. No automatic updates, no network calls, no account. |
-| **Themes** | Light, dark or system. |
+| **Themes and language** | Light, dark or system theme. English (default) or Vietnamese interface, chosen in Settings. |
 
 ## How it works
 
@@ -120,7 +120,7 @@ The website in `site/` is generated: edit `scripts/site/` and run `npm run build
 |---|---|
 | `src/main` | Electron main process and the file work |
 | `src/preload` | Preload bridge |
-| `src/renderer` | React UI (Vietnamese) |
+| `src/renderer` | React UI (English and Vietnamese) |
 | `src/shared` | Types and IPC contracts |
 | `src/worker` | Heavy work off the main thread |
 | `docs/` | [Specification](docs/specification.md), decisions in `docs/adr/` |
