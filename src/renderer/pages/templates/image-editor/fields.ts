@@ -24,6 +24,16 @@ export function newField(
 }
 
 /**
+ * The label a field shows: the stored one, else the dictionary's, else the key. A stored label equal to the key
+ * is what an earlier version saved for a field picked from the list, so it counts as missing.
+ */
+export function labelFor(field: string, labels: Readonly<Record<string, string>>): string {
+  const stored = labels[field];
+  if (stored !== undefined && stored !== field) return stored;
+  return dictionaryFields.find((f) => f.key === field)?.label ?? stored ?? field;
+}
+
+/**
  * The text a box shows on the canvas and in the preview: the first data row's cell when a column matches the
  * field (`sample` comes from main, which applies the mapping rules), else the field's label, else its key.
  */
@@ -32,5 +42,5 @@ export function sampleText(
   labels: Readonly<Record<string, string>>,
   sample: Readonly<Record<string, string>> = {},
 ): string {
-  return sample[field] ?? labels[field] ?? field;
+  return sample[field] ?? labelFor(field, labels);
 }
