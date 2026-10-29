@@ -21,4 +21,11 @@ describe("fields", () => {
     expect(sampleText("ho_ten", { ho_ten: "Họ và tên" })).toBe("Họ và tên");
     expect(sampleText("x", {})).toBe("x");
   });
+  it("prefers the data row's cell over the label when a column matched", () => {
+    const labels = { ho_ten: "Họ và tên", don_vi: "Đơn vị" };
+    const sample = { ho_ten: "Nguyễn Văn An" };
+    expect(sampleText("ho_ten", labels, sample)).toBe("Nguyễn Văn An");
+    expect(sampleText("don_vi", labels, sample)).toBe("Đơn vị");
+    expect(sampleText("ho_ten", labels, { ho_ten: "" })).toBe("");
+  });
 });

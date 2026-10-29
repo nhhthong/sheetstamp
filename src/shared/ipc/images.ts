@@ -114,6 +114,27 @@ function parseSaveLayout(value: unknown): SaveLayoutRequest {
   return { id: string(request.id, "id", { min: 1, max: 200 }), layout: request.layout, labels };
 }
 
+/** The first data row for the fields that have a matching column; `hasData` is false when nothing is loaded. */
+export type SampleRow = { hasData: boolean; values: Record<string, string> };
+
+export type SampleRequest = { fields: { key: string; label: string }[] };
+
+function parseSampleRequest(value: unknown): SampleRequest {
+  const fields = arrayOf(
+    record(value).fields,
+    "fields",
+    (item, index) => {
+      const field = record(item, `field ${index}`);
+      return {
+        key: string(field.key, "key", { min: 1, max: 1000 }),
+        label: string(field.label, "label", { max: 500 }),
+      };
+    },
+    MAX_LABELS,
+  );
+  return { fields };
+}
+
 export const listFonts = channel<undefined, FontFamilyInfo[]>("fonts:list", nothing);
 export const render = channel<RenderRequest, RenderResponse>("image:render", parseRenderRequest);
 
@@ -126,5 +147,11 @@ export const saveImageLayout = channel<SaveLayoutRequest, Outcome<undefined>>(
   parseSaveLayout,
 );
 
-export const channels = [listFonts, render, openImageEditor, saveImageLayout] as const;
+/** Sample text for the editor: the first row of the Home data session, matched to the fields by the mapping rules. */
+export const sampleRow = channel<SampleRequest, SampleRow>(
+  "image-editor:sample",
+  parseSampleRequest,
+);
+
+export const channels = [listFonts, render, openImageEditor, saveImageLayout, sampleRow] as const;
 export const events = [] as const;

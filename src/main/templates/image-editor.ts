@@ -1,8 +1,9 @@
 // Opening and saving the layout of an image template. Pure Node: the storage is passed in.
 import { emptyImageLayout, parseImageLayout } from "../../shared/image-layout";
-import type { ImageEditorDoc, SaveLayoutRequest } from "../../shared/ipc/images";
+import type { ImageEditorDoc, SampleRow, SaveLayoutRequest } from "../../shared/ipc/images";
 import type { Outcome } from "../../shared/ipc/templates";
-import { suggestLabel } from "../mapping";
+import type { DataTable } from "../data";
+import { matchFields, suggestLabel } from "../mapping";
 import { type Storage, StorageError } from "../storage";
 import { fail, messages } from "./library";
 
@@ -62,4 +63,20 @@ export async function saveImageLayout(
     if (error instanceof StorageError && error.code === "invalid") return fail(error.message);
     return fail(messages.saveFailed);
   }
+}
+
+/** The first row's cell for every field that the existing matching rules pair with a column. */
+export function sampleRow(
+  table: DataTable | undefined,
+  fields: readonly { key: string; label: string }[],
+): SampleRow {
+  const first = table?.rows[0];
+  if (!table || !first) return { hasData: false, values: {} };
+  const values: Record<string, string> = {};
+  for (const match of matchFields(fields, table.columns)) {
+    if (match.column === null) continue;
+    const cell = first[table.columns.indexOf(match.column)];
+    if (cell !== undefined) values[match.field] = cell;
+  }
+  return { hasData: true, values };
 }

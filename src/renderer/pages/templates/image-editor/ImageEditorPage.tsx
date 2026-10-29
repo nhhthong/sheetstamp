@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LayoutBox } from "../../../../shared/image-layout";
 import { IMAGE_LAYOUT_VERSION } from "../../../../shared/image-layout";
+import type { FontFamilyInfo } from "../../../../shared/ipc/images";
 import * as imageIpc from "../../../../shared/ipc/images";
 import { MAX_BOXES } from "../../../../shared/ipc/images";
 import { Button } from "../../../components/ui/button";
@@ -8,15 +9,31 @@ import { Field, Input, Select } from "../../../components/ui/input";
 import { Status } from "../../../components/ui/status";
 import { call } from "../../../lib/ipc";
 import { ied } from "../../../strings/image-editor";
-import { type BoxChange, EditorCanvas } from "./EditorCanvas";
+import { BoxInspector, type InspectorChange } from "./BoxInspector";
+import { EditorCanvas } from "./EditorCanvas";
 import { dictionaryFields, type FieldOption, newField, sampleText } from "./fields";
+import { missingFamilies } from "./inspector";
 import { newBox } from "./new-box";
 
 const NEW_FIELD = "__new__";
 const STEP = 1;
 const FAST_STEP = 10;
 
-type Loaded = { name: string; bitmap: ImageBitmap };
+type Loaded = { name: string; bitmap: ImageBitmap; bytes: Uint8Array };
+type Patch = Partial<Omit<LayoutBox, "id">>;
+type Preview =
+  | { kind: "idle" }
+  | { kind: "busy" }
+  | { kind: "image"; url: string }
+  | { kind: "error"; message: string };
+
+const toDataUrl = (png: Uint8Array) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(new Blob([png.slice()], { type: "image/png" }));
+  });
 
 /** The editor sub-page of an image template: the background, its text boxes, and "Lưu mẫu". No undo. */
 export function ImageEditorPage({
@@ -40,6 +57,12 @@ export function ImageEditorPage({
   const [typing, setTyping] = useState(false);
   const [typedField, setTypedField] = useState("");
   const [typedError, setTypedError] = useState("");
+  const [fonts, setFonts] = useState<FontFamilyInfo[] | null>(null);
+  const [sample, setSample] = useState<{ hasData: boolean; values: Record<string, string> }>({
+    hasData: false,
+    values: {},
+  });
+  const [preview, setPreview] = useState<Preview>({ kind: "idle" });
   const counter = useRef(0);
 
   useEffect(() => {
@@ -49,19 +72,20 @@ export function ImageEditorPage({
       try {
         const [opened, fonts] = await Promise.all([
           call(imageIpc.openImageEditor, { id: templateId }),
-          call(imageIpc.listFonts).catch(() => []),
+          call(imageIpc.listFonts).catch(() => null),
         ]);
         if (!live) return;
         if (!opened.ok) return setLoadError(opened.message);
         // Decoded in the renderer from the bytes main sent: no URL, so the CSP needs no blob: source.
         bitmap = await createImageBitmap(new Blob([opened.value.background.slice()]));
         if (!live) return bitmap.close();
-        const first = fonts[0];
+        const first = fonts?.[0];
         if (first) setFontFamily(first.family);
+        setFonts(fonts);
         setBoxes(opened.value.layout.boxes);
         setLabels(opened.value.labels);
         counter.current = opened.value.layout.boxes.length;
-        setLoaded({ name: opened.value.name, bitmap });
+        setLoaded({ name: opened.value.name, bitmap, bytes: opened.value.background });
       } catch {
         if (live) setLoadError(ied.loadFailed);
       }
@@ -85,11 +109,49 @@ export function ImageEditorPage({
     [boxes, labelOf],
   );
 
-  const change = useCallback((id: string, patch: BoxChange) => {
+  const change = useCallback((id: string, patch: Patch) => {
     setBoxes((all) => all.map((b) => (b.id === id ? { ...b, ...patch } : b)));
     setDirty(true);
     setMessage(null);
   }, []);
+
+  const usedFields = [...new Set(boxes.map((b) => b.field))].sort().join("\n");
+  // The first data row's cells for the fields in use; main pairs columns with fields by the mapping rules.
+  useEffect(() => {
+    if (!loaded) return;
+    let live = true;
+    const fields =
+      usedFields === ""
+        ? []
+        : usedFields.split("\n").map((key) => ({ key, label: labels[key] ?? key }));
+    call(imageIpc.sampleRow, { fields })
+      .then((row) => live && setSample(row))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [loaded, usedFields, labels]);
+
+  const missing = fonts ? missingFamilies(boxes, fonts) : [];
+
+  async function showPreview() {
+    if (!loaded) return;
+    setPreview({ kind: "busy" });
+    try {
+      const values = Object.fromEntries(
+        boxes.map((b) => [b.field, sampleText(b.field, labels, sample.values)]),
+      );
+      const result = await call(imageIpc.render, { background: loaded.bytes, boxes, values });
+      if (result.ok) setPreview({ kind: "image", url: await toDataUrl(result.png) });
+      else if (result.code === "text-too-long")
+        setPreview({ kind: "error", message: ied.textTooLong(labelOf(result.field ?? "")) });
+      else if (result.code === "font-missing")
+        setPreview({ kind: "error", message: ied.fontMissingRender(result.field ?? "") });
+      else setPreview({ kind: "error", message: ied.badBackground });
+    } catch {
+      setPreview({ kind: "error", message: ied.previewFailed });
+    }
+  }
 
   function addBox() {
     if (!loaded || boxes.length >= MAX_BOXES) return;
@@ -165,6 +227,7 @@ export function ImageEditorPage({
   }
 
   async function save() {
+    if (missing.length > 0) return setMessage({ kind: "danger", text: ied.saveBlockedMissingFont });
     setSaving(true);
     setMessage(null);
     try {
@@ -233,6 +296,11 @@ export function ImageEditorPage({
 
       {loaded ? (
         <>
+          {missing.length > 0 ? (
+            <div data-testid="missing-font" className="mb-3">
+              <Status kind="warning">{ied.missingFont(missing)}</Status>
+            </div>
+          ) : null}
           <div className="mb-3 flex min-h-6 items-center gap-3 text-sm" aria-live="off">
             {message ? <Status kind={message.kind}>{message.text}</Status> : null}
             {!message && dirty ? <span className="text-muted">{ied.unsaved}</span> : null}
@@ -245,6 +313,7 @@ export function ImageEditorPage({
                   background={loaded.bitmap}
                   boxes={boxes}
                   labels={labels}
+                  sample={sample.values}
                   selectedId={selectedId}
                   onSelect={select}
                   onChange={change}
@@ -310,14 +379,48 @@ export function ImageEditorPage({
                       </Button>
                     </div>
                   ) : null}
-                  <p className="text-sm text-muted">{sampleText(selected.field, labels)}</p>
-                  <Button variant="danger" size="sm" onClick={() => remove(selected)}>
-                    {ied.deleteBox}
-                  </Button>
+                  <p className="text-sm text-muted">
+                    {sampleText(selected.field, labels, sample.values)}
+                  </p>
+                  <BoxInspector
+                    box={selected}
+                    fonts={fonts ?? []}
+                    onChange={(patch: InspectorChange) => change(selected.id, patch)}
+                    onDelete={() => remove(selected)}
+                  />
                 </div>
-              ) : null}
+              ) : (
+                <p className="rounded-dialog border border-line p-3 text-muted">{ied.selectBox}</p>
+              )}
             </aside>
           </div>
+          <section aria-label={ied.previewTitle} className="mt-6 flex flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-lg font-bold">{ied.previewTitle}</h2>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => void showPreview()}
+                disabled={preview.kind === "busy"}
+              >
+                {preview.kind === "busy" ? ied.previewing : ied.preview}
+              </Button>
+              <span className="text-sm text-muted">{ied.previewSource(sample.hasData)}</span>
+            </div>
+            {preview.kind === "error" ? (
+              <div data-testid="preview-error">
+                <Status kind="danger">{preview.message}</Status>
+              </div>
+            ) : null}
+            {preview.kind === "image" ? (
+              <img
+                src={preview.url}
+                alt={ied.previewAlt}
+                data-testid="preview-image"
+                className="max-h-[70vh] max-w-full self-start rounded-dialog border border-line object-contain"
+              />
+            ) : null}
+          </section>
           <p role="status" aria-live="polite" className="sr-only" data-testid="editor-live">
             {announcement}
           </p>

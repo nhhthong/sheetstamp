@@ -3,8 +3,9 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { emptyImageLayout } from "../../shared/image-layout";
+import type { DataTable } from "../data";
 import { openStorage, type Storage } from "../storage";
-import { editorMessages, openImageEditor, saveImageLayout } from "./image-editor";
+import { editorMessages, openImageEditor, sampleRow, saveImageLayout } from "./image-editor";
 import { listTemplates } from "./library";
 
 let root: string;
@@ -97,5 +98,32 @@ describe("image editor open and save", () => {
       labels: {},
     });
     expect((await storage.getTemplate(id))?.tags).toEqual([{ name: "ho_ten", label: "Họ và tên" }]);
+  });
+});
+
+describe("sampleRow", () => {
+  const table: DataTable = {
+    fileName: "ds.csv",
+    columns: ["Họ tên", "Phòng ban", "Ghi chú"],
+    rows: [
+      ["Nguyễn Văn An", "Kế toán", "x"],
+      ["Trần Thị Bình", "Nhân sự", "y"],
+    ],
+    numericColumns: [false, false, false],
+  };
+  const fields = [
+    { key: "ho_ten", label: "Họ và tên" },
+    { key: "so_quyet_dinh", label: "Số quyết định" },
+  ];
+
+  it("gives the first row's cell for a field whose column matches, and nothing for the others", () => {
+    expect(sampleRow(table, fields)).toEqual({
+      hasData: true,
+      values: { ho_ten: "Nguyễn Văn An" },
+    });
+  });
+
+  it("reports no data when nothing is loaded", () => {
+    expect(sampleRow(undefined, fields)).toEqual({ hasData: false, values: {} });
   });
 });

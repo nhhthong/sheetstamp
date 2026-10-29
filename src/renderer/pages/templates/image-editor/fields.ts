@@ -24,10 +24,13 @@ export function newField(
 }
 
 /**
- * Seam for T-30/T-32 (preview): the text a box shows on the canvas. Until the preview owns the mapping between
- * data columns and fields, this is the field's label, which is what the criterion asks for when no data row
- * applies. A later ticket returns the first data row's value here when data is loaded.
+ * The text a box shows on the canvas and in the preview: the first data row's cell when a column matches the
+ * field (`sample` comes from main, which applies the mapping rules), else the field's label, else its key.
  */
-export function sampleText(field: string, labels: Readonly<Record<string, string>>): string {
-  return labels[field] ?? field;
+export function sampleText(
+  field: string,
+  labels: Readonly<Record<string, string>>,
+  sample: Readonly<Record<string, string>> = {},
+): string {
+  return sample[field] ?? labels[field] ?? field;
 }
