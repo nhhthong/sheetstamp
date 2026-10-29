@@ -268,18 +268,11 @@ a:hover {
 }
 .hero-video {
   margin-top: var(--space-xl);
-  /* A stage in the dark theme's own colour in both themes: the window takes 90% of the width, 5% of stage on each side, none above or below. */
-  padding-inline: 5%;
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  background: var(--color-night);
-  color: var(--color-night-ink);
-  box-shadow: 0 36px 72px -28px color-mix(in oklab, var(--color-shade) 55%, transparent);
 }
 .hero-video .app-frame {
+  --border-radius: var(--radius-card);
+  --box-shadow: 0 36px 72px -28px color-mix(in oklab, var(--color-shade) 55%, transparent);
   overflow: hidden;
-  border-radius: 0;
-  box-shadow: none;
 }
 .hero-video video {
   display: block;
@@ -736,9 +729,11 @@ footer a {
   }
   .hero-video {
     margin-inline: calc(-1 * var(--gutter));
-    padding-inline: 3%;
-    border-radius: 0;
-    box-shadow: none;
+  }
+  .hero-video .app-frame {
+    --border-radius: 0;
+    --box-shadow: none;
+    border-inline-width: 0;
   }
   .pill {
     padding-inline: var(--space-md);

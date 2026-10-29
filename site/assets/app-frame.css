@@ -1,4 +1,4 @@
-/*! Subset of css-device-frames v1.0.6 (MIT, Copyright (c) John Hildenbiddle, github.com/jhildenbiddle/css-device-frames): the Windows-style .app-frame only, colours and font routed through tokens. Licence: APP-FRAME-LICENSE.txt */
+/*! Subset of css-device-frames v1.0.6 (MIT, Copyright (c) John Hildenbiddle, github.com/jhildenbiddle/css-device-frames): the macOS-style dark .app-frame only, colours and font routed through tokens. Licence: APP-FRAME-LICENSE.txt */
 .app-frame {
   --bar-height: 44px;
   --border-radius: 10px;
@@ -6,11 +6,9 @@
   --padding-h: 0px;
   --padding-v: 0px;
   --bar-inset: 20px;
-  --button-inset: 25px;
-  --button-gap: var(--button-inset);
-  --button-size: 10px;
-  --button-stroke-width: 1px;
-  --button-color-default: var(--color-night-muted);
+  --button-inset: 20px;
+  --button-size: 12px;
+  --button-gap: calc(var(--button-size) * 0.57);
   --title-inset: calc((var(--button-inset) * 2) + (var(--button-size) * 3) + (var(--button-gap) * 2));
   --title-color: var(--color-night-ink);
   --title-size: 0.875em;
@@ -29,7 +27,18 @@
   color: var(--color);
   grid-template-rows: var(--bar-height) auto;
 }
-.app-frame, .app-frame::before, .app-frame::after {
+.app-frame, .app-frame::before, .app-frame.mac::before {
+  background: radial-gradient(circle at calc(var(--button-inset) + var(--button-size) * 0.5) calc(var(--bar-height) / 2), var(--color-mac-close) calc(var(--button-size) / 2), transparent calc(var(--button-size) / 2)), radial-gradient(circle at calc(var(--button-inset) + var(--button-size) * 1.5 + var(--button-gap)) calc(var(--bar-height) / 2), var(--color-mac-min) calc(var(--button-size) / 2), transparent calc(var(--button-size) / 2)), radial-gradient(circle at calc(var(--button-inset) + var(--button-size) * 2.5 + var(--button-gap) * 2) calc(var(--bar-height) / 2), var(--color-mac-max) calc(var(--button-size) / 2), transparent calc(var(--button-size) / 2)), var(--bar-background);
+}
+.app-frame.centered[data-title]::after {
+  left: 50%;
+  right: 0;
+  min-width: 40%;
+  max-width: 50%;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+.app-frame::after {
   box-sizing: border-box;
 }
 .app-frame::before {
@@ -49,9 +58,6 @@
   grid-column: 1/-1;
   width: calc(100% + var(--padding-h, 0px) * 2);
 }
-.app-frame.win::before {
-  background: no-repeat calc(100% - (var(--button-inset) + var(--button-size) * 2 + var(--button-gap) * 2))/var(--button-size) var(--button-size) linear-gradient(0deg, transparent calc(var(--button-size) / 2 - var(--button-stroke-width) / 2), var(--button-color, var(--button-color-default)) calc(var(--button-size) / 2 - var(--button-stroke-width) / 2) calc(var(--button-size) / 2 + var(--button-stroke-width) / 2), transparent calc(var(--button-size) / 2 + var(--button-stroke-width) / 2)), no-repeat calc(100% - (var(--button-inset) + var(--button-size) + var(--button-gap)))/var(--button-size) var(--button-size) linear-gradient(0deg, var(--button-color, var(--button-color-default)) var(--button-stroke-width), transparent var(--button-stroke-width) calc(var(--button-size) - var(--button-stroke-width)), var(--button-color, var(--button-color-default)) calc(var(--button-size) - var(--button-stroke-width))), no-repeat calc(100% - (var(--button-inset) + var(--button-size) + var(--button-gap)))/var(--button-size) var(--button-size) linear-gradient(90deg, var(--button-color, var(--button-color-default)) var(--button-stroke-width), transparent var(--button-stroke-width) calc(var(--button-size) - var(--button-stroke-width)), var(--button-color, var(--button-color-default)) calc(var(--button-size) - var(--button-stroke-width))), no-repeat calc(100% - var(--button-inset))/var(--button-size) var(--button-size) linear-gradient(45deg, transparent calc(var(--button-size) * 0.7225 - var(--button-stroke-width)), var(--button-color, var(--button-color-default)) calc(var(--button-size) * 0.7225 - var(--button-stroke-width)) calc(var(--button-size) * 0.7225 + var(--button-stroke-width) * 0.7225), transparent calc(var(--button-size) * 0.7225 + var(--button-stroke-width) * 0.7225)), no-repeat calc(100% - var(--button-inset))/var(--button-size) var(--button-size) linear-gradient(135deg, transparent calc(var(--button-size) * 0.7225 - var(--button-stroke-width)), var(--button-color, var(--button-color-default)) calc(var(--button-size) * 0.7225 - var(--button-stroke-width)) calc(var(--button-size) * 0.7225 + var(--button-stroke-width) * 0.7225), transparent calc(var(--button-size) * 0.7225 + var(--button-stroke-width) * 0.7225)), var(--bar-background);
-}
 .app-frame::after {
   content: "";
   position: absolute;
@@ -67,9 +73,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   transform: translate(0, -50%);
-}
-.app-frame.win[data-title]::after {
-  left: var(--bar-inset);
 }
 .app-frame[data-title]::after {
   content: attr(data-title);

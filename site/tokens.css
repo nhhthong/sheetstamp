@@ -59,6 +59,9 @@
   --color-night-ink: oklch(96% 0.006 75);
   --color-night-muted: oklch(70% 0.016 262);
   --color-night-rule: oklch(30% 0.016 266);
+  --color-mac-close: oklch(68% 0.2 27);
+  --color-mac-min: oklch(82% 0.15 85);
+  --color-mac-max: oklch(74% 0.19 150);
   --color-accent: oklch(77% 0.1 274);
   --color-accent-ink: oklch(19% 0.035 274);
   --color-accent-hi: oklch(84% 0.085 274);
