@@ -11,46 +11,47 @@ export type FixtureCase = {
   fields: FixtureField[];
   columns: string[];
   /** field key -> expected column and rule; null means the field must stay unmatched. */
-  expected: Record<string, { column: string; rule: "exact" | "synonym" | "fuzzy" } | null>;
+  expected: Record<string, { column: string; rule: "exact" | "fuzzy" } | null>;
 };
 
-type Variant = [header: string, rule: "exact" | "synonym" | "fuzzy"];
+/** `none`: no rule may choose the header, because there is no synonym list. */
+type Variant = [header: string, rule: "exact" | "fuzzy" | "none"];
 
 /** Headers people really type for a field, with the rule that should find them. */
 const VARIANTS: Record<string, Variant[]> = {
   ho_ten: [
-    ["Họ và tên", "exact"],
+    ["Họ và tên", "none"],
     ["Ho ten", "exact"],
     ["HỌ VÀ TÊN", "exact"],
     ["Họ & tên", "exact"],
-    ["Tên đầy đủ", "synonym"],
+    ["Tên đầy đủ", "none"],
     ["Hoten", "fuzzy"],
     ["Tên họ", "fuzzy"],
-    ["Họ_và_tên", "exact"],
+    ["Họ_và_tên", "none"],
   ],
   ten: [
     ["Tên", "exact"],
-    ["Tên nhân viên", "synonym"],
+    ["Tên nhân viên", "none"],
     ["TEN", "exact"],
-    ["Name", "synonym"],
+    ["Name", "none"],
   ],
   so_dien_thoai: [
     ["Số điện thoại", "exact"],
-    ["SĐT", "synonym"],
-    ["Sdt", "synonym"],
-    ["Số điện thoại di động", "synonym"],
-    ["Điện thoại", "synonym"],
+    ["SĐT", "none"],
+    ["Sdt", "none"],
+    ["Số điện thoại di động", "none"],
+    ["Điện thoại", "none"],
     ["So dien thoai", "exact"],
     ["Số điện thoại ", "exact"],
-    ["Phone", "synonym"],
+    ["Phone", "none"],
     ["Số điện thoia", "fuzzy"],
     ["Thoại điện số", "fuzzy"],
   ],
   ma_nhan_vien: [
     ["Mã nhân viên", "exact"],
-    ["MNV", "synonym"],
-    ["Mã NV", "synonym"],
-    ["Mã số nhân viên", "synonym"],
+    ["MNV", "none"],
+    ["Mã NV", "none"],
+    ["Mã số nhân viên", "none"],
     ["Ma nhan vien", "exact"],
     ["Mã nhân viê", "fuzzy"],
     ["Nhân viên mã", "fuzzy"],
@@ -58,24 +59,24 @@ const VARIANTS: Record<string, Variant[]> = {
   ngay_sinh: [
     ["Ngày sinh", "exact"],
     ["Ngay sinh", "exact"],
-    ["Ngày tháng năm sinh", "synonym"],
-    ["DOB", "synonym"],
-    ["Sinh nhật", "synonym"],
+    ["Ngày tháng năm sinh", "none"],
+    ["DOB", "none"],
+    ["Sinh nhật", "none"],
     ["ngày_sinh", "exact"],
     ["Sinh ngày", "fuzzy"],
     ["Ngày snh", "fuzzy"],
   ],
   gioi_tinh: [
     ["Giới tính", "exact"],
-    ["Gender", "synonym"],
+    ["Gender", "none"],
     ["GIOI TINH", "exact"],
   ],
   cccd: [
     ["CCCD", "exact"],
-    ["Số CCCD", "exact"],
-    ["Số căn cước công dân", "synonym"],
-    ["CMND", "synonym"],
-    ["Căn cước", "synonym"],
+    ["Số CCCD", "none"],
+    ["Số căn cước công dân", "none"],
+    ["CMND", "none"],
+    ["Căn cước", "none"],
   ],
   ngay_cap: [
     ["Ngày cấp", "exact"],
@@ -87,105 +88,105 @@ const VARIANTS: Record<string, Variant[]> = {
   ],
   dia_chi: [
     ["Địa chỉ", "exact"],
-    ["Address", "synonym"],
+    ["Address", "none"],
     ["Dia chi", "exact"],
-    ["Nơi ở", "synonym"],
+    ["Nơi ở", "none"],
   ],
   thuong_tru: [
-    ["Địa chỉ thường trú", "exact"],
+    ["Địa chỉ thường trú", "none"],
     ["Thường trú", "exact"],
   ],
   email: [
     ["Email", "exact"],
-    ["E-mail", "synonym"],
-    ["Mail", "synonym"],
-    ["Thư điện tử", "synonym"],
+    ["E-mail", "none"],
+    ["Mail", "fuzzy"],
+    ["Thư điện tử", "none"],
   ],
   phong_ban: [
     ["Phòng ban", "exact"],
-    ["Bộ phận", "synonym"],
-    ["Department", "synonym"],
+    ["Bộ phận", "none"],
+    ["Department", "none"],
     ["Phong ban", "exact"],
   ],
   chuc_vu: [
     ["Chức vụ", "exact"],
-    ["Chức danh", "synonym"],
-    ["Position", "synonym"],
-    ["Vị trí", "synonym"],
+    ["Chức danh", "none"],
+    ["Position", "none"],
+    ["Vị trí", "none"],
   ],
   ngay_vao_lam: [
     ["Ngày vào làm", "exact"],
-    ["Ngày bắt đầu", "synonym"],
-    ["Start date", "synonym"],
+    ["Ngày bắt đầu", "none"],
+    ["Start date", "none"],
     ["Vào làm ngày", "fuzzy"],
   ],
   so_hop_dong: [
     ["Số hợp đồng", "exact"],
-    ["Số HĐ", "synonym"],
-    ["Hợp đồng số", "synonym"],
+    ["Số HĐ", "none"],
+    ["Hợp đồng số", "fuzzy"],
     ["So hop dong", "exact"],
     ["Số hợp đồg", "fuzzy"],
   ],
   loai_hop_dong: [
     ["Loại hợp đồng", "exact"],
-    ["Loại HĐ", "synonym"],
+    ["Loại HĐ", "none"],
   ],
   ngay_ky: [
     ["Ngày ký", "exact"],
-    ["Ngày ký hợp đồng", "synonym"],
+    ["Ngày ký hợp đồng", "none"],
   ],
   luong: [
     ["Lương", "exact"],
-    ["Mức lương", "synonym"],
-    ["Lương cơ bản", "synonym"],
-    ["Salary", "synonym"],
+    ["Mức lương", "none"],
+    ["Lương cơ bản", "none"],
+    ["Salary", "none"],
     ["LUONG", "exact"],
   ],
   phu_cap: [
     ["Phụ cấp", "exact"],
-    ["Allowance", "synonym"],
+    ["Allowance", "none"],
   ],
   thuc_linh: [
     ["Thực lĩnh", "exact"],
-    ["Thực nhận", "synonym"],
+    ["Thực nhận", "none"],
     ["Thuc linh", "exact"],
   ],
   so_tai_khoan: [
     ["Số tài khoản", "exact"],
-    ["STK", "synonym"],
-    ["Tài khoản ngân hàng", "synonym"],
+    ["STK", "none"],
+    ["Tài khoản ngân hàng", "none"],
     ["Số tài khoản ", "exact"],
   ],
   ngan_hang: [
     ["Ngân hàng", "exact"],
-    ["Tên ngân hàng", "synonym"],
+    ["Tên ngân hàng", "none"],
   ],
   ma_so_thue: [
     ["Mã số thuế", "exact"],
-    ["MST", "synonym"],
+    ["MST", "none"],
     ["Mã số thế", "fuzzy"],
   ],
   so_tien: [
     ["Số tiền", "exact"],
-    ["Amount", "synonym"],
-    ["Giá trị", "synonym"],
+    ["Amount", "none"],
+    ["Giá trị", "none"],
   ],
   noi_dung: [
     ["Nội dung", "exact"],
-    ["Diễn giải", "synonym"],
-    ["Ghi chú", "synonym"],
+    ["Diễn giải", "none"],
+    ["Ghi chú", "none"],
   ],
   thang: [
     ["Tháng", "exact"],
-    ["Kỳ lương", "synonym"],
+    ["Kỳ lương", "none"],
   ],
   nam: [
     ["Năm", "exact"],
-    ["Year", "synonym"],
+    ["Year", "none"],
   ],
   ten_cong_ty: [
     ["Tên công ty", "exact"],
-    ["Công ty", "synonym"],
+    ["Công ty", "none"],
   ],
 };
 
@@ -257,7 +258,7 @@ function generated(): FixtureCase[] {
         const variant = variants[(sheet * 3 + i) % variants.length];
         if (!variant) throw new Error(`no variants for ${key}`);
         columns.push(variant[0]);
-        expected[key] = { column: variant[0], rule: variant[1] };
+        expected[key] = variant[1] === "none" ? null : { column: variant[0], rule: variant[1] };
       });
       DISTRACTORS.slice(0, 1 + (sheet % DISTRACTORS.length)).forEach((d, i) => {
         columns.splice((sheet * 2 + i * 3) % (columns.length + 1), 0, d);
@@ -273,7 +274,7 @@ function generated(): FixtureCase[] {
   return cases;
 }
 
-const pos = (column: string, rule: "exact" | "synonym" | "fuzzy") => ({ column, rule });
+const pos = (column: string, rule: "exact" | "fuzzy") => ({ column, rule });
 
 /** Near misses: a similar name that is a different thing must not be chosen. */
 function nearMisses(): FixtureCase[] {
@@ -381,10 +382,14 @@ function nearMisses(): FixtureCase[] {
         ten_phuong_tien: null,
       },
     ),
-    c("diacritics in the tag", ["họ_tên"], ["Họ và tên"], { họ_tên: pos("Họ và tên", "exact") }),
-    c("two fields, one column", ["ten", "ho_ten"], ["Họ và tên"], {
+    c("diacritics in the tag", ["họ_tên"], ["Họ tên"], { họ_tên: pos("Họ tên", "exact") }),
+    c("two fields, one column", ["ten", "ho_ten"], ["Ho ten"], {
       ten: null,
-      ho_ten: pos("Họ và tên", "exact"),
+      ho_ten: pos("Ho ten", "exact"),
+    }),
+    c("no synonym list", ["so_dien_thoai", "ma_nhan_vien"], ["SĐT", "MNV"], {
+      so_dien_thoai: null,
+      ma_nhan_vien: null,
     }),
   ];
 }

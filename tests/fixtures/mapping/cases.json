@@ -51,18 +51,12 @@
       "Lương"
     ],
     "expected": {
-      "ho_ten": {
-        "column": "Họ và tên",
-        "rule": "exact"
-      },
+      "ho_ten": null,
       "ngay_sinh": {
         "column": "Ngay sinh",
         "rule": "exact"
       },
-      "cccd": {
-        "column": "Số căn cước công dân",
-        "rule": "synonym"
-      },
+      "cccd": null,
       "ngay_cap": {
         "column": "Ngay cap",
         "rule": "exact"
@@ -75,22 +69,13 @@
         "column": "Thường trú",
         "rule": "exact"
       },
-      "so_hop_dong": {
-        "column": "Số HĐ",
-        "rule": "synonym"
-      },
-      "loai_hop_dong": {
-        "column": "Loại HĐ",
-        "rule": "synonym"
-      },
+      "so_hop_dong": null,
+      "loai_hop_dong": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Chức danh",
-        "rule": "synonym"
-      },
+      "chuc_vu": null,
       "luong": {
         "column": "Lương",
         "rule": "exact"
@@ -150,14 +135,8 @@
       "Hoten"
     ],
     "expected": {
-      "ngay_sinh": {
-        "column": "DOB",
-        "rule": "synonym"
-      },
-      "cccd": {
-        "column": "Căn cước",
-        "rule": "synonym"
-      },
+      "ngay_sinh": null,
+      "cccd": null,
       "ngay_cap": {
         "column": "Ngay cap",
         "rule": "exact"
@@ -174,22 +153,13 @@
         "column": "So hop dong",
         "rule": "exact"
       },
-      "loai_hop_dong": {
-        "column": "Loại HĐ",
-        "rule": "synonym"
-      },
+      "loai_hop_dong": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Vị trí",
-        "rule": "synonym"
-      },
-      "luong": {
-        "column": "Lương cơ bản",
-        "rule": "synonym"
-      },
+      "chuc_vu": null,
+      "luong": null,
       "ho_ten": {
         "column": "Hoten",
         "rule": "fuzzy"
@@ -250,10 +220,7 @@
       "Ngày sinh"
     ],
     "expected": {
-      "cccd": {
-        "column": "Số CCCD",
-        "rule": "exact"
-      },
+      "cccd": null,
       "ngay_cap": {
         "column": "Ngay cap",
         "rule": "exact"
@@ -270,26 +237,17 @@
         "column": "Số hợp đồng",
         "rule": "exact"
       },
-      "loai_hop_dong": {
-        "column": "Loại HĐ",
-        "rule": "synonym"
-      },
+      "loai_hop_dong": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Chức danh",
-        "rule": "synonym"
-      },
+      "chuc_vu": null,
       "luong": {
         "column": "LUONG",
         "rule": "exact"
       },
-      "ho_ten": {
-        "column": "Họ_và_tên",
-        "rule": "exact"
-      },
+      "ho_ten": null,
       "ngay_sinh": {
         "column": "Ngày sinh",
         "rule": "exact"
@@ -365,36 +323,21 @@
       },
       "so_hop_dong": {
         "column": "Hợp đồng số",
-        "rule": "synonym"
+        "rule": "fuzzy"
       },
-      "loai_hop_dong": {
-        "column": "Loại HĐ",
-        "rule": "synonym"
-      },
+      "loai_hop_dong": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Vị trí",
-        "rule": "synonym"
-      },
-      "luong": {
-        "column": "Mức lương",
-        "rule": "synonym"
-      },
+      "chuc_vu": null,
+      "luong": null,
       "ho_ten": {
         "column": "Ho ten",
         "rule": "exact"
       },
-      "ngay_sinh": {
-        "column": "Ngày tháng năm sinh",
-        "rule": "synonym"
-      },
-      "cccd": {
-        "column": "Căn cước",
-        "rule": "synonym"
-      }
+      "ngay_sinh": null,
+      "cccd": null
     }
   },
   {
@@ -465,34 +408,19 @@
         "column": "Số hợp đồg",
         "rule": "fuzzy"
       },
-      "loai_hop_dong": {
-        "column": "Loại HĐ",
-        "rule": "synonym"
-      },
+      "loai_hop_dong": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Chức danh",
-        "rule": "synonym"
-      },
-      "luong": {
-        "column": "Salary",
-        "rule": "synonym"
-      },
+      "chuc_vu": null,
+      "luong": null,
       "ho_ten": {
         "column": "Họ & tên",
         "rule": "exact"
       },
-      "ngay_sinh": {
-        "column": "Sinh nhật",
-        "rule": "synonym"
-      },
-      "cccd": {
-        "column": "Số CCCD",
-        "rule": "exact"
-      },
+      "ngay_sinh": null,
+      "cccd": null,
       "ngay_cap": {
         "column": "Ngày cấp",
         "rule": "exact"
@@ -560,22 +488,13 @@
         "column": "Thường trú",
         "rule": "exact"
       },
-      "so_hop_dong": {
-        "column": "Số HĐ",
-        "rule": "synonym"
-      },
-      "loai_hop_dong": {
-        "column": "Loại HĐ",
-        "rule": "synonym"
-      },
+      "so_hop_dong": null,
+      "loai_hop_dong": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Vị trí",
-        "rule": "synonym"
-      },
+      "chuc_vu": null,
       "luong": {
         "column": "Lương",
         "rule": "exact"
@@ -588,10 +507,7 @@
         "column": "Sinh ngày",
         "rule": "fuzzy"
       },
-      "cccd": {
-        "column": "CMND",
-        "rule": "synonym"
-      },
+      "cccd": null,
       "ngay_cap": {
         "column": "Ngày cấp",
         "rule": "exact"
@@ -658,26 +574,14 @@
         "column": "So hop dong",
         "rule": "exact"
       },
-      "loai_hop_dong": {
-        "column": "Loại HĐ",
-        "rule": "synonym"
-      },
+      "loai_hop_dong": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Chức danh",
-        "rule": "synonym"
-      },
-      "luong": {
-        "column": "Lương cơ bản",
-        "rule": "synonym"
-      },
-      "ho_ten": {
-        "column": "Họ_và_tên",
-        "rule": "exact"
-      },
+      "chuc_vu": null,
+      "luong": null,
+      "ho_ten": null,
       "ngay_sinh": {
         "column": "Ngày sinh",
         "rule": "exact"
@@ -694,10 +598,7 @@
         "column": "Noi cap",
         "rule": "exact"
       },
-      "thuong_tru": {
-        "column": "Địa chỉ thường trú",
-        "rule": "exact"
-      }
+      "thuong_tru": null
     }
   },
   {
@@ -753,18 +654,12 @@
       "Số HĐ"
     ],
     "expected": {
-      "loai_hop_dong": {
-        "column": "Loại HĐ",
-        "rule": "synonym"
-      },
+      "loai_hop_dong": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Vị trí",
-        "rule": "synonym"
-      },
+      "chuc_vu": null,
       "luong": {
         "column": "LUONG",
         "rule": "exact"
@@ -773,14 +668,8 @@
         "column": "Ho ten",
         "rule": "exact"
       },
-      "ngay_sinh": {
-        "column": "Ngày tháng năm sinh",
-        "rule": "synonym"
-      },
-      "cccd": {
-        "column": "Số căn cước công dân",
-        "rule": "synonym"
-      },
+      "ngay_sinh": null,
+      "cccd": null,
       "ngay_cap": {
         "column": "Ngày cấp",
         "rule": "exact"
@@ -789,14 +678,8 @@
         "column": "Noi cap",
         "rule": "exact"
       },
-      "thuong_tru": {
-        "column": "Địa chỉ thường trú",
-        "rule": "exact"
-      },
-      "so_hop_dong": {
-        "column": "Số HĐ",
-        "rule": "synonym"
-      }
+      "thuong_tru": null,
+      "so_hop_dong": null
     }
   },
   {
@@ -857,26 +740,14 @@
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Chức danh",
-        "rule": "synonym"
-      },
-      "luong": {
-        "column": "Mức lương",
-        "rule": "synonym"
-      },
+      "chuc_vu": null,
+      "luong": null,
       "ho_ten": {
         "column": "Họ & tên",
         "rule": "exact"
       },
-      "ngay_sinh": {
-        "column": "Sinh nhật",
-        "rule": "synonym"
-      },
-      "cccd": {
-        "column": "Căn cước",
-        "rule": "synonym"
-      },
+      "ngay_sinh": null,
+      "cccd": null,
       "ngay_cap": {
         "column": "Ngày cấp",
         "rule": "exact"
@@ -885,10 +756,7 @@
         "column": "Noi cap",
         "rule": "exact"
       },
-      "thuong_tru": {
-        "column": "Địa chỉ thường trú",
-        "rule": "exact"
-      },
+      "thuong_tru": null,
       "so_hop_dong": {
         "column": "So hop dong",
         "rule": "exact"
@@ -954,14 +822,8 @@
       "Ngày ký hợp đồng"
     ],
     "expected": {
-      "chuc_vu": {
-        "column": "Vị trí",
-        "rule": "synonym"
-      },
-      "luong": {
-        "column": "Salary",
-        "rule": "synonym"
-      },
+      "chuc_vu": null,
+      "luong": null,
       "ho_ten": {
         "column": "Hoten",
         "rule": "fuzzy"
@@ -970,10 +832,7 @@
         "column": "Sinh ngày",
         "rule": "fuzzy"
       },
-      "cccd": {
-        "column": "Số CCCD",
-        "rule": "exact"
-      },
+      "cccd": null,
       "ngay_cap": {
         "column": "Ngày cấp",
         "rule": "exact"
@@ -982,10 +841,7 @@
         "column": "Noi cap",
         "rule": "exact"
       },
-      "thuong_tru": {
-        "column": "Địa chỉ thường trú",
-        "rule": "exact"
-      },
+      "thuong_tru": null,
       "so_hop_dong": {
         "column": "Số hợp đồng",
         "rule": "exact"
@@ -994,10 +850,7 @@
         "column": "Loại hợp đồng",
         "rule": "exact"
       },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      }
+      "ngay_ky": null
     }
   },
   {
@@ -1040,22 +893,13 @@
         "column": "Ho ten",
         "rule": "exact"
       },
-      "phong_ban": {
-        "column": "Department",
-        "rule": "synonym"
-      },
-      "chuc_vu": {
-        "column": "Vị trí",
-        "rule": "synonym"
-      },
+      "phong_ban": null,
+      "chuc_vu": null,
       "ngay_vao_lam": {
         "column": "Ngày vào làm",
         "rule": "exact"
       },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      }
+      "ngay_ky": null
     }
   },
   {
@@ -1099,22 +943,10 @@
         "column": "Phòng ban",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Chức danh",
-        "rule": "synonym"
-      },
-      "ngay_vao_lam": {
-        "column": "Start date",
-        "rule": "synonym"
-      },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      },
-      "ma_nhan_vien": {
-        "column": "MNV",
-        "rule": "synonym"
-      }
+      "chuc_vu": null,
+      "ngay_vao_lam": null,
+      "ngay_ky": null,
+      "ma_nhan_vien": null
     }
   },
   {
@@ -1151,26 +983,14 @@
       "Trạng thái"
     ],
     "expected": {
-      "phong_ban": {
-        "column": "Department",
-        "rule": "synonym"
-      },
-      "chuc_vu": {
-        "column": "Vị trí",
-        "rule": "synonym"
-      },
+      "phong_ban": null,
+      "chuc_vu": null,
       "ngay_vao_lam": {
         "column": "Ngày vào làm",
         "rule": "exact"
       },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      },
-      "ma_nhan_vien": {
-        "column": "Mã số nhân viên",
-        "rule": "synonym"
-      },
+      "ngay_ky": null,
+      "ma_nhan_vien": null,
       "ho_ten": {
         "column": "Họ & tên",
         "rule": "exact"
@@ -1212,18 +1032,9 @@
       "STT"
     ],
     "expected": {
-      "chuc_vu": {
-        "column": "Chức danh",
-        "rule": "synonym"
-      },
-      "ngay_vao_lam": {
-        "column": "Start date",
-        "rule": "synonym"
-      },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      },
+      "chuc_vu": null,
+      "ngay_vao_lam": null,
+      "ngay_ky": null,
       "ma_nhan_vien": {
         "column": "Mã nhân viê",
         "rule": "fuzzy"
@@ -1232,10 +1043,7 @@
         "column": "Hoten",
         "rule": "fuzzy"
       },
-      "phong_ban": {
-        "column": "Department",
-        "rule": "synonym"
-      }
+      "phong_ban": null
     }
   },
   {
@@ -1278,26 +1086,17 @@
         "column": "Ngày vào làm",
         "rule": "exact"
       },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      },
+      "ngay_ky": null,
       "ma_nhan_vien": {
         "column": "Mã nhân viên",
         "rule": "exact"
       },
-      "ho_ten": {
-        "column": "Họ_và_tên",
-        "rule": "exact"
-      },
+      "ho_ten": null,
       "phong_ban": {
         "column": "Phòng ban",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Chức danh",
-        "rule": "synonym"
-      }
+      "chuc_vu": null
     }
   },
   {
@@ -1337,26 +1136,14 @@
       "Số lượng"
     ],
     "expected": {
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      },
-      "ma_nhan_vien": {
-        "column": "Mã NV",
-        "rule": "synonym"
-      },
+      "ngay_ky": null,
+      "ma_nhan_vien": null,
       "ho_ten": {
         "column": "Ho ten",
         "rule": "exact"
       },
-      "phong_ban": {
-        "column": "Department",
-        "rule": "synonym"
-      },
-      "chuc_vu": {
-        "column": "Vị trí",
-        "rule": "synonym"
-      },
+      "phong_ban": null,
+      "chuc_vu": null,
       "ngay_vao_lam": {
         "column": "Ngày vào làm",
         "rule": "exact"
@@ -1407,18 +1194,9 @@
         "column": "Phòng ban",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Chức danh",
-        "rule": "synonym"
-      },
-      "ngay_vao_lam": {
-        "column": "Start date",
-        "rule": "synonym"
-      },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      }
+      "chuc_vu": null,
+      "ngay_vao_lam": null,
+      "ngay_ky": null
     }
   },
   {
@@ -1458,22 +1236,13 @@
         "column": "Hoten",
         "rule": "fuzzy"
       },
-      "phong_ban": {
-        "column": "Department",
-        "rule": "synonym"
-      },
-      "chuc_vu": {
-        "column": "Vị trí",
-        "rule": "synonym"
-      },
+      "phong_ban": null,
+      "chuc_vu": null,
       "ngay_vao_lam": {
         "column": "Ngày vào làm",
         "rule": "exact"
       },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      },
+      "ngay_ky": null,
       "ma_nhan_vien": {
         "column": "Mã nhân viê",
         "rule": "fuzzy"
@@ -1518,18 +1287,9 @@
         "column": "Phòng ban",
         "rule": "exact"
       },
-      "chuc_vu": {
-        "column": "Chức danh",
-        "rule": "synonym"
-      },
-      "ngay_vao_lam": {
-        "column": "Start date",
-        "rule": "synonym"
-      },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      },
+      "chuc_vu": null,
+      "ngay_vao_lam": null,
+      "ngay_ky": null,
       "ma_nhan_vien": {
         "column": "Mã nhân viên",
         "rule": "exact"
@@ -1575,26 +1335,14 @@
       "Phòng ban"
     ],
     "expected": {
-      "chuc_vu": {
-        "column": "Vị trí",
-        "rule": "synonym"
-      },
+      "chuc_vu": null,
       "ngay_vao_lam": {
         "column": "Ngày vào làm",
         "rule": "exact"
       },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      },
-      "ma_nhan_vien": {
-        "column": "Mã NV",
-        "rule": "synonym"
-      },
-      "ho_ten": {
-        "column": "Họ_và_tên",
-        "rule": "exact"
-      },
+      "ngay_ky": null,
+      "ma_nhan_vien": null,
+      "ho_ten": null,
       "phong_ban": {
         "column": "Phòng ban",
         "rule": "exact"
@@ -1657,14 +1405,8 @@
         "column": "Ho ten",
         "rule": "exact"
       },
-      "phong_ban": {
-        "column": "Department",
-        "rule": "synonym"
-      },
-      "luong": {
-        "column": "Salary",
-        "rule": "synonym"
-      },
+      "phong_ban": null,
+      "luong": null,
       "phu_cap": {
         "column": "Phụ cấp",
         "rule": "exact"
@@ -1677,18 +1419,12 @@
         "column": "Tháng",
         "rule": "exact"
       },
-      "nam": {
-        "column": "Year",
-        "rule": "synonym"
-      },
+      "nam": null,
       "so_tai_khoan": {
         "column": "Số tài khoản",
         "rule": "exact"
       },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      }
+      "ngan_hang": null
     }
   },
   {
@@ -1756,26 +1492,14 @@
         "column": "Phụ cấp",
         "rule": "exact"
       },
-      "thuc_linh": {
-        "column": "Thực nhận",
-        "rule": "synonym"
-      },
+      "thuc_linh": null,
       "thang": {
         "column": "Tháng",
         "rule": "exact"
       },
-      "nam": {
-        "column": "Year",
-        "rule": "synonym"
-      },
-      "so_tai_khoan": {
-        "column": "Tài khoản ngân hàng",
-        "rule": "synonym"
-      },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
+      "nam": null,
+      "so_tai_khoan": null,
+      "ngan_hang": null,
       "ma_nhan_vien": {
         "column": "Mã nhân viê",
         "rule": "fuzzy"
@@ -1832,14 +1556,8 @@
       "Họ_và_tên"
     ],
     "expected": {
-      "phong_ban": {
-        "column": "Department",
-        "rule": "synonym"
-      },
-      "luong": {
-        "column": "Lương cơ bản",
-        "rule": "synonym"
-      },
+      "phong_ban": null,
+      "luong": null,
       "phu_cap": {
         "column": "Phụ cấp",
         "rule": "exact"
@@ -1852,26 +1570,17 @@
         "column": "Tháng",
         "rule": "exact"
       },
-      "nam": {
-        "column": "Year",
-        "rule": "synonym"
-      },
+      "nam": null,
       "so_tai_khoan": {
         "column": "Số tài khoản",
         "rule": "exact"
       },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
+      "ngan_hang": null,
       "ma_nhan_vien": {
         "column": "Mã nhân viên",
         "rule": "exact"
       },
-      "ho_ten": {
-        "column": "Họ_và_tên",
-        "rule": "exact"
-      }
+      "ho_ten": null
     }
   },
   {
@@ -1941,30 +1650,15 @@
         "column": "Tháng",
         "rule": "exact"
       },
-      "nam": {
-        "column": "Year",
-        "rule": "synonym"
-      },
-      "so_tai_khoan": {
-        "column": "Tài khoản ngân hàng",
-        "rule": "synonym"
-      },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
-      "ma_nhan_vien": {
-        "column": "Mã NV",
-        "rule": "synonym"
-      },
+      "nam": null,
+      "so_tai_khoan": null,
+      "ngan_hang": null,
+      "ma_nhan_vien": null,
       "ho_ten": {
         "column": "Ho ten",
         "rule": "exact"
       },
-      "phong_ban": {
-        "column": "Department",
-        "rule": "synonym"
-      }
+      "phong_ban": null
     }
   },
   {
@@ -2023,26 +1717,17 @@
         "column": "Phụ cấp",
         "rule": "exact"
       },
-      "thuc_linh": {
-        "column": "Thực nhận",
-        "rule": "synonym"
-      },
+      "thuc_linh": null,
       "thang": {
         "column": "Tháng",
         "rule": "exact"
       },
-      "nam": {
-        "column": "Year",
-        "rule": "synonym"
-      },
+      "nam": null,
       "so_tai_khoan": {
         "column": "Số tài khoản",
         "rule": "exact"
       },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
+      "ngan_hang": null,
       "ma_nhan_vien": {
         "column": "Ma nhan vien",
         "rule": "exact"
@@ -2055,10 +1740,7 @@
         "column": "Phòng ban",
         "rule": "exact"
       },
-      "luong": {
-        "column": "Mức lương",
-        "rule": "synonym"
-      }
+      "luong": null
     }
   },
   {
@@ -2122,18 +1804,9 @@
         "column": "Tháng",
         "rule": "exact"
       },
-      "nam": {
-        "column": "Year",
-        "rule": "synonym"
-      },
-      "so_tai_khoan": {
-        "column": "Tài khoản ngân hàng",
-        "rule": "synonym"
-      },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
+      "nam": null,
+      "so_tai_khoan": null,
+      "ngan_hang": null,
       "ma_nhan_vien": {
         "column": "Nhân viên mã",
         "rule": "fuzzy"
@@ -2142,14 +1815,8 @@
         "column": "Hoten",
         "rule": "fuzzy"
       },
-      "phong_ban": {
-        "column": "Department",
-        "rule": "synonym"
-      },
-      "luong": {
-        "column": "Salary",
-        "rule": "synonym"
-      },
+      "phong_ban": null,
+      "luong": null,
       "phu_cap": {
         "column": "Phụ cấp",
         "rule": "exact"
@@ -2208,26 +1875,14 @@
         "column": "Tháng",
         "rule": "exact"
       },
-      "nam": {
-        "column": "Year",
-        "rule": "synonym"
-      },
+      "nam": null,
       "so_tai_khoan": {
         "column": "Số tài khoản",
         "rule": "exact"
       },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
-      "ma_nhan_vien": {
-        "column": "MNV",
-        "rule": "synonym"
-      },
-      "ho_ten": {
-        "column": "Họ_và_tên",
-        "rule": "exact"
-      },
+      "ngan_hang": null,
+      "ma_nhan_vien": null,
+      "ho_ten": null,
       "phong_ban": {
         "column": "Phòng ban",
         "rule": "exact"
@@ -2295,34 +1950,16 @@
       "Tháng"
     ],
     "expected": {
-      "nam": {
-        "column": "Year",
-        "rule": "synonym"
-      },
-      "so_tai_khoan": {
-        "column": "Tài khoản ngân hàng",
-        "rule": "synonym"
-      },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
-      "ma_nhan_vien": {
-        "column": "Mã số nhân viên",
-        "rule": "synonym"
-      },
+      "nam": null,
+      "so_tai_khoan": null,
+      "ngan_hang": null,
+      "ma_nhan_vien": null,
       "ho_ten": {
         "column": "Ho ten",
         "rule": "exact"
       },
-      "phong_ban": {
-        "column": "Department",
-        "rule": "synonym"
-      },
-      "luong": {
-        "column": "Lương cơ bản",
-        "rule": "synonym"
-      },
+      "phong_ban": null,
+      "luong": null,
       "phu_cap": {
         "column": "Phụ cấp",
         "rule": "exact"
@@ -2391,10 +2028,7 @@
         "column": "Số tài khoản",
         "rule": "exact"
       },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
+      "ngan_hang": null,
       "ma_nhan_vien": {
         "column": "Mã nhân viê",
         "rule": "fuzzy"
@@ -2415,18 +2049,12 @@
         "column": "Phụ cấp",
         "rule": "exact"
       },
-      "thuc_linh": {
-        "column": "Thực nhận",
-        "rule": "synonym"
-      },
+      "thuc_linh": null,
       "thang": {
         "column": "Tháng",
         "rule": "exact"
       },
-      "nam": {
-        "column": "Year",
-        "rule": "synonym"
-      }
+      "nam": null
     }
   },
   {
@@ -2480,10 +2108,7 @@
       "Số lượng"
     ],
     "expected": {
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
+      "ngan_hang": null,
       "ma_nhan_vien": {
         "column": "Mã nhân viên",
         "rule": "exact"
@@ -2492,14 +2117,8 @@
         "column": "Hoten",
         "rule": "fuzzy"
       },
-      "phong_ban": {
-        "column": "Department",
-        "rule": "synonym"
-      },
-      "luong": {
-        "column": "Mức lương",
-        "rule": "synonym"
-      },
+      "phong_ban": null,
+      "luong": null,
       "phu_cap": {
         "column": "Phụ cấp",
         "rule": "exact"
@@ -2512,10 +2131,7 @@
         "column": "Tháng",
         "rule": "exact"
       },
-      "nam": {
-        "column": "Year",
-        "rule": "synonym"
-      },
+      "nam": null,
       "so_tai_khoan": {
         "column": "Số tài khoản",
         "rule": "exact"
@@ -2550,22 +2166,13 @@
         "column": "Tên",
         "rule": "exact"
       },
-      "so_dien_thoai": {
-        "column": "SĐT",
-        "rule": "synonym"
-      },
+      "so_dien_thoai": null,
       "email": {
         "column": "Mail",
-        "rule": "synonym"
+        "rule": "fuzzy"
       },
-      "dia_chi": {
-        "column": "Nơi ở",
-        "rule": "synonym"
-      },
-      "gioi_tinh": {
-        "column": "Gender",
-        "rule": "synonym"
-      },
+      "dia_chi": null,
+      "gioi_tinh": null,
       "ngay_sinh": {
         "column": "ngày_sinh",
         "rule": "exact"
@@ -2605,18 +2212,12 @@
       "Tên"
     ],
     "expected": {
-      "so_dien_thoai": {
-        "column": "Số điện thoại di động",
-        "rule": "synonym"
-      },
+      "so_dien_thoai": null,
       "email": {
         "column": "Email",
         "rule": "exact"
       },
-      "dia_chi": {
-        "column": "Address",
-        "rule": "synonym"
-      },
+      "dia_chi": null,
       "gioi_tinh": {
         "column": "Giới tính",
         "rule": "exact"
@@ -2667,12 +2268,9 @@
     "expected": {
       "email": {
         "column": "Mail",
-        "rule": "synonym"
+        "rule": "fuzzy"
       },
-      "dia_chi": {
-        "column": "Nơi ở",
-        "rule": "synonym"
-      },
+      "dia_chi": null,
       "gioi_tinh": {
         "column": "GIOI TINH",
         "rule": "exact"
@@ -2685,10 +2283,7 @@
         "column": "TEN",
         "rule": "exact"
       },
-      "so_dien_thoai": {
-        "column": "SĐT",
-        "rule": "synonym"
-      }
+      "so_dien_thoai": null
     }
   },
   {
@@ -2726,29 +2321,17 @@
       "STT"
     ],
     "expected": {
-      "dia_chi": {
-        "column": "Address",
-        "rule": "synonym"
-      },
-      "gioi_tinh": {
-        "column": "Gender",
-        "rule": "synonym"
-      },
-      "ngay_sinh": {
-        "column": "DOB",
-        "rule": "synonym"
-      },
+      "dia_chi": null,
+      "gioi_tinh": null,
+      "ngay_sinh": null,
       "ten": {
         "column": "Tên",
         "rule": "exact"
       },
-      "so_dien_thoai": {
-        "column": "Số điện thoại di động",
-        "rule": "synonym"
-      },
+      "so_dien_thoai": null,
       "email": {
         "column": "Mail",
-        "rule": "synonym"
+        "rule": "fuzzy"
       }
     }
   },
@@ -2808,10 +2391,7 @@
         "column": "Email",
         "rule": "exact"
       },
-      "dia_chi": {
-        "column": "Address",
-        "rule": "synonym"
-      }
+      "dia_chi": null
     }
   },
   {
@@ -2859,18 +2439,12 @@
         "column": "Tên",
         "rule": "exact"
       },
-      "so_dien_thoai": {
-        "column": "Phone",
-        "rule": "synonym"
-      },
+      "so_dien_thoai": null,
       "email": {
         "column": "Mail",
-        "rule": "synonym"
+        "rule": "fuzzy"
       },
-      "dia_chi": {
-        "column": "Nơi ở",
-        "rule": "synonym"
-      },
+      "dia_chi": null,
       "gioi_tinh": {
         "column": "GIOI TINH",
         "rule": "exact"
@@ -2913,14 +2487,8 @@
         "column": "Email",
         "rule": "exact"
       },
-      "dia_chi": {
-        "column": "Address",
-        "rule": "synonym"
-      },
-      "gioi_tinh": {
-        "column": "Gender",
-        "rule": "synonym"
-      },
+      "dia_chi": null,
+      "gioi_tinh": null,
       "ngay_sinh": {
         "column": "Ngày snh",
         "rule": "fuzzy"
@@ -2951,18 +2519,12 @@
     ],
     "columns": ["STT", "Trạng thái", "SĐT", "Mail", "Nơi ở", "Giới tính", "Ngay sinh", "TEN"],
     "expected": {
-      "so_dien_thoai": {
-        "column": "SĐT",
-        "rule": "synonym"
-      },
+      "so_dien_thoai": null,
       "email": {
         "column": "Mail",
-        "rule": "synonym"
+        "rule": "fuzzy"
       },
-      "dia_chi": {
-        "column": "Nơi ở",
-        "rule": "synonym"
-      },
+      "dia_chi": null,
       "gioi_tinh": {
         "column": "Giới tính",
         "rule": "exact"
@@ -3015,18 +2577,12 @@
         "column": "Email",
         "rule": "exact"
       },
-      "dia_chi": {
-        "column": "Address",
-        "rule": "synonym"
-      },
+      "dia_chi": null,
       "gioi_tinh": {
         "column": "GIOI TINH",
         "rule": "exact"
       },
-      "ngay_sinh": {
-        "column": "DOB",
-        "rule": "synonym"
-      },
+      "ngay_sinh": null,
       "ten": {
         "column": "Tên",
         "rule": "exact"
@@ -3072,14 +2628,8 @@
       "Email"
     ],
     "expected": {
-      "dia_chi": {
-        "column": "Nơi ở",
-        "rule": "synonym"
-      },
-      "gioi_tinh": {
-        "column": "Gender",
-        "rule": "synonym"
-      },
+      "dia_chi": null,
+      "gioi_tinh": null,
       "ngay_sinh": {
         "column": "ngày_sinh",
         "rule": "exact"
@@ -3088,10 +2638,7 @@
         "column": "TEN",
         "rule": "exact"
       },
-      "so_dien_thoai": {
-        "column": "SĐT",
-        "rule": "synonym"
-      },
+      "so_dien_thoai": null,
       "email": {
         "column": "Email",
         "rule": "exact"
@@ -3138,14 +2685,8 @@
         "column": "Tên công ty",
         "rule": "exact"
       },
-      "ma_so_thue": {
-        "column": "MST",
-        "rule": "synonym"
-      },
-      "so_tien": {
-        "column": "Giá trị",
-        "rule": "synonym"
-      },
+      "ma_so_thue": null,
+      "so_tien": null,
       "noi_dung": {
         "column": "Nội dung",
         "rule": "exact"
@@ -3154,10 +2695,7 @@
         "column": "Số tài khoản",
         "rule": "exact"
       },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
+      "ngan_hang": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
@@ -3205,30 +2743,15 @@
         "column": "Mã số thuế",
         "rule": "exact"
       },
-      "so_tien": {
-        "column": "Amount",
-        "rule": "synonym"
-      },
-      "noi_dung": {
-        "column": "Ghi chú",
-        "rule": "synonym"
-      },
-      "so_tai_khoan": {
-        "column": "Tài khoản ngân hàng",
-        "rule": "synonym"
-      },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
+      "so_tien": null,
+      "noi_dung": null,
+      "so_tai_khoan": null,
+      "ngan_hang": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "ten_cong_ty": {
-        "column": "Công ty",
-        "rule": "synonym"
-      }
+      "ten_cong_ty": null
     }
   },
   {
@@ -3273,26 +2796,17 @@
         "column": "Số tiền",
         "rule": "exact"
       },
-      "noi_dung": {
-        "column": "Diễn giải",
-        "rule": "synonym"
-      },
+      "noi_dung": null,
       "so_tai_khoan": {
         "column": "Số tài khoản",
         "rule": "exact"
       },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
+      "ngan_hang": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "ten_cong_ty": {
-        "column": "Công ty",
-        "rule": "synonym"
-      },
+      "ten_cong_ty": null,
       "ma_so_thue": {
         "column": "Mã số thuế",
         "rule": "exact"
@@ -3342,22 +2856,13 @@
         "column": "Nội dung",
         "rule": "exact"
       },
-      "so_tai_khoan": {
-        "column": "Tài khoản ngân hàng",
-        "rule": "synonym"
-      },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
+      "so_tai_khoan": null,
+      "ngan_hang": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "ten_cong_ty": {
-        "column": "Công ty",
-        "rule": "synonym"
-      },
+      "ten_cong_ty": null,
       "ma_so_thue": {
         "column": "Mã số thế",
         "rule": "fuzzy"
@@ -3412,26 +2917,14 @@
         "column": "Số tài khoản",
         "rule": "exact"
       },
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
+      "ngan_hang": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "ten_cong_ty": {
-        "column": "Công ty",
-        "rule": "synonym"
-      },
-      "ma_so_thue": {
-        "column": "MST",
-        "rule": "synonym"
-      },
-      "so_tien": {
-        "column": "Giá trị",
-        "rule": "synonym"
-      },
+      "ten_cong_ty": null,
+      "ma_so_thue": null,
+      "so_tien": null,
       "noi_dung": {
         "column": "Nội dung",
         "rule": "exact"
@@ -3479,34 +2972,19 @@
       "Dòng"
     ],
     "expected": {
-      "ngan_hang": {
-        "column": "Tên ngân hàng",
-        "rule": "synonym"
-      },
+      "ngan_hang": null,
       "ngay_ky": {
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "ten_cong_ty": {
-        "column": "Công ty",
-        "rule": "synonym"
-      },
+      "ten_cong_ty": null,
       "ma_so_thue": {
         "column": "Mã số thuế",
         "rule": "exact"
       },
-      "so_tien": {
-        "column": "Amount",
-        "rule": "synonym"
-      },
-      "noi_dung": {
-        "column": "Ghi chú",
-        "rule": "synonym"
-      },
-      "so_tai_khoan": {
-        "column": "STK",
-        "rule": "synonym"
-      }
+      "so_tien": null,
+      "noi_dung": null,
+      "so_tai_khoan": null
     }
   },
   {
@@ -3549,10 +3027,7 @@
         "column": "Ngày ký",
         "rule": "exact"
       },
-      "ten_cong_ty": {
-        "column": "Công ty",
-        "rule": "synonym"
-      },
+      "ten_cong_ty": null,
       "ma_so_thue": {
         "column": "Mã số thế",
         "rule": "fuzzy"
@@ -3561,10 +3036,7 @@
         "column": "Số tiền",
         "rule": "exact"
       },
-      "noi_dung": {
-        "column": "Diễn giải",
-        "rule": "synonym"
-      },
+      "noi_dung": null,
       "so_tai_khoan": {
         "column": "Số tài khoản ",
         "rule": "exact"
@@ -3612,34 +3084,19 @@
       "Trạng thái"
     ],
     "expected": {
-      "ten_cong_ty": {
-        "column": "Công ty",
-        "rule": "synonym"
-      },
-      "ma_so_thue": {
-        "column": "MST",
-        "rule": "synonym"
-      },
-      "so_tien": {
-        "column": "Giá trị",
-        "rule": "synonym"
-      },
+      "ten_cong_ty": null,
+      "ma_so_thue": null,
+      "so_tien": null,
       "noi_dung": {
         "column": "Nội dung",
         "rule": "exact"
       },
-      "so_tai_khoan": {
-        "column": "STK",
-        "rule": "synonym"
-      },
+      "so_tai_khoan": null,
       "ngan_hang": {
         "column": "Ngân hàng",
         "rule": "exact"
       },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      }
+      "ngay_ky": null
     }
   },
   {
@@ -3684,14 +3141,8 @@
         "column": "Mã số thuế",
         "rule": "exact"
       },
-      "so_tien": {
-        "column": "Amount",
-        "rule": "synonym"
-      },
-      "noi_dung": {
-        "column": "Ghi chú",
-        "rule": "synonym"
-      },
+      "so_tien": null,
+      "noi_dung": null,
       "so_tai_khoan": {
         "column": "Số tài khoản ",
         "rule": "exact"
@@ -3700,10 +3151,7 @@
         "column": "Ngân hàng",
         "rule": "exact"
       },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      },
+      "ngay_ky": null,
       "ten_cong_ty": {
         "column": "Tên công ty",
         "rule": "exact"
@@ -3753,22 +3201,13 @@
         "column": "Số tiền",
         "rule": "exact"
       },
-      "noi_dung": {
-        "column": "Diễn giải",
-        "rule": "synonym"
-      },
-      "so_tai_khoan": {
-        "column": "STK",
-        "rule": "synonym"
-      },
+      "noi_dung": null,
+      "so_tai_khoan": null,
       "ngan_hang": {
         "column": "Ngân hàng",
         "rule": "exact"
       },
-      "ngay_ky": {
-        "column": "Ngày ký hợp đồng",
-        "rule": "synonym"
-      },
+      "ngay_ky": null,
       "ten_cong_ty": {
         "column": "Tên công ty",
         "rule": "exact"
@@ -4332,10 +3771,10 @@
         "key": "họ_tên"
       }
     ],
-    "columns": ["Họ và tên"],
+    "columns": ["Họ tên"],
     "expected": {
       "họ_tên": {
-        "column": "Họ và tên",
+        "column": "Họ tên",
         "rule": "exact"
       }
     }
@@ -4350,13 +3789,29 @@
         "key": "ho_ten"
       }
     ],
-    "columns": ["Họ và tên"],
+    "columns": ["Ho ten"],
     "expected": {
       "ten": null,
       "ho_ten": {
-        "column": "Họ và tên",
+        "column": "Ho ten",
         "rule": "exact"
       }
+    }
+  },
+  {
+    "name": "near miss: no synonym list",
+    "fields": [
+      {
+        "key": "so_dien_thoai"
+      },
+      {
+        "key": "ma_nhan_vien"
+      }
+    ],
+    "columns": ["SĐT", "MNV"],
+    "expected": {
+      "so_dien_thoai": null,
+      "ma_nhan_vien": null
     }
   }
 ]
