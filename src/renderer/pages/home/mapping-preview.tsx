@@ -1,15 +1,15 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { getRow } from "../../../shared/ipc/mapping";
 import { type Entries, rowValues } from "../../../shared/mapping/values";
 import { Button } from "../../components/ui/button";
 import { Status } from "../../components/ui/status";
 import { call } from "../../lib/ipc";
-import { WordPreview } from "../../preview/WordPreview";
 import { homeMapping as t } from "../../strings/home-mapping";
 
 export type MappingPreviewProps = {
-  template: Uint8Array;
+  /** Draws the current row: the Word preview or the rendered image. */
+  draw: (row: { values: Record<string, string>; unmapped: string[] }) => ReactNode;
   keys: readonly string[];
   entries: Entries;
   columns: readonly string[];
@@ -21,13 +21,7 @@ export type MappingPreviewProps = {
  * cost the same as 2). The values come from that row through the mapping, so a change of mapping redraws
  * with the row already in hand.
  */
-export function MappingPreview({
-  template,
-  keys,
-  entries,
-  columns,
-  rowCount,
-}: MappingPreviewProps) {
+export function MappingPreview({ draw, keys, entries, columns, rowCount }: MappingPreviewProps) {
   const [index, setIndex] = useState(0);
   const [cells, setCells] = useState<string[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -87,7 +81,7 @@ export function MappingPreview({
         data-testid="mapping-preview"
         className="max-h-[70vh] overflow-auto rounded-control border border-line"
       >
-        {cells ? <WordPreview template={template} values={values} unmapped={unmapped} /> : null}
+        {cells ? draw({ values, unmapped }) : null}
       </div>
     </section>
   );

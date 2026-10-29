@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { FileText, ImageIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getGroupFilter,
@@ -67,13 +67,11 @@ function TemplateList() {
         call(rankTemplates),
       ]);
       const byId = new Map(fits.items.map((f) => [f.templateId, f]));
-      const templates = all
-        .filter((x) => x.kind === "word")
-        .map((x: TemplateSummary) => ({
-          ...x,
-          matched: byId.get(x.id)?.matched ?? 0,
-          total: byId.get(x.id)?.total ?? x.tagCount,
-        }));
+      const templates = all.map((x: TemplateSummary) => ({
+        ...x,
+        matched: byId.get(x.id)?.matched ?? 0,
+        total: byId.get(x.id)?.total ?? x.tagCount,
+      }));
       setLoaded({ templates, groups, hasData: fits.hasData });
       setFailed(false);
       setSelected((now) => (now && templates.some((x) => x.id === now) ? now : null));
@@ -212,7 +210,15 @@ function TemplateList() {
                   selected === x.id ? "border-accent bg-panel" : "border-line",
                 )}
               >
-                <FileText aria-hidden="true" className="size-6 shrink-0 text-muted" />
+                {x.kind === "image" ? (
+                  <ImageIcon
+                    aria-hidden="true"
+                    data-testid="template-icon-image"
+                    className="size-6 shrink-0 text-muted"
+                  />
+                ) : (
+                  <FileText aria-hidden="true" className="size-6 shrink-0 text-muted" />
+                )}
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate text-lg font-bold">{x.name}</span>
                   <span className="text-sm text-muted" data-testid="template-hint">

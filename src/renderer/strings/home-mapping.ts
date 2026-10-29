@@ -36,5 +36,14 @@ export const homeMapping = {
   next: "Dòng sau",
   row: (n: number, total: number) => `Dòng ${n}/${total}`,
   rowFailed: "Không đọc được dòng này.",
+  imageAlt: "Ảnh xem trước của dòng này",
+  drawing: "Đang vẽ…",
+  imageUnmapped: (labels: string[]) => `Chưa ghép nên chưa có chữ trên ảnh: ${labels.join(", ")}.`,
+  fontMissing: (family: string) =>
+    `Font “${family}” không còn trên máy này. Cài lại font đó, hoặc vào Mẫu, bấm Sửa ảnh và chọn font khác cho khung chữ dùng nó.`,
+  textTooLong: (field: string) =>
+    `Chữ của trường ‘${field}’ ở dòng này quá dài so với khung. Vào Mẫu, bấm Sửa ảnh, tăng chiều rộng hoặc số dòng của khung.`,
+  badBackground: "Không đọc được ảnh nền. Vào Mẫu, bấm Sửa ảnh và tải lại ảnh nền.",
+  renderFailed: "Không vẽ được ảnh xem trước. Thử đổi dòng hoặc cách ghép.",
   summary: (n: number) => `${n} trường đã ghép`,
 } as const;

@@ -7,6 +7,7 @@ import { makeDocx, paragraph, run } from "../selftest/make-docx";
 import { openStorage, type Storage } from "../storage";
 import {
   getMappingRow,
+  imageSource,
   mappingMessages,
   openMapping,
   setMappingEntry,
@@ -151,5 +152,71 @@ describe("getMappingRow and templateBytes", () => {
     const result = await templateBytes(storage, id);
     expect(result.ok && result.docx.byteLength).toBeGreaterThan(100);
     expect(await templateBytes(storage, "nope")).toMatchObject({ ok: false });
+  });
+});
+
+describe("image templates", () => {
+  const box = (id: string, field: string) => ({
+    id,
+    field,
+    x: 1,
+    y: 2,
+    width: 100,
+    fontSize: 20,
+    fontFamily: "Arial",
+    style: "normal",
+    color: "#000000",
+    align: "left",
+    maxLines: 1,
+    overflow: "shrink",
+  });
+  const make = (boxes: ReturnType<typeof box>[]) =>
+    storage.createTemplate({
+      name: "Ảnh",
+      kind: "image",
+      imageLayout: { version: 1, boxes },
+      tags: [...new Set(boxes.map((b) => b.field))].map((name) => ({ name, label: name })),
+      source: { bytes: Uint8Array.from([1, 2, 3]), fileName: "nen.png" },
+    });
+
+  it("maps the fields of the boxes and saves the profile like a Word template", async () => {
+    const made = await make([box("a", "ho_ten"), box("b", "ho_ten"), box("c", "ly_do")]);
+    const data = table(["Họ tên", "Khác"]);
+    const opened = await openMapping(storage, data, made.id);
+    expect(opened.ok && opened.view.kind).toBe("image");
+    expect(opened.ok && opened.view.fields.map((f) => f.key)).toEqual(["ho_ten", "ly_do"]);
+    expect(opened.ok && opened.view.unmatched).toEqual(["ly_do"]);
+    const set = await setMappingEntry(storage, data, {
+      templateId: made.id,
+      key: "ly_do",
+      entry: { kind: "empty" },
+    });
+    expect(set.ok).toBe(true);
+    const again = await openMapping(storage, data, made.id);
+    expect(again.ok && again.view.unmatched).toEqual([]);
+  });
+
+  it("gives the boxes without ids and the background", async () => {
+    const made = await make([box("a", "ho_ten")]);
+    const source = await imageSource(storage, made.id);
+    expect(source.ok && [...source.background]).toEqual([1, 2, 3]);
+    expect(source.ok && "id" in (source.boxes[0] ?? {})).toBe(false);
+    expect(source.ok && source.boxes[0]?.field).toBe("ho_ten");
+  });
+
+  it("refuses a template without boxes, in both calls", async () => {
+    const made = await make([]);
+    const refusal = { ok: false, message: mappingMessages.noBoxes };
+    expect(await openMapping(storage, table(["a"]), made.id)).toEqual(refusal);
+    expect(await imageSource(storage, made.id)).toEqual(refusal);
+  });
+
+  it("does not give an image to a Word call and the other way round", async () => {
+    const made = await make([box("a", "ho_ten")]);
+    expect(await templateBytes(storage, made.id)).toMatchObject({ ok: false });
+    expect(await imageSource(storage, id)).toEqual({
+      ok: false,
+      message: mappingMessages.notImage,
+    });
   });
 });
