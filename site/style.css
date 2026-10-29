@@ -268,14 +268,24 @@ a:hover {
 }
 .hero-video {
   margin-top: var(--space-xl);
+  /* A dark stage: the video takes 90% of the width, the other 10% is stage, so the white app window stands apart in both themes. */
+  padding: 5%;
   border-radius: var(--radius-card);
   overflow: hidden;
-  background: var(--color-card);
-  /* An edge and a deeper lift: the white app window must stand apart from the page in both themes. */
+  background: linear-gradient(
+    150deg,
+    color-mix(in oklab, var(--color-shade) 82%, var(--color-accent-deep)),
+    var(--color-shade) 70%
+  );
   box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--color-veil) 20%, transparent),
-    0 2px 4px color-mix(in oklab, var(--color-shade) 12%, transparent),
-    0 36px 72px -28px color-mix(in oklab, var(--color-shade) 45%, transparent);
+    0 0 0 1px color-mix(in oklab, var(--color-light) 14%, transparent),
+    0 36px 72px -28px color-mix(in oklab, var(--color-shade) 55%, transparent);
+}
+.hero-video .app-frame {
+  --padding-h: 0px;
+  --padding-v: 0px;
+  --border-radius: 10px;
+  --box-shadow: 0 18px 40px -16px color-mix(in oklab, var(--color-shade) 80%, transparent);
 }
 .hero-video video {
   display: block;
@@ -729,7 +739,9 @@ footer a {
   }
   .hero-video {
     margin-inline: calc(-1 * var(--gutter));
+    padding: 3%;
     border-radius: 0;
+    box-shadow: none;
   }
   .pill {
     padding-inline: var(--space-md);
