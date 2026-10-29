@@ -9,7 +9,11 @@
   --button-inset: 20px;
   --button-size: 12px;
   --button-gap: calc(var(--button-size) * 0.57);
-  --title-inset: calc((var(--button-inset) * 2) + (var(--button-size) * 3) + (var(--button-gap) * 2));
+  --title-inset: calc(
+    (var(--button-inset) * 2) +
+    (var(--button-size) * 3) +
+    (var(--button-gap) * 2)
+  );
   --title-color: var(--color-night-ink);
   --title-size: 0.875em;
   --title-weight: 600;
@@ -27,8 +31,28 @@
   color: var(--color);
   grid-template-rows: var(--bar-height) auto;
 }
-.app-frame, .app-frame::before, .app-frame.mac::before {
-  background: radial-gradient(circle at calc(var(--button-inset) + var(--button-size) * 0.5) calc(var(--bar-height) / 2), var(--color-mac-close) calc(var(--button-size) / 2), transparent calc(var(--button-size) / 2)), radial-gradient(circle at calc(var(--button-inset) + var(--button-size) * 1.5 + var(--button-gap)) calc(var(--bar-height) / 2), var(--color-mac-min) calc(var(--button-size) / 2), transparent calc(var(--button-size) / 2)), radial-gradient(circle at calc(var(--button-inset) + var(--button-size) * 2.5 + var(--button-gap) * 2) calc(var(--bar-height) / 2), var(--color-mac-max) calc(var(--button-size) / 2), transparent calc(var(--button-size) / 2)), var(--bar-background);
+.app-frame,
+.app-frame::before,
+.app-frame.mac::before {
+  background:
+    radial-gradient(
+      circle at calc(var(--button-inset) + var(--button-size) * 0.5) calc(var(--bar-height) / 2),
+      var(--color-mac-close) calc(var(--button-size) / 2),
+      transparent calc(var(--button-size) / 2)
+    ),
+    radial-gradient(
+      circle at calc(var(--button-inset) + var(--button-size) * 1.5 + var(--button-gap))
+        calc(var(--bar-height) / 2),
+      var(--color-mac-min) calc(var(--button-size) / 2),
+      transparent calc(var(--button-size) / 2)
+    ),
+    radial-gradient(
+      circle at calc(var(--button-inset) + var(--button-size) * 2.5 + var(--button-gap) * 2)
+        calc(var(--bar-height) / 2),
+      var(--color-mac-max) calc(var(--button-size) / 2),
+      transparent calc(var(--button-size) / 2)
+    ),
+    var(--bar-background);
 }
 .app-frame.centered[data-title]::after {
   left: 50%;
@@ -55,7 +79,7 @@
   border-top-left-radius: calc(var(--border-radius) - var(--border-width));
   border-top-right-radius: calc(var(--border-radius) - var(--border-width));
   background: var(--bar-background);
-  grid-column: 1/-1;
+  grid-column: 1 / -1;
   width: calc(100% + var(--padding-h, 0px) * 2);
 }
 .app-frame::after {
