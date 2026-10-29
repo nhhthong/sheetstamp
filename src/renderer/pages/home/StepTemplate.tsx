@@ -16,6 +16,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Status } from "../../components/ui/status";
 import { cn } from "../../lib/cn";
+import { formatDate } from "../../lib/date";
 import { call } from "../../lib/ipc";
 import { homeTemplate as t } from "../../strings/home-template";
 import { NewTemplateDialog } from "../templates/NewTemplateDialog";
@@ -26,7 +27,7 @@ import { type RankedTemplate, visibleTemplates } from "./template-search";
 
 type Loaded = { templates: RankedTemplate[]; groups: GroupInfo[]; hasData: boolean };
 
-const date = (iso: string) => new Date(iso).toLocaleDateString("vi-VN");
+const date = formatDate;
 
 /**
  * Step 2, Mẫu: what opening the data folder found comes first. When the folder could not be opened nothing

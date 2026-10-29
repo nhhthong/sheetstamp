@@ -7,6 +7,7 @@ import { Button } from "../../components/ui/button";
 import { Status } from "../../components/ui/status";
 import { useToast } from "../../components/ui/toast";
 import { cn } from "../../lib/cn";
+import { formatDate } from "../../lib/date";
 import { call } from "../../lib/ipc";
 import { tpl } from "../../strings/templates";
 import { vi } from "../../strings/vi";
@@ -21,8 +22,6 @@ import { StorageBanner, useStorageStatus } from "./StorageBanner";
 export { NewTemplateDialog } from "./NewTemplateDialog";
 
 type Tab = "docs" | "images";
-
-const formatDate = (iso: string) => new Date(iso).toLocaleDateString("vi-VN");
 
 function hint(t: TemplateSummary): string {
   const used = t.lastUsedAt ? tpl.usedOn(formatDate(t.lastUsedAt)) : tpl.neverUsed;

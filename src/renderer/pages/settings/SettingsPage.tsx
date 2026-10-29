@@ -7,14 +7,12 @@ import { Page } from "../../components/page-header";
 import { Button } from "../../components/ui/button";
 import { Status } from "../../components/ui/status";
 import { cn } from "../../lib/cn";
+import { formatIsoDay } from "../../lib/date";
 import { call } from "../../lib/ipc";
 import { STAY_ON_SETTINGS } from "../../lib/stay-on-settings";
 import { applyTheme } from "../../lib/theme";
 import { settingsStrings } from "../../strings/settings";
 import { vi } from "../../strings/vi";
-
-/** "2027-04-27" -> "27/04/2027". */
-const formatDate = (iso: string) => iso.split("-").reverse().join("/");
 
 function AboutSection() {
   const [info, setInfo] = useState<About | null>(null);
@@ -54,7 +52,7 @@ function AboutSection() {
           <p className="m-0">{settingsStrings.about.localLine}</p>
           {info.electronEndOfSupport ? (
             <p className="m-0">
-              {settingsStrings.about.electronEnd(formatDate(info.electronEndOfSupport))}
+              {settingsStrings.about.electronEnd(formatIsoDay(info.electronEndOfSupport))}
             </p>
           ) : null}
           <p className="m-0">
