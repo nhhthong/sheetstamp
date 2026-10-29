@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R4.2, R4.7, R4.9
 **Blocked by:** T-26, T-28
-**Status:** ready
+**Status:** done
 **New infrastructure:** react-konva and konva in the renderer bundle (licenses added to the notices list)
 **Files:** src/renderer/pages/templates/image-editor, src/renderer/pages/templates/TemplatesPage.tsx, src/shared/image-layout, package.json, scripts/third-party-notices.mjs, tests/e2e
 **Proof:** `npm run test:e2e` creates an image template, lands in the editor, adds two boxes with "+ Thêm chữ", drags one, deletes the other, saves, reopens and finds the remaining box at the saved position.
