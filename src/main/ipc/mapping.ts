@@ -1,6 +1,7 @@
 // Handlers of the "mapping" channels declared in src/shared/ipc/mapping.ts.
 import {
   getGroupFilter,
+  getImageSource,
   getRow,
   getTemplateBytes,
   openMapping,
@@ -12,6 +13,8 @@ import {
 import { getCurrentTable } from "../data-session";
 import {
   getMappingRow,
+  imageProblem,
+  imageSource,
   openMapping as open,
   rankTemplates as rank,
   setMappingEntry,
@@ -23,7 +26,6 @@ import { handle } from "./define";
 
 export const templateMessages = {
   missing: "Không tìm thấy mẫu này. Chọn mẫu khác.",
-  notWord: "Mẫu này không phải mẫu Word. Chọn mẫu khác.",
   saveFailed: "Không ghi được ngày dùng mẫu. Thử lại.",
 } as const;
 
@@ -36,12 +38,13 @@ export function register(): void {
     setMappingEntry(await getStorage(), getCurrentTable(), request),
   );
   handle(getRow, ({ index }) => getMappingRow(getCurrentTable(), index));
+  handle(getImageSource, async ({ templateId }) => imageSource(await getStorage(), templateId));
   handle(getTemplateBytes, async ({ templateId }) => templateBytes(await getStorage(), templateId));
 
   handle(rankTemplates, async () => {
     const storage = await getStorage();
     const table = getCurrentTable();
-    const templates = (await storage.listTemplates()).filter((t) => t.kind === "word");
+    const templates = await storage.listTemplates();
     return { hasData: table !== undefined, items: rank(templates, table?.columns ?? []) };
   });
 
@@ -62,7 +65,8 @@ export function register(): void {
     const storage = await getStorage();
     const found = await storage.getTemplate(templateId);
     if (!found) return { ok: false as const, message: templateMessages.missing };
-    if (found.kind !== "word") return { ok: false as const, message: templateMessages.notWord };
+    const problem = imageProblem(found);
+    if (problem) return { ok: false as const, message: problem };
     try {
       await storage.markUsed(templateId);
     } catch {

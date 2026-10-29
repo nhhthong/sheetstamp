@@ -5,5 +5,12 @@ export { DEFAULT_THRESHOLD, matchFields } from "./match";
 export { normalize } from "./normalize";
 export { reconcile } from "./profile";
 export { rankTemplates } from "./rank";
-export { getMappingRow, openMapping, setMappingEntry, templateBytes } from "./session";
+export {
+  getMappingRow,
+  imageProblem,
+  imageSource,
+  openMapping,
+  setMappingEntry,
+  templateBytes,
+} from "./session";
 export { toProfile, toRecord } from "./shape";

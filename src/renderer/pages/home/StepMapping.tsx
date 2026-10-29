@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   type FieldMapping,
+  getImageSource,
   getTemplateBytes,
+  type ImageSource,
   type MappingView,
   openMapping,
   setEntry,
@@ -10,16 +12,21 @@ import { countUnresolved, type Entries } from "../../../shared/mapping/values";
 import { Button } from "../../components/ui/button";
 import { Status } from "../../components/ui/status";
 import { call } from "../../lib/ipc";
+import { WordPreview } from "../../preview/WordPreview";
 import { homeMapping as t } from "../../strings/home-mapping";
 import { flow } from "./flow";
 import { FieldRow } from "./mapping-field-row";
+import { ImagePreview } from "./mapping-image-preview";
 import { MappingPreview } from "./mapping-preview";
 import { markMappingDone, watchMappingInputs } from "./mapping-stale";
 import { StepFooter } from "./Stepper";
 
 watchMappingInputs();
 
-type Loaded = { view: MappingView; template: Uint8Array };
+type Body =
+  | { kind: "word"; template: Uint8Array }
+  | { kind: "image"; source: ImageSource & { ok: true } };
+type Loaded = { view: MappingView; body: Body };
 type Load =
   | { kind: "loading" }
   | { kind: "failed"; message: string }
@@ -38,13 +45,16 @@ export function StepMapping() {
     setLoad({ kind: "loading" });
     if (!templateId) return setLoad({ kind: "failed", message: t.loadError });
     try {
-      const [opened, bytes] = await Promise.all([
-        call(openMapping, { templateId }),
-        call(getTemplateBytes, { templateId }),
-      ]);
+      const opened = await call(openMapping, { templateId });
       if (!opened.ok) return setLoad({ kind: "failed", message: opened.message });
+      if (opened.view.kind === "image") {
+        const source = await call(getImageSource, { templateId });
+        if (!source.ok) return setLoad({ kind: "failed", message: source.message });
+        return setLoad({ kind: "ready", view: opened.view, body: { kind: "image", source } });
+      }
+      const bytes = await call(getTemplateBytes, { templateId });
       if (!bytes.ok) return setLoad({ kind: "failed", message: bytes.message });
-      setLoad({ kind: "ready", view: opened.view, template: bytes.docx });
+      setLoad({ kind: "ready", view: opened.view, body: { kind: "word", template: bytes.docx } });
     } catch {
       setLoad({ kind: "failed", message: t.loadError });
     }
@@ -65,17 +75,17 @@ export function StepMapping() {
       </div>
     );
   }
-  return <Mapping templateId={templateId} view={load.view} template={load.template} />;
+  return <Mapping templateId={templateId} view={load.view} body={load.body} />;
 }
 
 function Mapping({
   templateId,
   view,
-  template,
+  body,
 }: {
   templateId: string;
   view: MappingView;
-  template: Uint8Array;
+  body: Body;
 }) {
   const [entries, setEntries] = useState<Entries>(view.entries);
   const [showMatched, setShowMatched] = useState(false);
@@ -173,7 +183,18 @@ function Mapping({
         </div>
 
         <MappingPreview
-          template={template}
+          draw={({ values, unmapped }) =>
+            body.kind === "word" ? (
+              <WordPreview template={body.template} values={values} unmapped={unmapped} />
+            ) : (
+              <ImagePreview
+                source={body.source}
+                values={values}
+                unmapped={unmapped}
+                labelOf={(key) => labelOf.get(key) ?? key}
+              />
+            )
+          }
           keys={keys}
           entries={entries}
           columns={view.columns}

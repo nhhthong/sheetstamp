@@ -1,4 +1,5 @@
 // IPC channels of the "mapping" feature, plus the types the renderer shares with src/main/mapping.
+import type { TextBox } from "../../worker/render/types";
 import { type Channel, channel, integer, nothing, oneOf, record, string } from "./define";
 
 /** A field of a template: the tag key and the label the user sees (the label is optional). */
@@ -97,6 +98,7 @@ export type MappingFieldView = { key: string; label: string };
 /** What step 3 needs to draw its list. The table itself never leaves main: only column names and a row count. */
 export type MappingView = {
   templateName: string;
+  kind: "word" | "image";
   fields: MappingFieldView[];
   columns: string[];
   rowCount: number;
@@ -155,6 +157,16 @@ export const getTemplateBytes: Channel<{ templateId: string }, TemplateBytes> = 
   (value) => ({ templateId: templateIdOf(value) }),
 );
 
+export type ImageSource =
+  | { ok: true; background: Uint8Array; boxes: TextBox[] }
+  | { ok: false; message: string };
+
+/** The stored background and text boxes of an image template, for the step 3 preview. */
+export const getImageSource: Channel<{ templateId: string }, ImageSource> = channel(
+  "mapping:imageSource",
+  (value) => ({ templateId: templateIdOf(value) }),
+);
+
 export const channels = [
   rankTemplates,
   getGroupFilter,
@@ -164,5 +176,6 @@ export const channels = [
   setEntry,
   getRow,
   getTemplateBytes,
+  getImageSource,
 ] as const;
 export const events = [] as const;
