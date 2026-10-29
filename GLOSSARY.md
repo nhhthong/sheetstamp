@@ -20,7 +20,7 @@ _Avoid_: Tag in user-facing text
 A column of the imported CSV or Excel file.
 
 **Mapping** (Vietnamese: ghép cột):
-The link from each field to a column, a fixed text, or empty. Saved with the template.
+The link from each field to a column, a fixed text, or empty. Saved with the template. Word fields are matched to columns by name, image fields by position; one column serves one field.
 
 **Batch** (Vietnamese: đợt):
 One export of every row of the imported file through one template into one ZIP.
