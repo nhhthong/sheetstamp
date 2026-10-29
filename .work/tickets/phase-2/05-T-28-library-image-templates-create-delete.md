@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R4.1, R8.1, R8.2, R8.4, R8.7, R8.8, R8.9
 **Blocked by:** T-24
-**Status:** ready
+**Status:** done
 **New infrastructure:** none
 **Files:** src/renderer/pages/templates, src/main/templates, src/main/storage, src/shared/ipc/templates.ts, src/shared/image-layout, tests/e2e
 **Proof:** `npm run test:e2e` opens Mẫu, switches to the tab Ảnh, creates a template from a generated PNG, sees it listed with its source file name and "0 trường", deletes it after the inline confirmation, and the stored copy is gone from the data folder.
