@@ -10,6 +10,7 @@
       content="Điền mẫu Word hoặc ảnh bằng dữ liệu Excel/CSV, xuất hàng trăm file trong một file ZIP. Chạy hoàn toàn trên máy bạn."
     />
     <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="stylesheet" href="assets/devices-surface-book.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -19,7 +20,6 @@
         <nav aria-label="Điều hướng trang">
           <a href="#cach-hoat-dong">Cách hoạt động</a>
           <a href="#rieng-tu">Riêng tư</a>
-          <a href="#code-signing-policy">Chính sách ký mã</a>
           <a href="https://github.com/nhhthong/sheetstamp">GitHub</a>
           <a class="pill sm keep" href="#cai-dat">Tải về</a>
         </nav>
@@ -27,7 +27,8 @@
     </header>
 
     <main id="top">
-      <section class="hero">
+      <section class="hero" data-scroll>
+        <div class="hero-stick">
         <div class="wrap">
           <div class="head2">
             <h1>Điền mẫu, xuất hàng trăm file.</h1>
@@ -43,15 +44,32 @@
             </div>
           </div>
           <div class="stage">
-            <figure class="well">
-              <img
-                src="assets/app-ghep-cot.png"
-                width="1250"
-                height="800"
-                alt="Cửa sổ Sheetstamp ở bước Ghép cột: tất cả 3 trường đã ghép, bên phải là giấy khen đã điền tên."
-              />
-            </figure>
+            <div class="dev" data-fit>
+              <div class="device device-surface-book">
+                <div class="device-frame">
+                  <video
+                    class="device-screen"
+                    src="assets/demo.mp4"
+                    poster="assets/demo-poster.jpg"
+                    width="540"
+                    height="360"
+                    muted
+                    loop
+                    playsinline
+                    controls
+                    preload="metadata"
+                    data-autoplay
+                    aria-label="Video demo: từ file Excel đến một file ZIP chứa các thiệp sinh nhật đã điền tên, trong bốn bước."
+                  >
+                  </video>
+                </div>
+                <div class="device-btns"></div>
+                <div class="device-power"></div>
+                <div class="deck" aria-hidden="true"></div>
+              </div>
+            </div>
           </div>
+        </div>
         </div>
       </section>
 
@@ -69,15 +87,33 @@
             </div>
           </div>
           <div>
-            <figure class="well pane" id="p1">
-              <img src="assets/app-chon-mau.png" width="1250" height="800" alt="Bước Mẫu: ô tìm kiếm, nhóm mẫu và danh sách mẫu, mỗi mẫu ghi số trường khớp với cột dữ liệu." loading="lazy" />
-            </figure>
-            <figure class="well pane" id="p2">
-              <img src="assets/app-ghep-cot.png" width="1250" height="800" alt="Bước Ghép cột: tất cả 3 trường đã ghép, xem trước giấy khen theo từng dòng." loading="lazy" />
-            </figure>
-            <figure class="well pane" id="p3">
-              <img src="assets/app-soan-anh.png" width="1250" height="800" alt="Trình soạn mẫu ảnh với bảng thuộc tính: trường, font, cỡ chữ, màu." loading="lazy" />
-            </figure>
+            <div class="pane" id="p1">
+              <div class="dev" data-fit>
+                <div class="device device-surface-book">
+                  <div class="device-frame"><img class="device-screen" src="assets/app-chon-mau.png" width="540" height="360" alt="Bước Mẫu: ô tìm kiếm, nhóm mẫu và danh sách mẫu, mỗi mẫu ghi số trường khớp với cột dữ liệu." loading="lazy" /></div>
+                  <div class="device-btns"></div>
+                  <div class="device-power"></div>
+                </div>
+              </div>
+            </div>
+            <div class="pane" id="p2">
+              <div class="dev" data-fit>
+                <div class="device device-surface-book">
+                  <div class="device-frame"><img class="device-screen" src="assets/app-ghep-cot.png" width="540" height="360" alt="Bước Ghép cột: tất cả 3 trường đã ghép, xem trước thiệp sinh nhật theo từng dòng." loading="lazy" /></div>
+                  <div class="device-btns"></div>
+                  <div class="device-power"></div>
+                </div>
+              </div>
+            </div>
+            <div class="pane" id="p3">
+              <div class="dev" data-fit>
+                <div class="device device-surface-book">
+                  <div class="device-frame"><img class="device-screen" src="assets/app-soan-anh.png" width="540" height="360" alt="Trình soạn mẫu ảnh: các khung chữ trên thiệp sinh nhật và bảng thuộc tính của khung đang chọn." loading="lazy" /></div>
+                  <div class="device-btns"></div>
+                  <div class="device-power"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -110,7 +146,6 @@
                   <li>Bấm đúp vào file. Không cần quyền quản trị.</li>
                   <li>
                     Nếu Windows hiện “Windows đã bảo vệ PC của bạn”: bấm <strong>Thông tin thêm</strong>, rồi <strong>Vẫn chạy</strong>.
-                    Cảnh báo này xuất hiện vì bản đầu tiên chưa được ký số (xem <a href="#code-signing-policy">Chính sách ký mã</a>).
                   </li>
                 </ol>
                 <details>
@@ -185,18 +220,6 @@
           </div>
         </div>
       </section>
-
-      <section class="sec" id="code-signing-policy">
-        <div class="wrap cols">
-          <h2>Chính sách ký mã (Code signing policy)</h2>
-          <ul class="facts">
-            <li>Bản Windows đầu tiên chưa được ký. Sau khi phát hành, dự án sẽ đăng ký chương trình ký mã miễn phí cho mã nguồn mở của <a href="https://signpath.org">SignPath</a>.</li>
-            <li>Mã nguồn công khai, giấy phép MIT: <a href="https://github.com/nhhthong/sheetstamp">github.com/nhhthong/sheetstamp</a>. Các bản dựng được tạo bởi GitHub Actions từ mã nguồn này.</li>
-            <li>Vai trò: tác giả, người xem xét và người phê duyệt đều là chủ dự án (<a href="https://github.com/nhhthong">nhhthong</a>). Mỗi bản phát hành được ký cần phê duyệt thủ công.</li>
-          </ul>
-        </div>
-      </section>
-
       <section class="sec band close">
         <div class="wrap">
           <h2>Tải Sheetstamp</h2>
@@ -248,6 +271,74 @@
             });
           });
         });
+      })();
+    </script>
+    <script>
+      // Scale each device frame to its column, open the laptop as the page scrolls, and play the demo when it is open.
+      (function () {
+        var NATURAL = 728;
+        var phone = window.matchMedia("(max-width: 40em)");
+        var wide = window.matchMedia("(min-width: 48em)");
+        var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+        function fit(box) {
+          var inner = box.firstElementChild;
+          if (phone.matches) { inner.style.transform = ""; box.style.height = ""; return; }
+          var s = box.clientWidth / NATURAL;
+          inner.style.transform = "scale(" + s + ")";
+          box.style.height = inner.offsetHeight * s + "px";
+        }
+        var boxes = document.querySelectorAll("[data-fit]");
+        function all() { boxes.forEach(fit); }
+        all();
+        if (window.ResizeObserver) boxes.forEach(function (b) { new ResizeObserver(function () { fit(b); }).observe(b); });
+        window.addEventListener("resize", all);
+
+        var hero = document.querySelector(".hero[data-scroll]");
+        var v = document.querySelector("video[data-autoplay]");
+        var queued = false;
+        var playing = false;
+        function ease(p) { p = Math.max(0, Math.min(1, p)); return p * p * (3 - 2 * p); }
+        function setPlaying(on) {
+          if (!v || on === playing) return;
+          playing = on;
+          if (on) v.play().catch(function () {}); else v.pause();
+        }
+        function update() {
+          queued = false;
+          if (!hero.classList.contains("is-scroll")) return;
+          var top = hero.getBoundingClientRect().top;
+          var total = hero.offsetHeight - (window.innerHeight - 68);
+          var p = Math.max(0, Math.min(1, (68 - top) / total));
+          var t = ease(p / 0.3);
+          var o = ease((p - 0.04) / 0.5);
+          hero.style.setProperty("--t", t.toFixed(3));
+          hero.style.setProperty("--o", o.toFixed(3));
+          setPlaying(o > 0.85);
+        }
+        function request() { if (!queued) { queued = true; requestAnimationFrame(update); } }
+        function mode() {
+          var on = hero && wide.matches && !still.matches;
+          if (!hero) return;
+          hero.classList.toggle("is-scroll", on);
+          if (!on) { hero.style.removeProperty("--t"); hero.style.removeProperty("--o"); }
+          all();
+          if (on) update();
+        }
+        if (hero) {
+          window.addEventListener("scroll", request, { passive: true });
+          window.addEventListener("resize", function () { mode(); });
+          mode();
+        }
+        // Outside the scroll scene the demo plays while it is on screen, unless motion is reduced.
+        if (v && "IntersectionObserver" in window) {
+          new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+              if (hero && hero.classList.contains("is-scroll")) return;
+              if (still.matches) return;
+              setPlaying(e.isIntersecting);
+            });
+          }, { threshold: 0.4 }).observe(v);
+        }
       })();
     </script>
   </body>
