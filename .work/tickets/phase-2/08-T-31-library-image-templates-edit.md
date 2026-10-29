@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R8.3, R4.5
 **Blocked by:** T-30
-**Status:** ready
+**Status:** done
 **New infrastructure:** none
 **Files:** src/renderer/pages/templates, src/main/templates, src/shared/ipc/templates.ts, tests/e2e
 **Proof:** `npm run test:e2e` edits an image template's name, group and note, reopens its boxes in the editor, then replaces the background with a smaller image and sees the boxes that fall outside it flagged while the others keep their position.

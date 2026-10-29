@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R9.4, R2.1, R2.2, R2.3, R2.4, R4.6, R4.7, R8.5
 **Blocked by:** T-30
-**Status:** ready
+**Status:** done
 **New infrastructure:** none
 **Files:** src/renderer/pages/home, src/main/mapping, src/main/templates, src/shared/mapping, tests/e2e
 **Proof:** `npm run test:e2e` loads a CSV, picks an image template in step 2 (shown with the image icon and "Khớp x/y trường"), fixes the one unmatched field in step 3 and sees the rendered image change with the pager "‹ Dòng 2/4 ›".
