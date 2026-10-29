@@ -1,4 +1,5 @@
 // Opening and saving the layout of an image template. Pure Node: the storage is passed in.
+import { lazy } from "../../shared/i18n";
 import { emptyImageLayout, parseImageLayout } from "../../shared/image-layout";
 import type { ImageEditorDoc, SampleRow, SaveLayoutRequest } from "../../shared/ipc/images";
 import type { Outcome } from "../../shared/ipc/templates";
@@ -7,12 +8,22 @@ import { matchFields, suggestLabel } from "../mapping";
 import { type Storage, StorageError } from "../storage";
 import { fail, messages } from "./library";
 
-export const editorMessages = {
-  notFound: "Không tìm thấy mẫu ảnh này. Quay lại danh sách mẫu và thử lại.",
-  newer: "Mẫu này được lưu bởi một phiên bản mới hơn của ứng dụng. Cập nhật ứng dụng để chỉnh sửa.",
-  invalid: "Bố cục của mẫu này bị hỏng nên không mở được. Tạo lại mẫu từ ảnh nền.",
-  badLayout: "Bố cục không hợp lệ nên chưa lưu. Kiểm tra các ô chữ rồi thử lại.",
-} as const;
+export const editorMessages = lazy(
+  {
+    notFound: "Không tìm thấy mẫu ảnh này. Quay lại danh sách mẫu và thử lại.",
+    newer:
+      "Mẫu này được lưu bởi một phiên bản mới hơn của ứng dụng. Cập nhật ứng dụng để chỉnh sửa.",
+    invalid: "Bố cục của mẫu này bị hỏng nên không mở được. Tạo lại mẫu từ ảnh nền.",
+    badLayout: "Bố cục không hợp lệ nên chưa lưu. Kiểm tra các ô chữ rồi thử lại.",
+  },
+  {
+    notFound: "This image template was not found. Go back to the template list and try again.",
+    newer: "This template was saved by a newer version of the app. Update the app to edit it.",
+    invalid:
+      "The layout of this template is damaged and cannot be opened. Create the template again from the background image.",
+    badLayout: "The layout is not valid, so it was not saved. Check the text boxes and try again.",
+  },
+);
 
 export async function openImageEditor(
   storage: Storage,

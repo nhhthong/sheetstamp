@@ -1,5 +1,7 @@
+import { pick } from "../../shared/i18n";
+
 /** User-visible strings of the image editor sub-page. */
-export const ied = {
+const viIed = {
   back: "‹ Mẫu",
   title: (name: string) => `Sửa ảnh: ${name}`,
   loading: "Đang mở ảnh…",
@@ -67,7 +69,7 @@ export const ied = {
   previewTitle: "Xem trước",
   previewAlt: "Ảnh xem trước với chữ đã vẽ",
   previewFailed: "Không vẽ được bản xem trước. Thử lại.",
-  previewSource: (hasData: boolean) =>
+  previewSource: (hasData: boolean): string =>
     hasData
       ? "Dùng dòng đầu tiên của dữ liệu đã nạp."
       : "Chưa nạp dữ liệu: dùng tên trường làm chữ mẫu.",
@@ -77,4 +79,88 @@ export const ied = {
     `Font “${family}” không còn trên máy này. Chọn font khác cho khung chữ dùng nó.`,
   badBackground: "Không đọc được ảnh nền. Tải lại ảnh nền hoặc chọn ảnh khác.",
   fieldCount: (n: number) => `${n} trường được dùng.`,
-} as const;
+};
+
+const enIed: typeof viIed = {
+  back: "‹ Templates",
+  title: (name: string) => `Edit image: ${name}`,
+  loading: "Opening the image…",
+  loadFailed: "Could not open the background image. Go back to the template list and try again.",
+  canvasLabel: "Background image with the text boxes",
+  addText: "+ Add text",
+  maxBoxes: (n: number) => `That is the maximum of ${n} text boxes.`,
+  save: "Save template",
+  saving: "Saving…",
+  saved: "Template saved.",
+  unsaved: "There are unsaved changes.",
+  leaveUnsaved: "Discard the unsaved changes?",
+  discard: "Discard changes",
+  stay: "Stay",
+  listLabel: "Text boxes",
+  empty: "No text boxes yet. Click “+ Add text” to start.",
+  boxName: (label: string, n: number) => `Box ${n}: ${label}`,
+  outsideBanner: (n: number) =>
+    `${n} text boxes are not fully inside the background image. Drag them inside the image, or delete the box if you do not need it.`,
+  outsideBadge: "outside the image",
+  position: (x: number, y: number, width: number) => `x ${x}, y ${y}, width ${width}`,
+  selected: (label: string, x: number, y: number) =>
+    `Selected text box ${label}, position ${x}, ${y}.`,
+  moved: (x: number, y: number) => `Position ${x}, ${y}.`,
+  removed: (label: string) => `Deleted text box ${label}.`,
+  none: "No text box is selected.",
+  hint: "Choose a text box in the list: arrow keys move it (hold Shift to move faster), Delete removes it.",
+  field: "Field",
+  newField: "+ New field…",
+  newFieldName: "Name of the new field",
+  addField: "Add field",
+  fieldInvalid: "Type a field name with letters or digits.",
+  deleteBox: "Delete this text box",
+  selectBox: "Choose a text box to set its font, size, colour and alignment.",
+  font: "Font",
+  fontNote: "Only fonts installed on this computer are listed.",
+  fontSize: "Font size",
+  fontSizeInvalid: "Enter a whole number from 1 to 1000.",
+  color: "Colour",
+  colorPicker: "Pick a colour",
+  colorHex: "Colour code (hex)",
+  colorInvalid: (kept: string) =>
+    `The colour code is not valid: use the form #rrggbb (for example #c00000). Keeping ${kept}.`,
+  fontStyle: "Font style",
+  styles: { normal: "Regular", bold: "Bold", italic: "Italic", bolditalic: "Bold italic" },
+  styleMissing: "This font does not have that style.",
+  align: "Alignment",
+  aligns: { left: "Left", center: "Centre", right: "Right" },
+  advanced: "Advanced",
+  maxLines: "Maximum lines",
+  maxLinesInvalid: "Enter a whole number from 1 to 100.",
+  overflow: "When the text is too long",
+  overflows: {
+    shrink: "Shrink the text",
+    wrap: "Wrap to the next line",
+    truncate: "Cut it and add …",
+    error: "Report an error for that row",
+  },
+  missingFont: (families: string[]) =>
+    `Fonts saved in the template are no longer on this computer: ${families.join(", ")}. Choose another font for each text box below; the app never replaces a font by itself.`,
+  fontMissingOption: (family: string) => `${family} (not on this computer)`,
+  saveBlockedMissingFont:
+    "Not saved: a text box still uses a font this computer does not have. Choose another font for it and save again.",
+  preview: "Preview",
+  previewing: "Drawing…",
+  previewTitle: "Preview",
+  previewAlt: "Preview image with the text drawn",
+  previewFailed: "Could not draw the preview. Try again.",
+  previewSource: (hasData: boolean): string =>
+    hasData
+      ? "Using the first row of the loaded data."
+      : "No data loaded: the field names are used as sample text.",
+  textTooLong: (label: string) =>
+    `The text of “${label}” is too long for its box. Make it wider or give it more lines, or change what happens when the text is too long.`,
+  fontMissingRender: (family: string) =>
+    `The font “${family}” is no longer on this computer. Choose another font for the text boxes that use it.`,
+  badBackground:
+    "Could not read the background image. Load the background again or choose another image.",
+  fieldCount: (n: number) => `${n} fields in use.`,
+};
+
+export const ied: typeof viIed = pick(viIed, enIed);

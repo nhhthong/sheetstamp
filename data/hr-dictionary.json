@@ -4,6 +4,7 @@
     {
       "key": "ten",
       "label": "Tên",
+      "labelEn": "First name",
       "synonyms": [
         "tên",
         "tên nhân viên",
@@ -15,6 +16,7 @@
     {
       "key": "ho_ten",
       "label": "Họ và tên",
+      "labelEn": "Full name",
       "synonyms": [
         "họ tên",
         "họ và tên",
@@ -30,6 +32,7 @@
     {
       "key": "ho",
       "label": "Họ",
+      "labelEn": "Last name",
       "synonyms": [
         "họ",
         "last name"
@@ -38,6 +41,7 @@
     {
       "key": "ngay_sinh",
       "label": "Ngày sinh",
+      "labelEn": "Date of birth",
       "synonyms": [
         "ngày sinh",
         "ngày tháng năm sinh",
@@ -49,6 +53,7 @@
     {
       "key": "gioi_tinh",
       "label": "Giới tính",
+      "labelEn": "Gender",
       "synonyms": [
         "giới tính",
         "gender",
@@ -58,6 +63,7 @@
     {
       "key": "cccd",
       "label": "Số CCCD",
+      "labelEn": "ID card number",
       "synonyms": [
         "cccd",
         "căn cước",
@@ -75,6 +81,7 @@
     {
       "key": "ngay_cap",
       "label": "Ngày cấp",
+      "labelEn": "Issue date",
       "synonyms": [
         "ngày cấp",
         "ngày cấp cccd"
@@ -83,6 +90,7 @@
     {
       "key": "noi_cap",
       "label": "Nơi cấp",
+      "labelEn": "Place of issue",
       "synonyms": [
         "nơi cấp",
         "nơi cấp cccd"
@@ -91,6 +99,7 @@
     {
       "key": "dia_chi",
       "label": "Địa chỉ",
+      "labelEn": "Address",
       "synonyms": [
         "địa chỉ",
         "address",
@@ -100,6 +109,7 @@
     {
       "key": "thuong_tru",
       "label": "Địa chỉ thường trú",
+      "labelEn": "Permanent address",
       "synonyms": [
         "thường trú",
         "hộ khẩu thường trú"
@@ -108,6 +118,7 @@
     {
       "key": "tam_tru",
       "label": "Địa chỉ tạm trú",
+      "labelEn": "Temporary address",
       "synonyms": [
         "tạm trú"
       ]
@@ -115,6 +126,7 @@
     {
       "key": "so_dien_thoai",
       "label": "Số điện thoại",
+      "labelEn": "Phone number",
       "synonyms": [
         "số điện thoại",
         "sđt",
@@ -134,6 +146,7 @@
     {
       "key": "email",
       "label": "Email",
+      "labelEn": "Email",
       "synonyms": [
         "email",
         "e-mail",
@@ -144,6 +157,7 @@
     {
       "key": "ma_nhan_vien",
       "label": "Mã nhân viên",
+      "labelEn": "Employee ID",
       "synonyms": [
         "mã nhân viên",
         "mnv",
@@ -160,6 +174,7 @@
     {
       "key": "phong_ban",
       "label": "Phòng ban",
+      "labelEn": "Department",
       "synonyms": [
         "phòng ban",
         "bộ phận",
@@ -170,6 +185,7 @@
     {
       "key": "chuc_vu",
       "label": "Chức vụ",
+      "labelEn": "Position",
       "synonyms": [
         "chức vụ",
         "vị trí",
@@ -181,6 +197,7 @@
     {
       "key": "cap_bac",
       "label": "Cấp bậc",
+      "labelEn": "Level",
       "synonyms": [
         "cấp bậc",
         "ngạch",
@@ -190,6 +207,7 @@
     {
       "key": "ngay_vao_lam",
       "label": "Ngày vào làm",
+      "labelEn": "Start date",
       "synonyms": [
         "ngày vào làm",
         "ngày bắt đầu",
@@ -202,6 +220,7 @@
     {
       "key": "ngay_nghi_viec",
       "label": "Ngày nghỉ việc",
+      "labelEn": "Resignation date",
       "synonyms": [
         "ngày nghỉ việc",
         "ngày thôi việc",
@@ -213,6 +232,7 @@
     {
       "key": "ly_do_nghi_viec",
       "label": "Lý do nghỉ việc",
+      "labelEn": "Reason for leaving",
       "synonyms": [
         "lý do nghỉ việc",
         "lý do thôi việc",
@@ -222,6 +242,7 @@
     {
       "key": "so_hop_dong",
       "label": "Số hợp đồng",
+      "labelEn": "Contract number",
       "synonyms": [
         "số hợp đồng",
         "số hđ",
@@ -233,6 +254,7 @@
     {
       "key": "loai_hop_dong",
       "label": "Loại hợp đồng",
+      "labelEn": "Contract type",
       "synonyms": [
         "loại hợp đồng",
         "loại hđ",
@@ -242,6 +264,7 @@
     {
       "key": "ngay_ky",
       "label": "Ngày ký",
+      "labelEn": "Signing date",
       "synonyms": [
         "ngày ký",
         "ngày ký hợp đồng",
@@ -251,6 +274,7 @@
     {
       "key": "tu_ngay",
       "label": "Từ ngày",
+      "labelEn": "From date",
       "synonyms": [
         "từ ngày",
         "ngày hiệu lực",
@@ -261,6 +285,7 @@
     {
       "key": "den_ngay",
       "label": "Đến ngày",
+      "labelEn": "To date",
       "synonyms": [
         "đến ngày",
         "ngày hết hạn",
@@ -271,6 +296,7 @@
     {
       "key": "thoi_han",
       "label": "Thời hạn",
+      "labelEn": "Term",
       "synonyms": [
         "thời hạn",
         "thời hạn hợp đồng",
@@ -280,6 +306,7 @@
     {
       "key": "luong",
       "label": "Lương",
+      "labelEn": "Salary",
       "synonyms": [
         "lương",
         "mức lương",
@@ -291,6 +318,7 @@
     {
       "key": "luong_thu_viec",
       "label": "Lương thử việc",
+      "labelEn": "Probation salary",
       "synonyms": [
         "lương thử việc",
         "mức lương thử việc"
@@ -299,6 +327,7 @@
     {
       "key": "phu_cap",
       "label": "Phụ cấp",
+      "labelEn": "Allowance",
       "synonyms": [
         "phụ cấp",
         "allowance"
@@ -307,6 +336,7 @@
     {
       "key": "thuong",
       "label": "Thưởng",
+      "labelEn": "Bonus",
       "synonyms": [
         "thưởng",
         "tiền thưởng",
@@ -316,6 +346,7 @@
     {
       "key": "tong_thu_nhap",
       "label": "Tổng thu nhập",
+      "labelEn": "Total income",
       "synonyms": [
         "tổng thu nhập",
         "thu nhập",
@@ -326,6 +357,7 @@
     {
       "key": "thuc_linh",
       "label": "Thực lĩnh",
+      "labelEn": "Net pay",
       "synonyms": [
         "thực lĩnh",
         "thực nhận",
@@ -336,6 +368,7 @@
     {
       "key": "so_tai_khoan",
       "label": "Số tài khoản",
+      "labelEn": "Account number",
       "synonyms": [
         "số tài khoản",
         "stk",
@@ -346,6 +379,7 @@
     {
       "key": "ngan_hang",
       "label": "Ngân hàng",
+      "labelEn": "Bank",
       "synonyms": [
         "ngân hàng",
         "tên ngân hàng",
@@ -355,6 +389,7 @@
     {
       "key": "chi_nhanh",
       "label": "Chi nhánh",
+      "labelEn": "Branch",
       "synonyms": [
         "chi nhánh",
         "chi nhánh ngân hàng",
@@ -364,6 +399,7 @@
     {
       "key": "ma_so_thue",
       "label": "Mã số thuế",
+      "labelEn": "Tax code",
       "synonyms": [
         "mã số thuế",
         "mst",
@@ -373,6 +409,7 @@
     {
       "key": "so_bhxh",
       "label": "Số sổ BHXH",
+      "labelEn": "Social insurance number",
       "synonyms": [
         "bhxh",
         "số bhxh",
@@ -383,6 +420,7 @@
     {
       "key": "thang",
       "label": "Tháng",
+      "labelEn": "Month",
       "synonyms": [
         "tháng",
         "kỳ lương",
@@ -392,6 +430,7 @@
     {
       "key": "nam",
       "label": "Năm",
+      "labelEn": "Year",
       "synonyms": [
         "năm",
         "year"
@@ -400,6 +439,7 @@
     {
       "key": "so_tien",
       "label": "Số tiền",
+      "labelEn": "Amount",
       "synonyms": [
         "số tiền",
         "amount",
@@ -409,6 +449,7 @@
     {
       "key": "noi_dung",
       "label": "Nội dung",
+      "labelEn": "Content",
       "synonyms": [
         "nội dung",
         "diễn giải",
@@ -420,6 +461,7 @@
     {
       "key": "ten_cong_ty",
       "label": "Tên công ty",
+      "labelEn": "Company name",
       "synonyms": [
         "tên công ty",
         "công ty",
@@ -429,6 +471,7 @@
     {
       "key": "nguoi_ky",
       "label": "Người ký",
+      "labelEn": "Signatory",
       "synonyms": [
         "người ký",
         "người đại diện",

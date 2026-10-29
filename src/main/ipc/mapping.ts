@@ -1,4 +1,5 @@
 // Handlers of the "mapping" channels declared in src/shared/ipc/mapping.ts.
+import { lazy } from "../../shared/i18n";
 import {
   getGroupFilter,
   getImageSource,
@@ -20,14 +21,20 @@ import {
   setMappingEntry,
   templateBytes,
 } from "../mapping";
-import { UNGROUPED_ID, UNGROUPED_NAME } from "../storage";
+import { UNGROUPED_ID, ungroupedName } from "../storage";
 import { getStorage } from "../templates/store";
 import { handle } from "./define";
 
-export const templateMessages = {
-  missing: "Không tìm thấy mẫu này. Chọn mẫu khác.",
-  saveFailed: "Không ghi được ngày dùng mẫu. Thử lại.",
-} as const;
+export const templateMessages = lazy(
+  {
+    missing: "Không tìm thấy mẫu này. Chọn mẫu khác.",
+    saveFailed: "Không ghi được ngày dùng mẫu. Thử lại.",
+  },
+  {
+    missing: "This template was not found. Choose another template.",
+    saveFailed: "Could not record when the template was used. Try again.",
+  },
+);
 
 export function register(): void {
   // Step 3: the table and the template bytes stay in main; the renderer gets columns, a row count and one row.
@@ -75,8 +82,8 @@ export function register(): void {
     const groups = await storage.listGroups();
     const groupName =
       found.groupId === UNGROUPED_ID
-        ? UNGROUPED_NAME
-        : (groups.find((g) => g.id === found.groupId)?.name ?? UNGROUPED_NAME);
+        ? ungroupedName()
+        : (groups.find((g) => g.id === found.groupId)?.name ?? ungroupedName());
     return { ok: true as const, name: found.name, groupName };
   });
 }

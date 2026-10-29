@@ -1,5 +1,7 @@
 // Handlers of the "templates" channels declared in src/shared/ipc/templates.ts.
+
 import { BrowserWindow, dialog } from "electron";
+import { t } from "../../shared/i18n";
 import {
   checkPattern,
   chooseFile,
@@ -60,7 +62,7 @@ export function register(): void {
     const win = BrowserWindow.fromWebContents(event.sender);
     const options = {
       properties: ["openFile" as const],
-      filters: [{ name: "Ảnh", extensions: ["png", "jpg", "jpeg"] }],
+      filters: [{ name: t("Ảnh", "Images"), extensions: ["png", "jpg", "jpeg"] }],
     };
     const result = win
       ? await dialog.showOpenDialog(win, options)

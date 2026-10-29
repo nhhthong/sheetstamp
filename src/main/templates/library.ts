@@ -1,6 +1,8 @@
 // Template library operations behind the IPC handlers. Pure Node: the storage is passed in.
+
 import { readFile, stat } from "node:fs/promises";
 import { basename, extname, isAbsolute } from "node:path";
+import { lazy } from "../../shared/i18n";
 import {
   type CreateRequest,
   type FoundTag,
@@ -11,28 +13,33 @@ import {
   type TemplateSummary,
 } from "../../shared/ipc/templates";
 import { suggestLabel } from "../mapping";
-import {
-  type Storage,
-  StorageError,
-  type Template,
-  UNGROUPED_ID,
-  UNGROUPED_NAME,
-} from "../storage";
+import { type Storage, StorageError, type Template, UNGROUPED_ID, ungroupedName } from "../storage";
 import { EasyTemplateXEngine } from "../template-engine/easy-template-x-engine";
 import { ZipLimitError } from "../template-engine/zip-limits";
 
 const engine = new EasyTemplateXEngine();
 
-export const messages = {
-  notDocx: "Chỉ nhận file Word (.docx). Chọn một file .docx khác.",
-  tooBig: "File lớn hơn 20 MB. Chọn file nhỏ hơn.",
-  unreadable: "Không đọc được file này. Kiểm tra file còn tồn tại, hoặc chọn file khác.",
-  notWord:
-    "File này không phải tài liệu Word hợp lệ. Mở file bằng Word, lưu lại thành .docx rồi thử lại.",
-  emptyName: "Nhập tên mẫu.",
-  noGroup: "Nhóm không tồn tại. Chọn nhóm khác.",
-  saveFailed: "Không lưu được mẫu. Kiểm tra ổ đĩa còn chỗ trống rồi thử lại.",
-} as const;
+export const messages = lazy(
+  {
+    notDocx: "Chỉ nhận file Word (.docx). Chọn một file .docx khác.",
+    tooBig: "File lớn hơn 20 MB. Chọn file nhỏ hơn.",
+    unreadable: "Không đọc được file này. Kiểm tra file còn tồn tại, hoặc chọn file khác.",
+    notWord:
+      "File này không phải tài liệu Word hợp lệ. Mở file bằng Word, lưu lại thành .docx rồi thử lại.",
+    emptyName: "Nhập tên mẫu.",
+    noGroup: "Nhóm không tồn tại. Chọn nhóm khác.",
+    saveFailed: "Không lưu được mẫu. Kiểm tra ổ đĩa còn chỗ trống rồi thử lại.",
+  },
+  {
+    notDocx: "Only Word files (.docx) are accepted. Choose another .docx file.",
+    tooBig: "The file is larger than 20 MB. Choose a smaller file.",
+    unreadable: "Could not read this file. Check that it still exists, or choose another file.",
+    notWord: "This is not a valid Word document. Open it in Word, save it as .docx and try again.",
+    emptyName: "Enter a template name.",
+    noGroup: "The group does not exist. Choose another group.",
+    saveFailed: "Could not save the template. Check that the disk has free space and try again.",
+  },
+);
 
 export const fail = (message: string): { ok: false; message: string } => ({ ok: false, message });
 
@@ -82,7 +89,7 @@ function summary(t: Template, names: Map<string, string>): TemplateSummary {
     name: t.name,
     kind: t.kind,
     groupId: t.groupId,
-    groupName: names.get(t.groupId) ?? UNGROUPED_NAME,
+    groupName: names.get(t.groupId) ?? ungroupedName(),
     note: t.note,
     sourceFileName: t.sourceFileName,
     tagCount: t.tags.length,
@@ -93,7 +100,7 @@ function summary(t: Template, names: Map<string, string>): TemplateSummary {
 
 async function groupNames(storage: Storage): Promise<Map<string, string>> {
   const names = new Map((await storage.listGroups()).map((g) => [g.id, g.name]));
-  names.set(UNGROUPED_ID, UNGROUPED_NAME);
+  names.set(UNGROUPED_ID, ungroupedName());
   return names;
 }
 

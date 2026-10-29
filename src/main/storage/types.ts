@@ -1,11 +1,18 @@
 /** Stored shapes and the `Storage` interface (ADR 0001). No Electron imports: the data folder is passed in. */
+import { DEFAULT_LANG, type Lang, t } from "../../shared/i18n";
 
 export const SCHEMA_VERSION = 1;
 
 /** Fixed id of the virtual group that holds templates whose group was deleted. */
 export const UNGROUPED_ID = "ungrouped";
-export const UNGROUPED_NAME = "Chưa phân nhóm";
-export const DEFAULT_GROUP_NAMES = ["Hợp đồng", "Nghỉ việc", "Tài liệu khác"] as const;
+/** Display name of the virtual group, in the language in force when it is asked for. */
+export const ungroupedName = (): string => t("Chưa phân nhóm", "Ungrouped");
+/** The groups a first run creates; once stored they are the user's own names and never change with the language. */
+export const defaultGroupNames = (): string[] => [
+  t("Hợp đồng", "Contracts"),
+  t("Nghỉ việc", "Resignations"),
+  t("Tài liệu khác", "Other documents"),
+];
 export const DEFAULT_FILENAME_PATTERN = "{{ten}}";
 
 export type TemplateKind = "word" | "image";
@@ -78,9 +85,11 @@ export type Theme = (typeof THEMES)[number];
 /** What the user set in Cài đặt, kept apart from the remembered choices so one corrupt file never costs the other. */
 export interface Settings {
   theme: Theme;
+  /** Interface language; a settings.json written before this existed has none and gets the default. */
+  language: Lang;
 }
 
-export const DEFAULT_SETTINGS: Settings = { theme: "system" };
+export const DEFAULT_SETTINGS: Settings = { theme: "system", language: DEFAULT_LANG };
 
 /** Fields the caller sets when creating a template; the rest is generated. */
 export interface NewTemplate {

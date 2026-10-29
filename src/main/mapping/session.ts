@@ -1,5 +1,6 @@
 // Step 3 of the Home page in main: the template, the loaded table and the stored mapping meet here.
 // Pure Node: the storage and the table are passed in, so the logic is testable without Electron.
+import { lazy } from "../../shared/i18n";
 import { parseImageLayout } from "../../shared/image-layout";
 import {
   type FieldMapping,
@@ -15,20 +16,37 @@ import type { Storage, Template } from "../storage";
 import { reconcile } from "./profile";
 import { toProfile, toRecord } from "./shape";
 
-export const mappingMessages = {
-  missing: "Không tìm thấy mẫu này. Chọn lại mẫu ở bước trước.",
-  notWord: "Mẫu này không phải mẫu Word. Chọn mẫu khác.",
-  noData: "Chưa có dữ liệu. Mở file dữ liệu ở bước đầu.",
-  badField: "Trường này không có trong mẫu.",
-  badColumn: "Cột này không có trong file dữ liệu. Chọn cột khác.",
-  tooLong: `Chữ cố định dài tối đa ${MAX_FIXED_TEXT} ký tự.`,
-  badRow: "Dòng này không có trong file dữ liệu.",
-  saveFailed: "Không lưu được cách ghép cột. Thử lại.",
-  readFailed: "Không đọc được file mẫu. Chọn lại mẫu ở bước trước.",
-  notImage: "Mẫu này không phải mẫu ảnh. Chọn mẫu khác.",
-  noBoxes: "Mẫu này chưa có khung chữ. Mở mẫu để thêm.",
-  badLayout: "Bố cục của mẫu này không đọc được. Mở mẫu để kiểm tra hoặc tạo lại từ ảnh nền.",
-} as const;
+export const mappingMessages = lazy(
+  {
+    missing: "Không tìm thấy mẫu này. Chọn lại mẫu ở bước trước.",
+    notWord: "Mẫu này không phải mẫu Word. Chọn mẫu khác.",
+    noData: "Chưa có dữ liệu. Mở file dữ liệu ở bước đầu.",
+    badField: "Trường này không có trong mẫu.",
+    badColumn: "Cột này không có trong file dữ liệu. Chọn cột khác.",
+    tooLong: `Chữ cố định dài tối đa ${MAX_FIXED_TEXT} ký tự.`,
+    badRow: "Dòng này không có trong file dữ liệu.",
+    saveFailed: "Không lưu được cách ghép cột. Thử lại.",
+    readFailed: "Không đọc được file mẫu. Chọn lại mẫu ở bước trước.",
+    notImage: "Mẫu này không phải mẫu ảnh. Chọn mẫu khác.",
+    noBoxes: "Mẫu này chưa có khung chữ. Mở mẫu để thêm.",
+    badLayout: "Bố cục của mẫu này không đọc được. Mở mẫu để kiểm tra hoặc tạo lại từ ảnh nền.",
+  },
+  {
+    missing: "This template was not found. Choose the template again in the previous step.",
+    notWord: "This is not a Word template. Choose another template.",
+    noData: "No data yet. Open a data file in the first step.",
+    badField: "This field is not in the template.",
+    badColumn: "This column is not in the data file. Choose another column.",
+    tooLong: `Fixed text can be at most ${MAX_FIXED_TEXT} characters.`,
+    badRow: "This row is not in the data file.",
+    saveFailed: "Could not save how the columns are matched. Try again.",
+    readFailed: "Could not read the template file. Choose the template again in the previous step.",
+    notImage: "This is not an image template. Choose another template.",
+    noBoxes: "This template has no text boxes yet. Open the template to add some.",
+    badLayout:
+      "The layout of this template cannot be read. Open the template to check it or create it again from the background image.",
+  },
+);
 
 type Fail = { ok: false; message: string };
 const fail = (message: string): Fail => ({ ok: false, message });

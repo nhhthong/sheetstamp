@@ -1,3 +1,4 @@
+import { t } from "../../shared/i18n";
 import { DataError, MAX_ROWS } from "./errors";
 
 /** Imported data. Never written to disk (spec section 5, Input data). */
@@ -19,7 +20,7 @@ const clean = (cell: string) => cell.normalize("NFC");
 export function headerNames(raw: string[]): string[] {
   const seen = new Map<string, number>();
   return raw.map((cell, i) => {
-    const base = clean(cell).trim() || `Cột ${i + 1}`;
+    const base = clean(cell).trim() || `${t("Cột", "Column")} ${i + 1}`;
     const count = (seen.get(base) ?? 0) + 1;
     seen.set(base, count);
     return count === 1 ? base : `${base} (${count})`;

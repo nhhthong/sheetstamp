@@ -1,5 +1,7 @@
+import { pick } from "../../shared/i18n";
+
 /** Vietnamese strings of the Home page: the stepper and step 1 (Dữ liệu). Later steps keep their own strings files. */
-export const home = {
+const viHome = {
   steps: {
     data: "Dữ liệu",
     template: "Mẫu",
@@ -58,4 +60,69 @@ export const home = {
       generic: "Không đọc được file. Thử lại hoặc chọn file khác.",
     },
   },
-} as const;
+};
+
+const enHome: typeof viHome = {
+  steps: {
+    data: "Data",
+    template: "Template",
+    mapping: "Match columns",
+    export: "Export",
+  },
+  stepper: {
+    label: "Steps to create files",
+    change: "Change",
+    stateDone: "Done",
+    stateActive: "In progress",
+    stateLocked: "Not open yet",
+    stepPrefix: (n: number) => `Step ${n}: `,
+  },
+  later: "This step is not available in the current version.",
+  data: {
+    continue: "Continue",
+    dropTitle: "Drop an Excel or CSV file here",
+    dropHint: "or click to choose a file",
+    dropActive: "Drop the file to read it",
+    reading: "Reading the file…",
+    pickAnother: "Choose another file",
+    summary: (fileName: string, rows: number, columns: number) =>
+      `${fileName}, ${rows} rows, ${columns} columns`,
+    counts: (rows: number, columns: number) => `${rows} rows, ${columns} columns`,
+    previewCaption: (n: number) => `First ${n} rows of the file`,
+    sheetLabel: "Sheet",
+    encodingNow: (label: string) => `Encoding in use: ${label}`,
+    encodingHint: "Text looks wrong?",
+    encodingLink: "Change encoding",
+    encodingLabel: "Encoding",
+    encodingHelp: "Pick another encoding until the Vietnamese text looks right.",
+    encodings: {
+      "utf-8": "Unicode (UTF-8)",
+      "windows-1258": "Windows-1258 (Vietnamese)",
+      "utf-16le": "UTF-16 LE",
+      "utf-16be": "UTF-16 BE",
+    },
+    emptyCells: (count: number, column: string) => `${count} empty cells in column ${column}`,
+    mixedTypes: (column: string) =>
+      `Column ${column} mixes numbers and text. Check the data in this column.`,
+    idAsNumber: (column: string) =>
+      `Column ${column} is read as numbers, so leading zeros may be lost.`,
+    padLabel: (column: string) => `Number of digits in column ${column}`,
+    padAction: "Add leading zeros",
+    padded: (column: string) => `Leading zeros added to column ${column}.`,
+    warningsTitle: "Needs a check",
+    changed: "The file changed on disk. Click Reload to update.",
+    reload: "Reload",
+    reloaded: "File reloaded.",
+    reloadHint: "Read the file from disk again, keeping the sheet and encoding you chose.",
+    errors: {
+      "file-missing": "File not found. It may have been moved or deleted. Choose another file.",
+      "read-failed":
+        "Could not open the file. Close it if it is open in another program, then try again.",
+      "no-file": "No file yet. Drop or choose one.",
+      "bad-column": "This column does not need leading zeros.",
+      generic: "Could not read the file. Try again or choose another file.",
+    },
+  },
+};
+
+export const home: typeof viHome = pick(viHome, enHome);

@@ -1,5 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
+// The specs assert the Vietnamese texts, so the app starts in Vietnamese; language.spec.ts clears this variable.
+process.env.SHEETSTAMP_LANG = "vi";
+
 export default defineConfig({
   testDir: "tests/e2e",
   timeout: 60_000,

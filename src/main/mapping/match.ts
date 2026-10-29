@@ -59,6 +59,7 @@ function fieldNames(field: MappingField): { exact: Set<string>; synonyms: Set<st
   if (entry) {
     exact.add(normalize(entry.key));
     exact.add(normalize(entry.label));
+    synonyms.add(normalize(entry.labelEn));
     for (const s of entry.synonyms) synonyms.add(normalize(s));
   }
   exact.delete("");

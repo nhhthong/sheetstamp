@@ -1,14 +1,15 @@
 import { randomUUID } from "node:crypto";
 import * as fsp from "node:fs/promises";
 import path from "node:path";
+import { isLang, t as text } from "../../shared/i18n";
 import { sweepTempFiles, writeFileAtomic } from "./atomic";
 import { Collection, type Migration } from "./collection";
 import {
   type Choices,
   DEFAULT_CHOICES,
   DEFAULT_FILENAME_PATTERN,
-  DEFAULT_GROUP_NAMES,
   DEFAULT_SETTINGS,
+  defaultGroupNames,
   type Group,
   IMAGE_FORMATS,
   type MappingProfile,
@@ -23,7 +24,7 @@ import {
   type TemplatePatch,
   THEMES,
   UNGROUPED_ID,
-  UNGROUPED_NAME,
+  ungroupedName,
 } from "./types";
 
 export * from "./types";
@@ -86,11 +87,16 @@ const isChoices = (v: unknown): v is Choices =>
     (IMAGE_FORMATS as readonly unknown[]).includes(v.imageFormat));
 
 const isSettings = (v: unknown): v is Settings =>
-  isObject(v) && (THEMES as readonly unknown[]).includes(v.theme);
+  isObject(v) &&
+  (THEMES as readonly unknown[]).includes(v.theme) &&
+  (v.language === undefined || isLang(v.language));
 
 function requireName(name: unknown): string {
   if (typeof name !== "string" || name.trim() === "") {
-    throw new StorageError("invalid", "Tên không được để trống.");
+    throw new StorageError(
+      "invalid",
+      text("Tên không được để trống.", "The name cannot be empty."),
+    );
   }
   return name.trim();
 }
@@ -130,7 +136,7 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
   const groups = await Collection.open<Group[]>({
     ...common,
     file: "groups.json",
-    empty: () => DEFAULT_GROUP_NAMES.map((name) => ({ id: randomUUID(), name })),
+    empty: () => defaultGroupNames().map((name) => ({ id: randomUUID(), name })),
     isValid: isGroups,
     checkItem: isGroup,
     migrations: migrations["groups.json"] ?? {},
@@ -179,12 +185,12 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
 
   const find = (id: string): Template => {
     const t = templates.get().find((x) => x.id === id);
-    if (!t) throw new StorageError("not-found", "Không tìm thấy mẫu.");
+    if (!t) throw new StorageError("not-found", text("Không tìm thấy mẫu.", "Template not found."));
     return t;
   };
   const checkGroup = (id: string) => {
     if (id !== UNGROUPED_ID && !groups.get().some((g) => g.id === id)) {
-      throw new StorageError("invalid", "Nhóm không tồn tại.");
+      throw new StorageError("invalid", text("Nhóm không tồn tại.", "The group does not exist."));
     }
   };
   const absolute = (relative: string) => path.join(folder, relative);
@@ -209,11 +215,20 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
   const groupKey = (name: string) => name.trim().normalize("NFC").toLocaleLowerCase();
   const checkGroupName = (name: string, selfId: string | null): string => {
     const clean = requireName(name);
-    if (groupKey(clean) === groupKey(UNGROUPED_NAME)) {
-      throw new StorageError("reserved", `Tên “${UNGROUPED_NAME}” dành cho mẫu không có nhóm.`);
+    if (groupKey(clean) === groupKey(ungroupedName())) {
+      throw new StorageError(
+        "reserved",
+        text(
+          `Tên “${ungroupedName()}” dành cho mẫu không có nhóm.`,
+          `The name “${ungroupedName()}” is for templates without a group.`,
+        ),
+      );
     }
     if (groups.get().some((g) => g.id !== selfId && groupKey(g.name) === groupKey(clean))) {
-      throw new StorageError("duplicate", "Đã có nhóm tên này.");
+      throw new StorageError(
+        "duplicate",
+        text("Đã có nhóm tên này.", "A group with this name already exists."),
+      );
     }
     return clean;
   };
@@ -235,7 +250,10 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
       serial(async () => {
         const name = requireName(input.name);
         if (input.kind !== "word" && input.kind !== "image") {
-          throw new StorageError("invalid", "Loại mẫu không hợp lệ.");
+          throw new StorageError(
+            "invalid",
+            text("Loại mẫu không hợp lệ.", "The template type is not valid."),
+          );
         }
         const groupId = input.groupId ?? UNGROUPED_ID;
         checkGroup(groupId);
@@ -279,7 +297,10 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
         if (patch.name !== undefined) patch = { ...patch, name: requireName(patch.name) };
         if (patch.groupId !== undefined) checkGroup(patch.groupId);
         if (patch.mapping !== undefined && !isMapping(patch.mapping)) {
-          throw new StorageError("invalid", "Cách ghép cột không hợp lệ.");
+          throw new StorageError(
+            "invalid",
+            text("Cách ghép cột không hợp lệ.", "The column matching is not valid."),
+          );
         }
         const sourceCopy = source ? await writeSource(id, source) : undefined;
         let updated: Template;
@@ -307,7 +328,11 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
         const current = find(id);
         const next = change(structuredClone(current.mapping), structuredClone(current));
         if (next === null) return structuredClone(current);
-        if (!isMapping(next)) throw new StorageError("invalid", "Cách ghép cột không hợp lệ.");
+        if (!isMapping(next))
+          throw new StorageError(
+            "invalid",
+            text("Cách ghép cột không hợp lệ.", "The column matching is not valid."),
+          );
         return templates.mutate((draft) => {
           const t = draft.find((x) => x.id === id) as Template;
           t.mapping = next;
@@ -357,7 +382,10 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
     renameGroup: (id: string, name: string) =>
       serial(async () => {
         if (!groups.get().some((g) => g.id === id)) {
-          throw new StorageError("not-found", "Nhóm không tồn tại.");
+          throw new StorageError(
+            "not-found",
+            text("Nhóm không tồn tại.", "The group does not exist."),
+          );
         }
         const clean = checkGroupName(name, id);
         return groups.mutate((draft) => {
@@ -369,7 +397,10 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
     deleteGroup: (id: string) =>
       serial(async () => {
         if (!groups.get().some((g) => g.id === id)) {
-          throw new StorageError("not-found", "Nhóm không tồn tại.");
+          throw new StorageError(
+            "not-found",
+            text("Nhóm không tồn tại.", "The group does not exist."),
+          );
         }
         const moved = templates.get().filter((t) => t.groupId === id).length;
         // Templates first: a failure between the two writes leaves an empty group, never an orphan.
@@ -407,18 +438,29 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
 
     async getSettings() {
       await settings.settled();
-      return { ...settings.get() };
+      return { ...DEFAULT_SETTINGS, ...settings.get() };
     },
     setSettings: (patch: Partial<Settings>) =>
       serial(() =>
         settings.mutate((draft) => {
           if (patch.theme !== undefined) {
             if (!(THEMES as readonly string[]).includes(patch.theme)) {
-              throw new StorageError("invalid", "Giao diện không hợp lệ.");
+              throw new StorageError(
+                "invalid",
+                text("Giao diện không hợp lệ.", "The appearance is not valid."),
+              );
             }
             draft.theme = patch.theme;
           }
-          return { ...draft };
+          if (patch.language !== undefined) {
+            if (!isLang(patch.language))
+              throw new StorageError(
+                "invalid",
+                text("Ngôn ngữ không hợp lệ.", "The language is not valid."),
+              );
+            draft.language = patch.language;
+          }
+          return { ...DEFAULT_SETTINGS, ...draft };
         }),
       ),
   };

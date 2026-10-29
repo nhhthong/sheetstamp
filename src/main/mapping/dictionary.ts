@@ -1,10 +1,12 @@
 // The dictionary is imported, so the bundler compiles it into the app; it is never read from disk at run time.
 import raw from "../../../data/hr-dictionary.json";
+import { getLang } from "../../shared/i18n";
 import { normalize } from "./normalize";
 
 export type DictionaryEntry = {
   readonly key: string;
   readonly label: string;
+  readonly labelEn: string;
   readonly synonyms: readonly string[];
 };
 
@@ -13,11 +15,15 @@ export const dictionary: readonly DictionaryEntry[] = raw.entries;
 const byKey = new Map(dictionary.map((e) => [normalize(e.key), e]));
 const byName = new Map<string, DictionaryEntry>();
 for (const e of dictionary) {
-  for (const name of [e.label, ...e.synonyms]) {
+  for (const name of [e.label, e.labelEn, ...e.synonyms]) {
     const n = normalize(name);
     if (!byName.has(n)) byName.set(n, e);
   }
 }
+
+/** The label of an entry in the interface language. */
+export const labelOf = (entry: DictionaryEntry): string =>
+  getLang() === "vi" ? entry.label : entry.labelEn;
 
 /** The entry of a tag key, or (for a tag named like a label, such as `ho_va_ten`) of an entry with that name. */
 export function findEntry(tagKey: string): DictionaryEntry | undefined {
@@ -28,7 +34,7 @@ export function findEntry(tagKey: string): DictionaryEntry | undefined {
 /** Suggested display label of a tag: dictionary label, else underscores to spaces and a capital first letter. */
 export function suggestLabel(tagKey: string): string {
   const entry = findEntry(tagKey);
-  if (entry) return entry.label;
+  if (entry) return labelOf(entry);
   const spaced = tagKey.replace(/_+/g, " ").trim();
   return spaced === "" ? tagKey : spaced.charAt(0).toLocaleUpperCase() + spaced.slice(1);
 }

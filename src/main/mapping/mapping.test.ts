@@ -90,7 +90,7 @@ describe("dictionary", () => {
   it("has no synonym shared by two entries, and no synonym equal to another entry's key or label", () => {
     const owner = new Map<string, string>();
     for (const e of dictionary) {
-      for (const name of [e.key, e.label, ...e.synonyms]) {
+      for (const name of [e.key, e.label, e.labelEn, ...e.synonyms]) {
         const n = normalize(name);
         const prior = owner.get(n);
         // An entry may repeat its own names (the label is usually also a synonym).

@@ -1,7 +1,11 @@
 import { contextBridge, ipcRenderer, webUtils } from "electron";
+import { isLang } from "../shared/i18n";
 import { CHANNEL_NAMES, EVENT_NAMES, type SheetstampBridge } from "../shared/ipc";
 
+const asked: unknown = ipcRenderer.sendSync("sheetstamp:get-lang");
+
 const bridge: SheetstampBridge = {
+  lang: isLang(asked) ? asked : "en",
   invoke(channel, request) {
     if (!CHANNEL_NAMES.has(channel))
       return Promise.reject(new Error(`Unknown channel: ${channel}`));

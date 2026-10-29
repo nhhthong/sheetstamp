@@ -3,7 +3,7 @@ import { app, BrowserWindow, Menu } from "electron";
 import { appPageFile, isAppUrl } from "./app-url";
 import { registerIpc } from "./ipc";
 import { guardClose } from "./ipc/export";
-import { applySavedTheme } from "./ipc/settings";
+import { applySavedLanguage, applySavedTheme } from "./ipc/settings";
 import { runSelfTest } from "./selftest/selftest";
 import { windowIconPath } from "./window-icon";
 
@@ -56,6 +56,7 @@ app.whenReady().then(async () => {
   }
   registerIpc();
   await applySavedTheme();
+  await applySavedLanguage();
   // No File/Edit/View bar on Windows and Linux; macOS keeps its menu (copy, paste and Quit live there).
   if (process.platform !== "darwin") Menu.setApplicationMenu(null);
   createWindow();

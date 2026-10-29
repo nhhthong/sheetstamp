@@ -1,10 +1,18 @@
+import { pick } from "../../shared/i18n";
+
 /** User-visible strings of the Cài đặt page. */
-export const settingsStrings = {
+const viSettingsStrings = {
   appearance: {
     legend: "Giao diện",
     light: "Sáng",
     dark: "Tối",
     system: "Theo hệ thống",
+  },
+  language: {
+    legend: "Ngôn ngữ",
+    en: "English",
+    vi: "Tiếng Việt",
+    saveFailed: "Không lưu được lựa chọn ngôn ngữ. Thử lại.",
   },
   about: {
     legend: "Giới thiệu",
@@ -18,4 +26,33 @@ export const settingsStrings = {
     loadFailed: "Không đọc được thông tin giới thiệu.",
   },
   saveFailed: "Không lưu được lựa chọn giao diện. Thử lại.",
-} as const;
+};
+
+const enSettingsStrings: typeof viSettingsStrings = {
+  appearance: {
+    legend: "Appearance",
+    light: "Light",
+    dark: "Dark",
+    system: "Follow the system",
+  },
+  language: {
+    legend: "Language",
+    en: "English",
+    vi: "Tiếng Việt",
+    saveFailed: "Could not save the language. Try again.",
+  },
+  about: {
+    legend: "About",
+    version: (version: string) => `Sheetstamp version ${version}`,
+    localLine: "Runs entirely on this computer and sends no data anywhere.",
+    electronEnd: (date: string) =>
+      `The bundled Electron version gets security support until ${date}; update Sheetstamp before then.`,
+    downloadPage: "Download page",
+    checkUpdate: "Check for a new version",
+    openFailed: "Could not open the browser. Try again.",
+    loadFailed: "Could not read the about information.",
+  },
+  saveFailed: "Could not save the appearance. Try again.",
+};
+
+export const settingsStrings: typeof viSettingsStrings = pick(viSettingsStrings, enSettingsStrings);
