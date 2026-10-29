@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R4.2, R4.3, R4.4, R4.5, R4.6, R4.10
 **Blocked by:** T-29
-**Status:** ready
+**Status:** done
 **New infrastructure:** none
 **Files:** src/renderer/pages/templates/image-editor, src/shared/image-layout, src/renderer/strings, tests/e2e
 **Proof:** `npm run test:e2e` selects a box, picks the test font, sets size 48, colour `#c00000`, style Đậm, centre alignment and "Xem trước"; the preview image shows Vietnamese diacritics and its size equals the background; a layout naming a missing font shows one message when opened.
