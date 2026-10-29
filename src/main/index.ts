@@ -1,10 +1,11 @@
 import { join } from "node:path";
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, Menu } from "electron";
 import { appPageFile, isAppUrl } from "./app-url";
 import { registerIpc } from "./ipc";
 import { guardClose } from "./ipc/export";
 import { applySavedTheme } from "./ipc/settings";
 import { runSelfTest } from "./selftest/selftest";
+import { windowIconPath } from "./window-icon";
 
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
@@ -14,6 +15,7 @@ function createWindow(): BrowserWindow {
     minHeight: 560,
     show: false,
     title: "Sheetstamp",
+    icon: windowIconPath(process.platform, app.isPackaged, process.resourcesPath, app.getAppPath()),
     webPreferences: {
       preload: join(import.meta.dirname, "../preload/index.cjs"),
       contextIsolation: true,
@@ -54,6 +56,8 @@ app.whenReady().then(async () => {
   }
   registerIpc();
   await applySavedTheme();
+  // No File/Edit/View bar on Windows and Linux; macOS keeps its menu (copy, paste and Quit live there).
+  if (process.platform !== "darwin") Menu.setApplicationMenu(null);
   createWindow();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

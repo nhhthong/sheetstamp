@@ -14,20 +14,6 @@ import { vi } from "../../strings/vi";
 /** "2027-04-27" -> "27/04/2027". */
 const formatDate = (iso: string) => iso.split("-").reverse().join("/");
 
-function TextBox({ label, text }: { label: string; text: string }) {
-  return (
-    <section aria-label={label} className="flex flex-col gap-2">
-      <h3 className="font-semibold">{label}</h3>
-      <pre
-        tabIndex={0}
-        className="m-0 max-h-64 overflow-auto whitespace-pre-wrap rounded-control border border-line p-3 text-sm"
-      >
-        {text}
-      </pre>
-    </section>
-  );
-}
-
 function AboutSection() {
   const [info, setInfo] = useState<About | null>(null);
   const [failed, setFailed] = useState<"load" | "open" | null>(null);
@@ -63,7 +49,7 @@ function AboutSection() {
       {info ? (
         <>
           <p className="m-0 font-semibold">{settingsStrings.about.version(info.version)}</p>
-          <p className="m-0">{settingsStrings.about.licenceLine}</p>
+          <p className="m-0">{settingsStrings.about.localLine}</p>
           {info.electronEndOfSupport ? (
             <p className="m-0">
               {settingsStrings.about.electronEnd(formatDate(info.electronEndOfSupport))}
@@ -77,8 +63,6 @@ function AboutSection() {
               {settingsStrings.about.checkUpdate}
             </Button>
           </div>
-          <TextBox label={settingsStrings.about.licenceText} text={info.licence} />
-          <TextBox label={settingsStrings.about.notices} text={info.notices} />
         </>
       ) : null}
       {failed ? (

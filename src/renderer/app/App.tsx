@@ -45,7 +45,9 @@ export function App() {
               ))}
             </ul>
           </nav>
-          <main className="min-w-0 flex-1 overflow-y-auto">{Active ? <Active /> : null}</main>
+          <main className="relative min-w-0 flex-1 overflow-y-auto">
+            {Active ? <Active /> : null}
+          </main>
         </div>
       </NavigationContext.Provider>
     </ToastProvider>
