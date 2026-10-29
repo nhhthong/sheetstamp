@@ -74,6 +74,7 @@
 
     <main id="top">
       <section class="hero">
+        <div class="grid-bg" aria-hidden="true"><div class="cells"></div></div>
         <div class="wrap">
           <div class="head2">
             <h1>{{h1}}</h1>
@@ -315,6 +316,23 @@
         all();
         if (window.ResizeObserver) boxes.forEach(function (b) { new ResizeObserver(function () { fit(b); }).observe(b); });
         window.addEventListener("resize", all);
+
+        // A sheet of cells behind the hero: a few of them light up one after another, like data being filled in.
+        var cells = document.querySelector(".cells");
+        if (cells && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          var SIZE = 48;
+          var box = cells.parentElement;
+          var cols = Math.ceil(box.clientWidth / SIZE);
+          var rows = Math.min(Math.ceil(box.clientHeight / SIZE), 10);
+          for (var i = 0; i < Math.min(18, cols * rows / 8); i++) {
+            var c = document.createElement("i");
+            c.style.left = Math.floor(Math.random() * cols) * SIZE + "px";
+            c.style.top = Math.floor(Math.random() * rows) * SIZE + "px";
+            c.style.animationDelay = (Math.random() * -9).toFixed(2) + "s";
+            c.style.animationDuration = (5 + Math.random() * 5).toFixed(2) + "s";
+            cells.appendChild(c);
+          }
+        }
 
         // The demo plays by itself while it is on screen, unless the visitor asked for less motion.
         var v = document.querySelector("video[data-autoplay]");

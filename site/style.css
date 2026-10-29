@@ -186,7 +186,57 @@ a:hover {
 
 /* Hero */
 .hero {
+  position: relative;
+  isolation: isolate;
   padding-block: var(--space-2xl) var(--space-xl);
+}
+/* A sheet of cells behind the hero: hairline grid, a few cells that light up and fade (opacity only) */
+.grid-bg {
+  position: absolute;
+  inset: 0 0 -96px;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-veil) 9%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-veil) 9%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 0%, var(--color-ink) 30%, transparent 100%);
+}
+.cells {
+  position: absolute;
+  inset: 0;
+}
+.cells i {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  background: color-mix(in oklab, var(--color-accent) 20%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-accent) 45%, transparent);
+  opacity: 0;
+  animation: cell-fill 7s ease-in-out infinite;
+}
+@keyframes cell-fill {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  15%,
+  45% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cells {
+    display: none;
+  }
 }
 .hero .head2 {
   display: grid;
