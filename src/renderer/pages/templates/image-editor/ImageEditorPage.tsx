@@ -6,18 +6,18 @@ import type { FontFamilyInfo } from "../../../../shared/ipc/images";
 import * as imageIpc from "../../../../shared/ipc/images";
 import { MAX_BOXES } from "../../../../shared/ipc/images";
 import { Button } from "../../../components/ui/button";
-import { Field, Input, Select } from "../../../components/ui/input";
+import { Field } from "../../../components/ui/input";
 import { Status } from "../../../components/ui/status";
 import { call } from "../../../lib/ipc";
 import { ied } from "../../../strings/image-editor";
 import { BoxInspector, type InspectorChange } from "./BoxInspector";
 import { defaultFont } from "./default-font";
 import { EditorCanvas } from "./EditorCanvas";
+import { FieldPicker } from "./FieldPicker";
 import { dictionaryFields, type FieldOption, labelFor, newField, sampleText } from "./fields";
 import { missingFamilies } from "./inspector";
 import { newBox } from "./new-box";
 
-const NEW_FIELD = "__new__";
 const STEP = 1;
 const FAST_STEP = 10;
 
@@ -56,9 +56,6 @@ export function ImageEditorPage({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ kind: "success" | "danger"; text: string } | null>(null);
   const [leaving, setLeaving] = useState(false);
-  const [typing, setTyping] = useState(false);
-  const [typedField, setTypedField] = useState("");
-  const [typedError, setTypedError] = useState("");
   const [fonts, setFonts] = useState<FontFamilyInfo[] | null>(null);
   const [sample, setSample] = useState<{ hasData: boolean; values: Record<string, string> }>({
     hasData: false,
@@ -104,7 +101,6 @@ export function ImageEditorPage({
   const select = useCallback(
     (id: string | null) => {
       setSelectedId(id);
-      setTyping(false);
       const box = boxes.find((b) => b.id === id);
       setAnnouncement(box ? ied.selected(labelOf(box.field), box.x, box.y) : ied.none);
     },
@@ -213,27 +209,19 @@ export function ImageEditorPage({
     }
   }
 
-  function chooseField(box: LayoutBox, value: string) {
-    if (value === NEW_FIELD) {
-      setTyping(true);
-      setTypedField("");
-      setTypedError("");
-      return;
-    }
-    setTyping(false);
-    setBoxes((all) => all.map((b) => (b.id === box.id ? { ...b, field: value } : b)));
+  function chooseField(box: LayoutBox, key: string) {
+    setBoxes((all) => all.map((b) => (b.id === box.id ? { ...b, field: key } : b)));
     setDirty(true);
     setMessage(null);
   }
 
-  function addTypedField(box: LayoutBox) {
-    const field = newField(typedField, labels);
-    if (!field) return setTypedError(ied.fieldInvalid);
+  /** A name no field has yet: the typed text becomes the label, its key is made from it (see `newField`). */
+  function createField(box: LayoutBox, typed: string): boolean {
+    const field = newField(typed, labels);
+    if (!field) return false;
     setLabels((l) => ({ ...l, [field.key]: field.label }));
-    setBoxes((all) => all.map((b) => (b.id === box.id ? { ...b, field: field.key } : b)));
-    setTyping(false);
-    setDirty(true);
-    setMessage(null);
+    chooseField(box, field.key);
+    return true;
   }
 
   async function save() {
@@ -369,37 +357,16 @@ export function ImageEditorPage({
                 <div className="flex flex-col gap-3 rounded-dialog border border-line p-3">
                   <Field label={ied.field}>
                     {(props) => (
-                      <Select
+                      <FieldPicker
                         {...props}
-                        value={typing ? NEW_FIELD : selected.field}
-                        onChange={(e) => chooseField(selected, e.target.value)}
-                      >
-                        {options.map((o) => (
-                          <option key={o.key} value={o.key}>
-                            {o.label}
-                          </option>
-                        ))}
-                        <option value={NEW_FIELD}>{ied.newField}</option>
-                      </Select>
+                        value={selected.field}
+                        labelOf={labelOf}
+                        options={options}
+                        onPick={(key) => chooseField(selected, key)}
+                        onCreate={(typed) => createField(selected, typed)}
+                      />
                     )}
                   </Field>
-                  {typing ? (
-                    <div className="flex flex-col gap-2">
-                      <Field label={ied.newFieldName} error={typedError}>
-                        {(props) => (
-                          <Input
-                            {...props}
-                            value={typedField}
-                            onChange={(e) => setTypedField(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && addTypedField(selected)}
-                          />
-                        )}
-                      </Field>
-                      <Button variant="secondary" size="sm" onClick={() => addTypedField(selected)}>
-                        {ied.addField}
-                      </Button>
-                    </div>
-                  ) : null}
                   <p className="text-sm text-muted">
                     {sampleText(selected.field, labels, sample.values)}
                   </p>
