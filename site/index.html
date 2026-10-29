@@ -35,7 +35,6 @@
         if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
       } catch (e) {}
     </script>
-    <link rel="stylesheet" href="assets/devices-surface-book.css" />
     <link rel="stylesheet" href="assets/app-frame.css" />
     <link rel="stylesheet" href="style.css" />
     <script type="application/ld+json">
@@ -109,46 +108,30 @@
         </div>
       </section>
 
-      <section class="sec band tour" id="how">
-        <input type="radio" name="tour" id="t1" checked aria-label="Data and template" />
-        <input type="radio" name="tour" id="t2" aria-label="Match columns and export" />
-        <input type="radio" name="tour" id="t3" aria-label="Image templates" />
+      <section class="sec band" id="how">
         <div class="wrap">
-          <h2>Four steps, one thing at a time</h2>
-          <div class="steps-tabs">
-            <label class="item" for="t1"><b>Data and template</b><span>Pick an Excel or CSV file, then a Word or image template.</span></label>
-            <label class="item" for="t2"><b>Match columns and export</b><span>Fix only the fields that did not match, preview every row, get one ZIP.</span></label>
-            <label class="item" for="t3"><b>Image templates</b><span>Place text on a background, pick an installed font, preview as exported.</span></label>
+          <h2>Write tags. Match columns. Export.</h2>
+          <div class="how-video">
+            <video
+              src="assets/how.mp4"
+              poster="assets/how-poster.jpg"
+              width="1280"
+              height="720"
+              autoplay
+              muted
+              loop
+              playsinline
+              controls
+              preload="metadata"
+              data-autoplay
+              aria-label="Animation: a CSV file, a contract with tags in double braces, the tags matched to the column headers, the values flying into the contract, and four finished contracts."
+            ></video>
           </div>
-          <div class="panes">
-            <div class="pane" id="p1">
-              <div class="dev" data-fit>
-                <div class="device device-surface-book">
-                  <div class="device-frame"><img class="device-screen" src="assets/app-chon-mau.png" width="540" height="360" alt="Template step: a search box, template groups and a list of templates, each showing how many fields match the data columns." loading="lazy" /></div>
-                  <div class="device-btns"></div>
-                  <div class="device-power"></div>
-                </div>
-              </div>
-            </div>
-            <div class="pane" id="p2">
-              <div class="dev" data-fit>
-                <div class="device device-surface-book">
-                  <div class="device-frame"><img class="device-screen" src="assets/app-ghep-cot.png" width="540" height="360" alt="Match step: all 5 fields matched, with a row-by-row preview of the birthday card." loading="lazy" /></div>
-                  <div class="device-btns"></div>
-                  <div class="device-power"></div>
-                </div>
-              </div>
-            </div>
-            <div class="pane" id="p3">
-              <div class="dev" data-fit>
-                <div class="device device-surface-book">
-                  <div class="device-frame"><img class="device-screen" src="assets/app-soan-anh.png" width="540" height="360" alt="Image template editor: text boxes on the card and the properties of the selected box." loading="lazy" /></div>
-                  <div class="device-btns"></div>
-                  <div class="device-power"></div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ol class="how-steps">
+            <li><h3>Write tags in Word</h3><p>Type a tag such as &#123;&#123;full_name&#125;&#125; where a value goes, in the text, a table, a header or a footer. Pick your Excel or CSV file and a template.</p></li>
+            <li><h3>Match columns by name</h3><p>Tags are matched to columns by name, ignoring accents. Each field shows its value from the first row, and a column fills one field. Preview every row, then export one ZIP.</p></li>
+            <li><h3>Or place text on an image</h3><p>Type a field name, place it on a background and pick an installed font. Columns fill the fields in order, left to right.</p></li>
+          </ol>
         </div>
       </section>
 
@@ -304,22 +287,6 @@
         dark.addEventListener && dark.addEventListener("change", paint);
         paint();
 
-        // Scale each device frame to its column.
-        var NATURAL = 728;
-        var phone = window.matchMedia("(max-width: 40em)");
-        function fit(box) {
-          var inner = box.firstElementChild;
-          if (phone.matches) { inner.style.transform = ""; box.style.height = ""; return; }
-          var s = box.clientWidth / NATURAL;
-          inner.style.transform = "scale(" + s + ")";
-          box.style.height = inner.offsetHeight * s + "px";
-        }
-        var boxes = document.querySelectorAll("[data-fit]");
-        function all() { boxes.forEach(fit); }
-        all();
-        if (window.ResizeObserver) boxes.forEach(function (b) { new ResizeObserver(function () { fit(b); }).observe(b); });
-        window.addEventListener("resize", all);
-
         // A sheet of cells behind the hero: a few of them light up one after another, like data being filled in.
         var cells = document.querySelector(".cells");
         if (cells && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -353,16 +320,15 @@
         }
 
         // The demo plays by itself while it is on screen, unless the visitor asked for less motion.
-        var v = document.querySelector("video[data-autoplay]");
         var still = window.matchMedia("(prefers-reduced-motion: reduce)");
-        if (v) {
+        document.querySelectorAll("video[data-autoplay]").forEach(function (v) {
           if (still.matches) { v.removeAttribute("autoplay"); v.pause(); }
           else if ("IntersectionObserver" in window) {
             new IntersectionObserver(function (entries) {
               entries.forEach(function (e) { if (e.isIntersecting) v.play().catch(function () {}); else v.pause(); });
             }, { threshold: 0.25 }).observe(v);
           }
-        }
+        });
       })();
     </script>
   </body>
