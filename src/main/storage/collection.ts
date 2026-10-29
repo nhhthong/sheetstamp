@@ -1,6 +1,6 @@
 import * as fsp from "node:fs/promises";
 import path from "node:path";
-import { t } from "../../shared/i18n";
+import { plural, t } from "../../shared/i18n";
 import { freeBackupName, type RenameFn, writeFileAtomic } from "./atomic";
 import { StorageError, type StorageWarning } from "./types";
 
@@ -41,7 +41,7 @@ const CORRUPT_MESSAGE = (file: string, movedTo: string) =>
 const SKIPPED_MESSAGE = (file: string, count: number, movedTo: string) =>
   t(
     `${count} mục trong ${file} không hợp lệ nên đã bị bỏ qua. Bản gốc được giữ lại thành ${movedTo}.`,
-    `${count} items in ${file} were not valid and were skipped. The original was kept as ${movedTo}.`,
+    `${count} ${plural(count, "item")} in ${file} ${plural(count, "was", "were")} not valid and ${plural(count, "was", "were")} skipped. The original was kept as ${movedTo}.`,
   );
 
 /**

@@ -1,4 +1,4 @@
-import { pick } from "../../shared/i18n";
+import { pick, plural } from "../../shared/i18n";
 
 /** User-visible strings of the Mẫu page and the new-template dialog. */
 const viTpl = {
@@ -145,7 +145,7 @@ const enTpl: typeof viTpl = {
   loadError:
     "Could not load the templates. Restart the app; if it keeps failing, check the data folder.",
   list: "Document templates",
-  fieldsCount: (n: number) => `${n} fields`,
+  fieldsCount: (n: number) => `${n} ${plural(n, "field")}`,
   neverUsed: "never used",
   usedOn: (date: string) => `used ${date}`,
   edit: "Edit",
@@ -172,12 +172,13 @@ const enTpl: typeof viTpl = {
     newGroupName: "Name of the new group",
     addNote: "+ Add a note",
     note: "Note",
-    fieldsFound: (n: number) => `Found ${n} fields in the file.`,
+    fieldsFound: (n: number) => `Found ${n} ${plural(n, "field")} in the file.`,
     showLabels: "Show display names",
     labelFor: (key: string) => `Display name of ${key}`,
     noFields:
       "No fields found in the file. Write fields like {{ten}} in the Word file and try again.",
-    unsupportedTitle: (n: number) => `${n} items are not supported and will not be filled in:`,
+    unsupportedTitle: (n: number) =>
+      `${n} ${plural(n, "item is", "items are")} not supported and will not be filled in:`,
     unsupportedReason: {
       loop: "loop",
       note: "inside a footnote",
@@ -210,12 +211,13 @@ const enTpl: typeof viTpl = {
     undoReplace: "Keep the old file",
     filenamePattern: "File name pattern",
     patternHint: "Write {{field name}} to insert data, for example {{ho_ten}}_Probation.",
-    fieldsTitle: (n: number) => `${n} fields in the template.`,
+    fieldsTitle: (n: number) => `${n} ${plural(n, "field")} in the template.`,
     removedBadge: "no longer in the file",
     addedBadge: "new",
     changesTitle: "Replacing the file will change:",
-    keptLine: (n: number) => `${n} fields stay as they are.`,
-    mappingKept: (n: number) => `The saved column matching of ${n} fields is kept.`,
+    keptLine: (n: number) =>
+      `${n} ${plural(n, "field stays as it is", "fields stay as they are")}.`,
+    mappingKept: (n: number) => `The saved column matching of ${n} ${plural(n, "field")} is kept.`,
     addedLine: (keys: string) => `New fields, not matched to a column yet: ${keys}.`,
     removedLine: (keys: string) => `No longer in the file: ${keys}.`,
     removedMapped: (keys: string) =>
@@ -232,13 +234,16 @@ const enTpl: typeof viTpl = {
     undoReplace: "Keep the old image",
     changesTitle: "Replacing the background keeps the text boxes and the column matching.",
     noBoxes: "The template has no text boxes yet.",
-    allInside: (n: number) => `All ${n} text boxes are inside the new image.`,
+    allInside: (n: number) =>
+      n === 1
+        ? "The text box is inside the new image."
+        : `All ${n} text boxes are inside the new image.`,
     outsideTitle: (n: number) =>
-      `${n} text boxes are outside the new image. They are not moved; fix their position in “Edit image”:`,
+      `${n} ${plural(n, "text box is", "text boxes are")} outside the new image. ${n === 1 ? "It is" : "They are"} not moved; fix ${n === 1 ? "its" : "their"} position in “Edit image”:`,
     partly: "partly outside",
     outside: "completely outside",
     confirm: (n: number) =>
-      `Replace the image even though ${n} text boxes are outside the new one?`,
+      `Replace the image even though ${n} ${plural(n, "text box is", "text boxes are")} outside the new one?`,
     confirmYes: "Replace anyway",
     confirmBack: "Go back",
   },
@@ -246,7 +251,7 @@ const enTpl: typeof viTpl = {
     title: "Manage groups",
     empty: "No groups yet.",
     list: "Groups",
-    templateCount: (n: number) => (n === 0 ? "no templates" : `${n} templates`),
+    templateCount: (n: number) => (n === 0 ? "no templates" : `${n} ${plural(n, "template")}`),
     rename: "Rename",
     renameLabel: (name: string) => `New name of the group ${name}`,
     renameSave: "Save name",
@@ -256,11 +261,13 @@ const enTpl: typeof viTpl = {
     confirm: (name: string, n: number) =>
       n === 0
         ? `Delete the group “${name}”?`
-        : `Delete the group “${name}”? ${n} templates will move to “Ungrouped”.`,
+        : `Delete the group “${name}”? ${n} ${plural(n, "template")} will move to “Ungrouped”.`,
     confirmYes: "Delete group",
     keep: "Keep",
     deleted: (moved: number) =>
-      moved === 0 ? "Group deleted." : `Group deleted. ${moved} templates moved to “Ungrouped”.`,
+      moved === 0
+        ? "Group deleted."
+        : `Group deleted. ${moved} ${plural(moved, "template")} moved to “Ungrouped”.`,
     renamed: "Group renamed.",
     close: "Done",
     actionFailed: "Could not do that. Try again.",

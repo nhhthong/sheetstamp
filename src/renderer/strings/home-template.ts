@@ -1,4 +1,4 @@
-import { pick } from "../../shared/i18n";
+import { pick, plural } from "../../shared/i18n";
 
 /** Vietnamese strings of Home step 2 (Mẫu). */
 const viHomeTemplate = {
@@ -38,9 +38,9 @@ const enHomeTemplate: typeof viHomeTemplate = {
   retry: "Try again",
   continue: "Continue",
   selected: "Selected",
-  fit: (matched: number, total: number) => `Matches ${matched}/${total} fields`,
+  fit: (matched: number, total: number) => `Matches ${matched}/${total} ${plural(total, "field")}`,
   noFields: "No fields yet",
-  fieldsOnly: (total: number) => `${total} fields`,
+  fieldsOnly: (total: number) => `${total} ${plural(total, "field")}`,
   neverUsed: "never used",
   usedOn: (date: string) => `used ${date}`,
   summary: (name: string, group: string) => `${name} (${group})`,

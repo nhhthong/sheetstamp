@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { DEFAULT_LANG, getLang, isLang, lazy, pick, setLang, t } from "./i18n";
+import { DEFAULT_LANG, getLang, isLang, lazy, pick, plural, setLang, t } from "./i18n";
 
 afterEach(() => setLang("vi"));
 
@@ -26,5 +26,14 @@ describe("i18n", () => {
     expect(isLang("vi")).toBe(true);
     expect(isLang("fr")).toBe(false);
     expect(isLang(undefined)).toBe(false);
+  });
+});
+
+describe("plural", () => {
+  it("agrees a count in English", () => {
+    expect(plural(1, "field")).toBe("field");
+    expect(plural(0, "field")).toBe("fields");
+    expect(plural(2, "row has", "rows have")).toBe("rows have");
+    expect(plural(1, "row has", "rows have")).toBe("row has");
   });
 });

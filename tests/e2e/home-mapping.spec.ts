@@ -337,7 +337,7 @@ test("every row shows its first-row value, and a column taken by another field i
   await birthRow.getByRole("combobox").selectOption({ label: "Họ tên" });
   await expect(birthRow.getByTestId("first-value")).toHaveText("Dòng đầu: Nguyễn Văn An");
   await expect(nameRow).toHaveAttribute("data-state", "unresolved");
-  await expect(nameRow).toContainText("Cột này đã chuyển sang trường khác. Chọn cột khác.");
+  await expect(nameRow).toContainText("Cột này đã chuyển sang trường khác.");
   await expect(nameRow.getByTestId("first-value")).toHaveCount(0);
   await expect(heading(page)).toHaveText("1 trường cần bạn chọn cột.");
   await expect(next(page)).toBeDisabled();

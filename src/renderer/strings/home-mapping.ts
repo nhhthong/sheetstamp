@@ -1,4 +1,4 @@
-import { pick } from "../../shared/i18n";
+import { pick, plural } from "../../shared/i18n";
 
 /** Vietnamese strings of Home step 3 (Ghép cột). */
 const viHomeMapping = {
@@ -13,7 +13,7 @@ const viHomeMapping = {
   allDone: (n: number) => `Tất cả ${n} trường đã ghép.`,
   listLabel: "Các trường cần ghép",
   unmatchedMarker: "Cần chọn cột",
-  takenAlert: "Cột này đã chuyển sang trường khác. Chọn cột khác.",
+  takenAlert: "Cột này đã chuyển sang trường khác.",
   firstValue: (value: string) => `Dòng đầu: ${value}`,
   emptyCell: "(trống)",
   resolvedMarker: "Đã chọn",
@@ -61,18 +61,18 @@ const enHomeMapping: typeof viHomeMapping = {
   continueFailed: "Could not save how the columns are matched. Try again.",
   saveFailed: "Could not save the last change. Try again.",
   noFields: "This template has no fields to match.",
-  needWork: (n: number) => `${n} fields need a column from you.`,
-  allDone: (n: number) => `All ${n} fields are matched.`,
+  needWork: (n: number) => `${n} ${plural(n, "field needs", "fields need")} a column from you.`,
+  allDone: (n: number) => (n === 1 ? "The field is matched." : `All ${n} fields are matched.`),
   listLabel: "Fields to match",
   unmatchedMarker: "Choose a column",
-  takenAlert: "This column moved to another field. Choose another column.",
+  takenAlert: "This column moved to another field.",
   firstValue: (value: string) => `First row: ${value}`,
   emptyCell: "(empty)",
   resolvedMarker: "Chosen",
   explanation: (label: string) =>
     `No column looks like ‘${label}’. Choose another column, type a fixed text or leave it empty.`,
-  showMatched: (n: number) => `Show ${n} matched fields`,
-  hideMatched: (n: number) => `Hide ${n} matched fields`,
+  showMatched: (n: number) => `Show ${n} matched ${plural(n, "field")}`,
+  hideMatched: (n: number) => `Hide ${n} matched ${plural(n, "field")}`,
   matchedLabel: "Matched fields",
   columnFor: (label: string) => `Column for field ${label}`,
   choose: "Choose a column…",
@@ -104,7 +104,7 @@ const enHomeMapping: typeof viHomeMapping = {
   badBackground:
     "Could not read the background image. Go to Templates, click Edit image and load the background again.",
   renderFailed: "Could not draw the preview image. Try another row or another matching.",
-  summary: (n: number) => `${n} fields matched`,
+  summary: (n: number) => `${n} ${plural(n, "field")} matched`,
 };
 
 export const homeMapping: typeof viHomeMapping = pick(viHomeMapping, enHomeMapping);
