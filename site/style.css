@@ -3,6 +3,8 @@
  * axes: dark/grotesk-sans/cool · posture: committed · contrast: pass · fold: pass · draw: b3e315 · v2.0.0 */
 /* Hallmark · reworded "Cài đặt trên Windows" and "Cài đặt trên Ubuntu 22.04 / 24.04" to the panel titles of one "Cài đặt" switcher, "macOS" to "macOS: sắp có", "Giấy phép" to the footer line, "Sheetstamp" to the wordmark · 85 names the sections a download page is built around */
 /* Hallmark · waive 77 · the section is one bone well 480px tall beside a three-row list · the install panel with its steps and a command is the object */
+/* Hallmark · waive 47b · the device frame is a subset of Devices.css rebuilt from tokens, no hand-drawn window · the owner asked for the Devices.css frame around the real screenshots and the demo video */
+/* Hallmark · waive 24b · the frame's pixel geometry (22px bezel, a 250px hinge) is the vendored Devices.css Surface Book, scaled as a whole · the owner asked for that frame */
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: E, no photograph reaches the build so the product alone carries the page; it is shown three times at full size */
 @import url("./assets/fonts/fonts.css");
 @import url("./tokens.css");
@@ -210,6 +212,27 @@ a:hover {
 .stage .well img {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+}
+
+/* Device frames (devices.css): the frame is 728px wide, scaled to its column by a small script */
+.dev {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+.dev > .device {
+  transform-origin: 0 0;
+  width: 728px;
+  margin: 0;
+}
+.dev .device-screen {
+  object-fit: cover;
+  background: var(--color-card);
+}
+.stage .dev {
+  overflow: visible;
+  max-width: 910px;
+  margin-inline: auto;
 }
 
 /* Sections */
@@ -681,4 +704,9 @@ footer a {
 
 .panel :focus-visible {
   outline-color: var(--color-accent-deep);
+}
+
+video:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
 }

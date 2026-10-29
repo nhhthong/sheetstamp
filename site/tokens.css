@@ -58,6 +58,11 @@
   --color-accent-hi: oklch(84% 0.085 274);
   --color-accent-deep: oklch(44% 0.13 274);
   --color-accent-soft: oklch(91% 0.038 274);
+  --color-device-body: oklch(14% 0.01 268);
+  --color-device-bezel: oklch(16% 0.012 268);
+  --color-device-edge: oklch(80% 0.006 250);
+  --color-device-hi: oklch(93% 0.004 250);
+  --color-device-lo: oklch(68% 0.006 250);
   --color-focus: oklch(80% 0.1 274);
   --color-accent-2: oklch(83% 0.095 62);
   --color-dusk: oklch(70% 0.12 330);

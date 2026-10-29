@@ -1,0 +1,113 @@
+/*! Subset of Devices.css v0.2.0 (MIT, Copyright (c) 2017 Yan Zhu, github.com/picturepan2/devices.css): the .device base and .device-surface-book only, colours routed through tokens. Licence: DEVICES-LICENSE.txt */
+.device,
+.device::before,
+.device::after,
+.device *,
+.device *::before,
+.device *::after {
+  box-sizing: border-box;
+  display: block;
+}
+
+.device {
+  position: relative;
+  transform: scale(1);
+  z-index: 1;
+}
+
+.device .device-frame {
+  z-index: 1;
+}
+
+.device .device-screen {
+  background-color: var(--color-shade);
+  background-position: center center;
+  background-size: cover;
+  object-fit: cover;
+  position: relative;
+}
+
+.device-surface-book {
+  height: 424px;
+  width: 728px;
+}
+
+.device-surface-book .device-frame {
+  background: var(--color-device-body);
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 2px var(--color-device-edge);
+  height: 408px;
+  margin: 0 auto;
+  padding: var(--space-lg) 22px;
+  position: relative;
+  width: 584px;
+}
+
+.device-surface-book .device-screen {
+  border: 2px solid var(--color-device-bezel);
+  border-radius: 2px;
+  height: 360px;
+  width: 540px;
+}
+
+.device-surface-book .device-btns::after,
+.device-surface-book .device-btns::before {
+  background: var(--color-device-edge);
+  content: "";
+  height: 2px;
+  position: absolute;
+  top: -2px;
+}
+
+.device-surface-book .device-btns::after {
+  left: 122px;
+  width: 20px;
+}
+
+.device-surface-book .device-btns::before {
+  left: 168px;
+  width: 44px;
+}
+
+.device-surface-book .device-power {
+  background: linear-gradient(to bottom, var(--color-device-hi), var(--color-device-edge));
+  border: solid var(--color-device-edge);
+  border-radius: 2px;
+  border-width: 0 2px;
+  height: 16px;
+  margin-top: var(--space-2xs);
+  position: relative;
+  width: 728px;
+}
+
+.device-surface-book .device-power::after,
+.device-surface-book .device-power::before {
+  content: "";
+  position: absolute;
+}
+
+.device-surface-book .device-power::after {
+  background: radial-gradient(
+    circle at center,
+    var(--color-device-hi) 0,
+    var(--color-device-hi) 95%,
+    var(--color-device-lo) 100%
+  );
+  border-radius: 0 0 6px 6px;
+  height: 8px;
+  left: 50%;
+  margin-left: -125px;
+  top: 0;
+  width: 250px;
+  z-index: 1;
+}
+
+.device-surface-book .device-power::before {
+  background: linear-gradient(to bottom, var(--color-device-hi), var(--color-device-edge));
+  border-radius: 2px 2px 0 0;
+  bottom: 16px;
+  height: 8px;
+  left: 50%;
+  margin-left: -292px;
+  width: 584px;
+}

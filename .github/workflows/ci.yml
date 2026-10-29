@@ -1,9 +1,15 @@
 name: CI
 
 on:
+  # Temporary (owner's request, 2026-10-29): a change that only touches the GitHub Pages site (site/**) skips CI,
+  # so the page can be deployed quickly. Remove paths-ignore to run CI on every change again.
   pull_request:
+    paths-ignore:
+      - "site/**"
   push:
     branches: [main]
+    paths-ignore:
+      - "site/**"
 
 permissions:
   contents: read
