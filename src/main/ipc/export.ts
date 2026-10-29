@@ -2,6 +2,7 @@
 import { app, BrowserWindow, dialog, type OpenDialogOptions, shell } from "electron";
 import {
   cancel,
+  estimate,
   example,
   openExport,
   type PickedFolder,
@@ -11,6 +12,7 @@ import {
   reveal,
   savePattern,
   setDiacritics,
+  setImageFormat,
   start,
 } from "../../shared/ipc/export";
 import { exportMessages } from "../../shared/messages/export";
@@ -19,6 +21,7 @@ import { runBatch, workerFileIn } from "../export/batch";
 import { ExportSession } from "../export-session/session";
 import { getStorage } from "../templates/store";
 import { emit, handle } from "./define";
+import { fontInit, imageService } from "./images";
 
 /** The one export session of the app. */
 export const exportSession = new ExportSession({
@@ -28,6 +31,13 @@ export const exportSession = new ExportSession({
   run: (request) => runBatch(request, workerFileIn(import.meta.dirname)),
   defaultFolder: () => app.getPath("documents"),
   onProgress: (value) => emit(progress, value),
+  fonts: fontInit,
+  // `listFonts` rescans the font folders first, so a font installed a moment ago counts.
+  missingFonts: async (families) => {
+    const have = new Set((await imageService().listFonts()).map((f) => f.family));
+    return families.filter((family) => !have.has(family));
+  },
+  sample: (template, rows, format) => imageService().sample(template, rows, format),
 });
 
 const CLOSE_WAIT_MS = 10_000;
@@ -79,6 +89,11 @@ export function register(): void {
   handle(setDiacritics, async ({ removeDiacritics }) => {
     await (await getStorage()).setChoices({ removeDiacritics });
   });
+
+  handle(setImageFormat, async ({ imageFormat }) => {
+    await (await getStorage()).setChoices({ imageFormat });
+  });
+  handle(estimate, (request) => exportSession.estimate(request));
 
   handle(pickFolder, async (_request, event): Promise<PickedFolder> => {
     const window = BrowserWindow.fromWebContents(event.sender);

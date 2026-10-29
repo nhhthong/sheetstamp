@@ -117,4 +117,21 @@ describe("image jobs: render", () => {
       code: "bad-background",
     });
   });
+
+  it("sizes sample rows in the chosen format and leaves out a row that cannot be drawn", async () => {
+    const strict = { background: template.background, boxes: [box({ overflow: "error" })] };
+    const rows = [{ ten: "An" }, { ten: "x".repeat(400) }, { ten: "Bình" }];
+    const png = await jobs({ kind: "sample", template: strict, rows, format: { type: "png" } });
+    const jpg = await jobs({
+      kind: "sample",
+      template: strict,
+      rows,
+      format: { type: "jpeg", quality: 90 },
+    });
+    if (png.kind !== "sample" || jpg.kind !== "sample") throw new Error("not a sample reply");
+    expect(png.sizes).toHaveLength(2);
+    expect(jpg.sizes).toHaveLength(2);
+    const exported = await renderImage(strict, rows[0] ?? {}, { type: "jpeg", quality: 90 });
+    expect(jpg.sizes[0]).toBe(exported.data.length);
+  });
 });

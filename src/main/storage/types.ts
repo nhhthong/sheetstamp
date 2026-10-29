@@ -58,12 +58,18 @@ export interface Choices {
   /** Group id, or null for "Tất cả". */
   lastGroupFilter: string | null;
   removeDiacritics: boolean;
+  /** Output format of image exports; null until the user chooses, then the background's own format is used. */
+  imageFormat: ImageFormat | null;
 }
+
+export const IMAGE_FORMATS = ["png", "jpg"] as const;
+export type ImageFormat = (typeof IMAGE_FORMATS)[number];
 
 export const DEFAULT_CHOICES: Choices = {
   lastOutputFolder: null,
   lastGroupFilter: null,
   removeDiacritics: false,
+  imageFormat: null,
 };
 
 export const THEMES = ["light", "dark", "system"] as const;

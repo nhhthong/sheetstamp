@@ -25,11 +25,23 @@ const FAILURE_CODES = [
   "busy",
   "bad-folder",
   "write-failed",
+  "no-boxes",
+  "font-missing",
+  "bad-template",
   "unknown",
 ] as const;
 export type FailureCode = (typeof FAILURE_CODES)[number];
 
 export type ExportField = { key: string; label: string };
+
+export const IMAGE_FORMATS = ["png", "jpg"] as const;
+export type ImageFormat = (typeof IMAGE_FORMATS)[number];
+
+/** Why an image template cannot be exported yet; the fix is outside step 4. Checked again when the export starts. */
+export type ExportBlocker =
+  | { kind: "no-boxes" }
+  | { kind: "bad-template" }
+  | { kind: "font-missing"; fonts: string[] };
 
 /** What step 4 needs to draw itself. */
 export type ExportView = {
@@ -41,6 +53,11 @@ export type ExportView = {
   /** The folder files go to: the last one used, else the documents folder. */
   folder: string;
   rowCount: number;
+  kind: "word" | "image";
+  /** Image templates: the format to preselect (the remembered one, else the background's own). */
+  imageFormat: ImageFormat;
+  /** Image templates only; null when nothing stands in the way. */
+  blocker: ExportBlocker | null;
 };
 
 export type OpenedExport = { ok: true; view: ExportView } | { ok: false; code: FailureCode };
@@ -50,6 +67,14 @@ const idOf = (value: unknown) =>
   string(record(value).templateId, "templateId", { min: 1, max: 200 });
 const patternOf = (value: unknown) =>
   string(record(value).pattern, "pattern", { max: MAX_PATTERN });
+const formatOf = (value: unknown): ImageFormat | undefined => {
+  const format = record(value).imageFormat;
+  return format === undefined ? undefined : oneOf(format, "imageFormat", IMAGE_FORMATS);
+};
+const withFormat = (value: unknown) => {
+  const imageFormat = formatOf(value);
+  return imageFormat === undefined ? {} : { imageFormat };
+};
 const flagOf = (value: unknown) => {
   const flag = record(value).removeDiacritics;
   if (typeof flag !== "boolean") throw new IpcValidationError("removeDiacritics must be a boolean");
@@ -62,7 +87,13 @@ export const openExport: Channel<{ templateId: string }, OpenedExport> = channel
   (value) => ({ templateId: idOf(value) }),
 );
 
-export type ExampleRequest = { templateId: string; pattern: string; removeDiacritics: boolean };
+/** `imageFormat` is read for image templates only; without it main uses the remembered or default format. */
+export type ExampleRequest = {
+  templateId: string;
+  pattern: string;
+  removeDiacritics: boolean;
+  imageFormat?: ImageFormat;
+};
 export type ExampleResult =
   | { ok: true; problems: PatternProblemView[]; example: string | null }
   | { ok: false; code: FailureCode };
@@ -74,6 +105,7 @@ export const example: Channel<ExampleRequest, ExampleResult> = channel(
     templateId: idOf(value),
     pattern: patternOf(value),
     removeDiacritics: flagOf(value),
+    ...withFormat(value),
   }),
 );
 
@@ -90,6 +122,23 @@ export const setDiacritics: Channel<{ removeDiacritics: boolean }, void> = chann
   "export:setDiacritics",
   (value) => ({ removeDiacritics: flagOf(value) }),
 );
+
+/** Remember the PNG/JPG choice of image exports. */
+export const setImageFormat: Channel<{ imageFormat: ImageFormat }, void> = channel(
+  "export:setImageFormat",
+  (value) => ({ imageFormat: oneOf(record(value).imageFormat, "imageFormat", IMAGE_FORMATS) }),
+);
+
+export type Estimate =
+  | { ok: true; bytes: number | null } // null: no sample row could be drawn
+  | { ok: false; code: FailureCode };
+
+/** Total size of the image files, from a few sample rows drawn in the worker (an estimate, not a promise). */
+export const estimate: Channel<{ templateId: string; imageFormat: ImageFormat }, Estimate> =
+  channel("export:estimate", (value) => ({
+    templateId: idOf(value),
+    imageFormat: oneOf(record(value).imageFormat, "imageFormat", IMAGE_FORMATS),
+  }));
 
 export type SavedPattern = { ok: true } | { ok: false; code: FailureCode };
 
@@ -114,7 +163,7 @@ export type ExportDone = {
 export type StartResult =
   | { ok: true; done: ExportDone }
   | { ok: false; canceled: true }
-  | { ok: false; canceled?: false; code: FailureCode };
+  | { ok: false; canceled?: false; code: FailureCode; fonts?: string[] };
 
 /**
  * Generate every row and write the ZIP. The call returns when the export ends. The data, the mapping and the
@@ -124,6 +173,7 @@ export const start: Channel<ExampleRequest, StartResult> = channel("export:start
   templateId: idOf(value),
   pattern: patternOf(value),
   removeDiacritics: flagOf(value),
+  ...withFormat(value),
 }));
 
 /** Stop the running export. Nothing is saved: no ZIP, no temporary file. */
@@ -149,6 +199,8 @@ export const channels = [
   example,
   pickFolder,
   setDiacritics,
+  setImageFormat,
+  estimate,
   savePattern,
   start,
   cancel,

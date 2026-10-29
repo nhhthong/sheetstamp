@@ -36,17 +36,19 @@ export function hasUnwritableCharacter(text: string): boolean {
  *  - a mapped cell that is empty gives "" and the row is exported;
  *  - a tag with no value (no mapping, or a column that is not in the data) is left out of `values`, so the worker
  *    fails that row with `missing-tag`;
- *  - a cell the Word file cannot hold marks the row `invalid`, reported as `invalid-value` (another cause, another fix).
+ *  - a cell the Word file cannot hold marks the row `invalid`, reported as `invalid-value` (another cause, another fix);
+ *    an image has no such limit, so `checkXml` is false for image templates.
  */
 export function buildRows(
   table: DataTable,
   keys: readonly string[],
   entries: Readonly<Record<string, FieldMapping>>,
+  checkXml = true,
 ): ExportRow[] {
   return table.rows.map((cells, index) => {
     const { values } = rowValues(keys, entries, table.columns, cells);
     const row: ExportRow = { rowNumber: index + 1, values };
-    if (Object.values(values).some(hasUnwritableCharacter)) row.invalid = true;
+    if (checkXml && Object.values(values).some(hasUnwritableCharacter)) row.invalid = true;
     return row;
   });
 }

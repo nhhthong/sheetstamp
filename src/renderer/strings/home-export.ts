@@ -1,4 +1,8 @@
 /** Vietnamese strings of Home step 4 (Xuất file). The close-window dialog text lives in src/shared/messages/export.ts. */
+const NO_BOXES = "Mẫu này chưa có khung chữ. Vào Mẫu, bấm Sửa ảnh để thêm.";
+const BAD_TEMPLATE =
+  "Không đọc được ảnh nền hoặc bố cục của mẫu này. Vào Mẫu, bấm Sửa ảnh để kiểm tra lại.";
+
 export const homeExport = {
   loading: "Đang chuẩn bị…",
   loadError: "Không mở được bước xuất file.",
@@ -39,6 +43,24 @@ export const homeExport = {
       `Trường “${key}” không có trong mẫu này. Bỏ nó đi hoặc chọn trường khác.`,
   },
 
+  image: {
+    formatLabel: "Định dạng ảnh",
+    png: "PNG",
+    jpg: "JPG",
+    pngNote: "PNG tạo chậm hơn và file nặng hơn JPG nhiều lần. JPG hợp với ảnh chụp.",
+    estimating: "Đang ước tính dung lượng…",
+    estimate: (mb: string) =>
+      `Ước tính khoảng ${mb} MB (tính từ vài dòng đầu, dung lượng thật có thể khác).`,
+    estimateNone: "Chưa ước tính được dung lượng.",
+  },
+
+  blocked: {
+    "no-boxes": NO_BOXES,
+    "bad-template": BAD_TEMPLATE,
+    fontMissing: (fonts: readonly string[]) =>
+      `${fonts.length === 1 ? "Font" : "Các font"} ${fonts.map((f) => `“${f}”`).join(", ")} không còn trên máy này. Cài lại ${fonts.length === 1 ? "font đó" : "các font đó"}, hoặc vào Mẫu, bấm Sửa ảnh và chọn font khác cho khung chữ dùng ${fonts.length === 1 ? "nó" : "chúng"}.`,
+  },
+
   folderFailed: "Không đọc được thư mục này. Chọn thư mục khác.",
   fixFirst: "Sửa tên file trước khi xuất.",
   export: (n: number) => `Xuất ${n} file`,
@@ -62,6 +84,10 @@ export const homeExport = {
     busy: "Đang có một đợt xuất khác. Chờ cho xong.",
     "bad-folder": "Không ghi được vào thư mục này. Chọn thư mục khác.",
     "write-failed": "Không ghi được file ZIP. Kiểm tra chỗ trống của ổ đĩa rồi thử lại.",
+    "no-boxes": NO_BOXES,
+    "bad-template": BAD_TEMPLATE,
+    "font-missing":
+      "Có font không còn trên máy này. Cài lại font đó hoặc chọn font khác trong mẫu.",
     unknown: "Không xuất được file. Thử lại.",
   },
 
