@@ -1,7 +1,9 @@
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
+import { type About, about, DOWNLOAD_PAGE_URL, openDownloadPage } from "../../../shared/ipc/app";
 import { get, setTheme, THEMES, type Theme } from "../../../shared/ipc/settings";
 import { Page } from "../../components/page-header";
+import { Button } from "../../components/ui/button";
 import { Status } from "../../components/ui/status";
 import { cn } from "../../lib/cn";
 import { call } from "../../lib/ipc";
@@ -9,7 +11,85 @@ import { applyTheme } from "../../lib/theme";
 import { settingsStrings } from "../../strings/settings";
 import { vi } from "../../strings/vi";
 
-// About (version, licence, notices) is a separate ticket.
+/** "2027-04-27" -> "27/04/2027". */
+const formatDate = (iso: string) => iso.split("-").reverse().join("/");
+
+function TextBox({ label, text }: { label: string; text: string }) {
+  return (
+    <section aria-label={label} className="flex flex-col gap-2">
+      <h3 className="font-semibold">{label}</h3>
+      <pre
+        tabIndex={0}
+        className="m-0 max-h-64 overflow-auto whitespace-pre-wrap rounded-control border border-line p-3 text-sm"
+      >
+        {text}
+      </pre>
+    </section>
+  );
+}
+
+function AboutSection() {
+  const [info, setInfo] = useState<About | null>(null);
+  const [failed, setFailed] = useState<"load" | "open" | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    call(about).then(
+      (loaded) => live && setInfo(loaded),
+      () => live && setFailed("load"),
+    );
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  async function checkUpdate() {
+    setFailed(null);
+    try {
+      await call(openDownloadPage);
+    } catch {
+      setFailed("open");
+    }
+  }
+
+  return (
+    <section
+      aria-labelledby="about-title"
+      className="mt-8 flex flex-col gap-4 border-t border-line pt-8"
+    >
+      <h2 id="about-title" className="text-lg font-bold">
+        {settingsStrings.about.legend}
+      </h2>
+      {info ? (
+        <>
+          <p className="m-0 font-semibold">{settingsStrings.about.version(info.version)}</p>
+          <p className="m-0">{settingsStrings.about.licenceLine}</p>
+          {info.electronEndOfSupport ? (
+            <p className="m-0">
+              {settingsStrings.about.electronEnd(formatDate(info.electronEndOfSupport))}
+            </p>
+          ) : null}
+          <p className="m-0">
+            {settingsStrings.about.downloadPage}: {DOWNLOAD_PAGE_URL}
+          </p>
+          <div>
+            <Button variant="secondary" onClick={() => void checkUpdate()}>
+              {settingsStrings.about.checkUpdate}
+            </Button>
+          </div>
+          <TextBox label={settingsStrings.about.licenceText} text={info.licence} />
+          <TextBox label={settingsStrings.about.notices} text={info.notices} />
+        </>
+      ) : null}
+      {failed ? (
+        <Status kind="danger">
+          {failed === "load" ? settingsStrings.about.loadFailed : settingsStrings.about.openFailed}
+        </Status>
+      ) : null}
+    </section>
+  );
+}
+
 export function SettingsPage() {
   const [theme, setCurrent] = useState<Theme | null>(null);
   const [failed, setFailed] = useState(false);
@@ -61,6 +141,7 @@ export function SettingsPage() {
         </div>
         {failed ? <Status kind="danger">{settingsStrings.saveFailed}</Status> : null}
       </fieldset>
+      <AboutSection />
     </Page>
   );
 }

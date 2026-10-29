@@ -6,6 +6,10 @@ directories:
 files:
   - out/**/*
   - package.json
+# Shown in Cài đặt > Giới thiệu; read from resources/ (outside the archive).
+extraResources:
+  - LICENSE
+  - THIRD-PARTY-NOTICES.md
 asar: true
 # Native modules cannot load from inside the ASAR archive.
 asarUnpack:
