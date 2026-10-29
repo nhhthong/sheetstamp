@@ -134,14 +134,7 @@ export function FieldPicker({
               onMouseEnter={() => setActive(i)}
               className={`cursor-pointer rounded-control px-2 py-1.5 ${i === current ? "bg-panel font-semibold" : ""}`}
             >
-              {item.kind === "field" ? (
-                <>
-                  {item.option.label}
-                  <span className="ml-2 text-sm text-muted">{item.option.key}</span>
-                </>
-              ) : (
-                ied.fieldCreate(item.text)
-              )}
+              {item.kind === "field" ? item.option.label : ied.fieldCreate(item.text)}
             </li>
           ))}
         </ul>

@@ -149,7 +149,11 @@ test("create an image template, add two boxes, drag one, delete the other, save 
   await field.fill("ngay");
   // At most six fields, best first, and the typed text as a new field at the end.
   await expect(suggestions).toHaveCount(7);
-  await expect(suggestions.first()).toContainText("Ngày sinh");
+  await expect(suggestions.first()).toHaveText("Ngày sinh");
+  // The key (ngay_sinh) is an implementation detail and is not shown.
+  await expect(page.getByRole("listbox", { name: "Trường", exact: true })).not.toContainText(
+    "ngay_",
+  );
   await expect(suggestions.last()).toHaveText("Thêm “ngay” làm trường mới");
   await field.fill("Số quyết định");
   await expect(suggestions).toHaveText(["Thêm “Số quyết định” làm trường mới"]);
