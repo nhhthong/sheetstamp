@@ -1,4 +1,4 @@
-import { pick } from "../../shared/i18n";
+import { pick, plural } from "../../shared/i18n";
 
 /** Strings of Home step 4 (Xuất file). The close-window dialog text lives in src/shared/messages/export.ts. */
 const NO_BOXES = pick(
@@ -176,14 +176,14 @@ const enHomeExport: typeof viHomeExport = {
 
   folderFailed: "Could not read this folder. Choose another folder.",
   fixFirst: "Fix the file name before exporting.",
-  export: (n: number) => `Export ${n} files`,
+  export: (n: number) => `Export ${n} ${plural(n, "file")}`,
 
   running: {
     title: (done: number, total: number) => `Creating files… ${done}/${total}`,
     barLabel: "Progress of creating files",
-    barText: (done: number, total: number) => `${done} of ${total} files`,
+    barText: (done: number, total: number) => `${done} of ${total} ${plural(total, "file")}`,
     announce: (percent: number) => `${percent}% done`,
-    failedSoFar: (k: number) => `${k} rows failed so far`,
+    failedSoFar: (k: number) => `${k} ${plural(k, "row")} failed so far`,
     cancel: "Cancel",
     canceling: "Canceling…",
     keepOpen: "Do not close the app until it is done.",
@@ -205,17 +205,17 @@ const enHomeExport: typeof viHomeExport = {
   },
 
   done: {
-    title: (n: number) => `Created ${n} files`,
+    title: (n: number) => `Created ${n} ${plural(n, "file")}`,
     titleNone: "No file could be created",
     zipLabel: "ZIP file",
     open: "Open folder",
     openFailed: "Could not open the folder.",
     back: "Back",
-    failedRows: (k: number) => `${k} rows failed`,
+    failedRows: (k: number) => `${k} ${plural(k, "row")} failed`,
     failedRowsHint:
       "These rows were not exported. The report has only the row numbers and the error codes.",
     invalidValueHint: (k: number) =>
-      `${k} rows have a cell with a character Word cannot store (a hidden control character). Fix that cell in the data file and export again.`,
+      `${k} ${plural(k, "row has", "rows have")} a cell with a character Word cannot store (a hidden control character). Fix that cell in the data file and export again.`,
     reportFailed: "Could not write the error report, but the ZIP file is done.",
     report: "Show the error report",
     newBatch: "Start a new batch",

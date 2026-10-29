@@ -1,4 +1,4 @@
-import { pick } from "../../shared/i18n";
+import { pick, plural } from "../../shared/i18n";
 
 /** User-visible strings of the image editor sub-page. */
 const viIed = {
@@ -100,7 +100,7 @@ const enIed: typeof viIed = {
   empty: "No text boxes yet. Click “+ Add text” to start.",
   boxName: (label: string, n: number) => `Box ${n}: ${label}`,
   outsideBanner: (n: number) =>
-    `${n} text boxes are not fully inside the background image. Drag them inside the image, or delete the box if you do not need it.`,
+    `${n} ${plural(n, "text box is", "text boxes are")} not fully inside the background image. Drag ${n === 1 ? "it" : "them"} inside the image, or delete the box if you do not need it.`,
   outsideBadge: "outside the image",
   position: (x: number, y: number, width: number) => `x ${x}, y ${y}, width ${width}`,
   selected: (label: string, x: number, y: number) =>
@@ -160,7 +160,7 @@ const enIed: typeof viIed = {
     `The font “${family}” is no longer on this computer. Choose another font for the text boxes that use it.`,
   badBackground:
     "Could not read the background image. Load the background again or choose another image.",
-  fieldCount: (n: number) => `${n} fields in use.`,
+  fieldCount: (n: number) => `${n} ${plural(n, "field")} in use.`,
 };
 
 export const ied: typeof viIed = pick(viIed, enIed);

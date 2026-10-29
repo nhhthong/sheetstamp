@@ -1,4 +1,4 @@
-import { pick } from "../../shared/i18n";
+import { pick, plural } from "../../shared/i18n";
 
 /** Vietnamese strings of the Home page: the stepper and step 1 (Dữ liệu). Later steps keep their own strings files. */
 const viHome = {
@@ -86,9 +86,10 @@ const enHome: typeof viHome = {
     reading: "Reading the file…",
     pickAnother: "Choose another file",
     summary: (fileName: string, rows: number, columns: number) =>
-      `${fileName}, ${rows} rows, ${columns} columns`,
-    counts: (rows: number, columns: number) => `${rows} rows, ${columns} columns`,
-    previewCaption: (n: number) => `First ${n} rows of the file`,
+      `${fileName}, ${rows} ${plural(rows, "row")}, ${columns} ${plural(columns, "column")}`,
+    counts: (rows: number, columns: number) =>
+      `${rows} ${plural(rows, "row")}, ${columns} ${plural(columns, "column")}`,
+    previewCaption: (n: number) => `First ${n} ${plural(n, "row")} of the file`,
     sheetLabel: "Sheet",
     encodingNow: (label: string) => `Encoding in use: ${label}`,
     encodingHint: "Text looks wrong?",

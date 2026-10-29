@@ -46,3 +46,6 @@ export function lazy<T extends object>(vi: T, en: T): T {
 
 /** For text built at call time (messages in main and shared code): never at module load, the language may not be set yet. */
 export const t = (vi: string, en: string): string => pick(vi, en);
+
+/** English count agreement: `plural(n, "field")` is "field" for 1 and "fields" otherwise; pass `many` for other forms. */
+export const plural = (n: number, one: string, many = `${one}s`): string => (n === 1 ? one : many);
