@@ -17,7 +17,7 @@
   "dlWin": "Tải cho Windows",
   "dlUbuntu": "Tải cho Ubuntu",
   "note": "Phiên bản 0.1.0. Bộ cài Windows chưa được ký số nên SmartScreen có thể cảnh báo; kiểm tra file tải về bằng SHA256SUMS.txt.",
-  "videoLabel": "Video demo: từ file Excel đến một file ZIP chứa các thiệp sinh nhật đã điền tên, trong bốn bước.",
+  "videoLabel": "Video demo: điền hợp đồng Word và thiệp ảnh từ file Excel, xuất một file ZIP trong bốn bước.",
   "howTitle": "Làm theo từng bước, mỗi lần một việc",
   "howT1": "Dữ liệu và mẫu",
   "howD1": "Chọn file Excel hoặc CSV, rồi mẫu Word hoặc ảnh.",

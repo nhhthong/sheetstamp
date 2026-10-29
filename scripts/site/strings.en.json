@@ -17,7 +17,7 @@
   "dlWin": "Download for Windows",
   "dlUbuntu": "Download for Ubuntu",
   "note": "Version 0.1.0. The Windows installer is not code-signed yet, so SmartScreen may warn; verify your download with SHA256SUMS.txt.",
-  "videoLabel": "Demo video: from an Excel file to one ZIP of filled birthday cards, in four steps.",
+  "videoLabel": "Demo video: Word contracts and image cards filled from an Excel file, exported as one ZIP in four steps.",
   "howTitle": "Four steps, one thing at a time",
   "howT1": "Data and template",
   "howD1": "Pick an Excel or CSV file, then a Word or image template.",
