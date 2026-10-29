@@ -1,6 +1,5 @@
 import Fuse from "fuse.js";
 import type { FieldMatch, MappingField, MatchRule } from "../../shared/ipc/mapping";
-import { findEntry } from "./dictionary";
 import { editDistance, normalize, sortedTokens, tokenCount } from "./normalize";
 
 export type MatchOptions = {
@@ -22,7 +21,7 @@ const DEFAULT_MARGIN = 0.05;
 const MIN_FUZZY_LENGTH = 5;
 /** Compact forms (spaces removed) must have nearly the same length, so "ho" never fuzzy-matches "hoten". */
 const MIN_LENGTH_RATIO = 0.85;
-const RANK: Record<MatchRule, number> = { exact: 0, synonym: 1, fuzzy: 2 };
+const RANK: Record<MatchRule, number> = { exact: 0, fuzzy: 1, position: 2 };
 
 /**
  * Fuse scores a pattern against a text loosely (a pattern found inside a longer text, or with a few
@@ -51,26 +50,17 @@ type Candidate = {
 
 type Form = { columnIndex: number; text: string };
 
-function fieldNames(field: MappingField): { exact: Set<string>; synonyms: Set<string> } {
-  const entry = findEntry(field.key);
-  const exact = new Set([normalize(field.key)]);
-  if (field.label) exact.add(normalize(field.label));
-  const synonyms = new Set<string>();
-  if (entry) {
-    exact.add(normalize(entry.key));
-    exact.add(normalize(entry.label));
-    synonyms.add(normalize(entry.labelEn));
-    for (const s of entry.synonyms) synonyms.add(normalize(s));
-  }
-  exact.delete("");
-  synonyms.delete("");
-  for (const e of exact) synonyms.delete(e);
-  return { exact, synonyms };
+/** The names a column may carry to match a field exactly: the tag and its label. */
+function fieldNames(field: MappingField): Set<string> {
+  const names = new Set([normalize(field.key)]);
+  if (field.label) names.add(normalize(field.label));
+  names.delete("");
+  return names;
 }
 
 /**
  * Find a column for each field. Rules, in order: exact (after removing diacritics, against the tag and its
- * label), HR synonym, then fuzzy. A column is given to one field only, and a field with no confident column
+ * label), then fuzzy. A column is given to one field only, and a field with no confident column
  * stays unmatched (`column: null`).
  */
 export function matchFields(
@@ -106,14 +96,12 @@ export function matchFields(
     const names = fieldNames(field);
     normColumns.forEach((n, columnIndex) => {
       if (n === "") return;
-      if (names.exact.has(n)) candidates.push({ fieldIndex, columnIndex, rule: "exact", score: 1 });
-      else if (names.synonyms.has(n))
-        candidates.push({ fieldIndex, columnIndex, rule: "synonym", score: 0.95 });
+      if (names.has(n)) candidates.push({ fieldIndex, columnIndex, rule: "exact", score: 1 });
     });
 
     // Fuzzy: best Fuse distance per column over the field's names.
     const best = new Map<number, number>();
-    for (const name of new Set([...names.exact, ...names.synonyms])) {
+    for (const name of names) {
       const compactName = name.replace(/ /g, "");
       if (compactName.length < MIN_FUZZY_LENGTH) continue;
       const sorted = sortedTokens(name);

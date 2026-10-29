@@ -79,9 +79,9 @@ test("create, keep across restart, and delete a Word template", async () => {
   await expect(dialog.getByTestId("unsupported-list")).toContainText("{{#con}}");
   await expect(dialog.getByTestId("unsupported-list")).toContainText("{{chi_nhanh}}");
 
-  // Labels: suggested from the dictionary, else readable; one is edited.
+  // Labels: readable from the tag; one is edited.
   await dialog.getByText("Xem tên hiển thị").click();
-  await expect(dialog.getByLabel("Tên hiển thị của ho_ten")).toHaveValue("Họ và tên");
+  await expect(dialog.getByLabel("Tên hiển thị của ho_ten")).toHaveValue("Ho ten");
   await expect(dialog.getByLabel("Tên hiển thị của ten_con")).toHaveValue("Ten con");
   await dialog.getByLabel("Tên hiển thị của ten_con").fill("Tên con");
 
@@ -136,7 +136,7 @@ test("create, keep across restart, and delete a Word template", async () => {
     name: "Hợp đồng lao động",
     tags: expect.arrayContaining([
       { name: "ten_con", label: "Tên con" },
-      { name: "ho_ten", label: "Họ và tên" },
+      { name: "ho_ten", label: "Ho ten" },
     ]),
   });
 

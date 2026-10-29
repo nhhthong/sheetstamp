@@ -98,7 +98,9 @@ export async function openMapping(
   try {
     await storage.patchMapping(template.id, (mapping, current) => {
       const currentFields = current.tags.map((t) => ({ key: t.name, label: t.label }));
-      const reconciled = reconcile(toProfile(mapping), currentFields, table.columns);
+      const reconciled = reconcile(toProfile(mapping), currentFields, table.columns, {
+        byPosition: current.kind === "image",
+      });
       result = reconciled;
       entries = toRecord(reconciled.profile);
       return canonical(entries) !== canonical(toRecord(toProfile(mapping))) ? entries : null;
@@ -118,6 +120,7 @@ export async function openMapping(
       entries,
       unmatched: result.unmatched,
       lost: result.lost,
+      firstRow: [...(table.rows[0] ?? [])],
     },
   };
 }
@@ -141,6 +144,7 @@ export async function setMappingEntry(
     return fail(mappingMessages.tooLong);
   }
   let entries: Record<string, FieldMapping> = {};
+  const cleared: string[] = [];
   try {
     // Read, merge and write run inside the storage queue, so no other write can slip between them.
     await storage.patchMapping(template.id, (mapping, current) => {
@@ -150,12 +154,21 @@ export async function setMappingEntry(
       entries = toRecord(toProfile(mapping));
       if (entry === null) delete entries[request.key];
       else entries[request.key] = entry;
+      // One column serves one field: a field that had the chosen column gives it up.
+      if (entry?.kind === "column") {
+        for (const [key, other] of Object.entries(entries)) {
+          if (key !== request.key && other.kind === "column" && other.column === entry.column) {
+            delete entries[key];
+            cleared.push(key);
+          }
+        }
+      }
       return entries;
     });
   } catch (error) {
     return fail(error instanceof Refusal ? error.message : mappingMessages.saveFailed);
   }
-  return { ok: true, entries };
+  return { ok: true, entries, cleared };
 }
 
 /** The cells of one row. Only this row is copied out of the table. */

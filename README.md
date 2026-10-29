@@ -20,7 +20,9 @@ Offline desktop app for Windows and Ubuntu. No upload, no account, no telemetry.
 </div>
 
 <p align="center">
-  <img src="site/assets/app-ghep-cot.png" alt="Sheetstamp matching spreadsheet columns to template tags" width="860">
+  <a href="https://nhhthong.github.io/sheetstamp/">
+    <img src="site/assets/how-poster.jpg" alt="A CSV file and a contract with {{tags}}: Sheetstamp matches the columns to the tags and fills the contract. Watch the animation on the website." width="860">
+  </a>
 </p>
 
 ## Why Sheetstamp
@@ -35,16 +37,32 @@ Sheetstamp does it on your own computer. Pick a template, pick a spreadsheet, ch
 
 | | |
 |---|---|
-| **Word templates** | Put `{{name}}` tags in a normal `.docx`, including tables, headers and footers. Templates live in a local library. |
-| **Image templates** | Place text boxes on a PNG or JPEG background in a built-in editor. Any installed font; shrink, wrap, truncate or error when text is too long. Export PNG or JPG. |
+| **Word templates** | Put `{{name}}` tags in a normal `.docx`, including tables, headers and footers. A tag name can be any text, such as `{{full_name}}`. Templates live in a local library. |
+| **Image templates** | Place text boxes on a PNG or JPEG background in a built-in editor and type a name for each field. Any installed font; shrink, wrap, truncate or error when text is too long. Export PNG or JPG. |
 | **Spreadsheets** | Reads `.csv` and `.xlsx` (several sheets). Detects Vietnamese encodings (UTF-8, Windows-1258) and keeps leading zeros in IDs and phone numbers. |
-| **Automatic matching** | Matches columns to tags ignoring diacritics, with an HR synonym list. A preview shows the first rows filled in. |
+| **Column matching** | Matches Word tags to columns by name, ignoring diacritics and small typos; there is no synonym list. Image fields take the columns in order, left to right. Each field shows its value from the first row, a column fills one field, and a preview shows the result for every row. |
 | **Safe file names** | Names files from a pattern such as `{{name}}`, avoids duplicates and characters Windows rejects. |
 | **One ZIP** | Progress and a Cancel button. One bad row never stops the batch; a CSV report lists the rows that failed. |
 | **Private by design** | Works offline. No automatic updates, no network calls, no account. |
 | **Themes and language** | Light, dark or system theme. English (default) or Vietnamese interface, chosen in Settings. |
 
 ## How it works
+
+```mermaid
+flowchart LR
+  A["Word or image template<br/>with tags or named fields"] --> C
+  B["CSV or Excel file<br/>one row per file"] --> C
+  C{"Match<br/>tags to columns"} -->|you check the<br/>first-row values| D["Preview<br/>any row"]
+  D --> E["One ZIP<br/>with every file"]
+```
+
+<p align="center">
+  <a href="https://github.com/nhhthong/sheetstamp/blob/main/site/assets/how.mp4">
+    <img src="site/assets/how-contracts.jpg" alt="Four contract templates with tags turning into four finished contracts" width="640">
+  </a>
+  <br>
+  <sub>Watch the 27-second animation, with sound (opens the video on GitHub).</sub>
+</p>
 
 <table>
   <tr>
@@ -60,6 +78,19 @@ Sheetstamp does it on your own computer. Pick a template, pick a spreadsheet, ch
 </table>
 
 Then choose the file-name pattern and export. The result is one ZIP.
+
+### How columns are matched
+
+```mermaid
+flowchart TD
+  T["Word tag<br/>for example full_name"] --> N{"Same name as a column?<br/>accents are ignored"}
+  N -->|yes| M["Matched"]
+  N -->|no| F{"Close enough?<br/>small typo or word order"}
+  F -->|yes| M
+  F -->|no| U["Unmatched: choose a column,<br/>type a fixed text or leave it empty"]
+  I["Image field number n"] --> P["Column n of the file,<br/>left to right"] --> M
+  M --> V["Each field shows its first-row value;<br/>a column fills one field"]
+```
 
 ## Install
 
@@ -102,6 +133,11 @@ npm run typecheck  # TypeScript
 npm test           # Vitest
 npm run build      # the shipped build; contains no test-only pages
 npm run test:e2e   # builds with `npm run build:e2e` first, then runs Playwright (needs a display)
+```
+
+```mermaid
+flowchart LR
+  R["Renderer<br/>React UI"] <-->|IPC| P["Preload bridge"] <--> M["Main process<br/>files and storage"] --> W["Workers<br/>fill Word, draw images, build the ZIP"]
 ```
 
 Electron needs a display. On Linux without one, run `xvfb-run -a npm run test:e2e`. Where `NODE_OPTIONS` is set (some

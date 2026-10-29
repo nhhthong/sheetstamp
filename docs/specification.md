@@ -283,6 +283,7 @@ Risk levels are my own estimates and are not backed by measured data. They are o
 - Packaged self-test passes on windows-latest, ubuntu-latest and macos-latest (Release run 40721739906).
 - Non-ASCII ZIP names extract correctly with `unzip` and Python on Ubuntu and with `ditto` (Archive Utility's engine) and `unzip` on macOS (ZIP names run 1).
 - Public-repository artifacts: 566 MB uploaded in one run without error.
+- `easy-template-x` parses and fills tag names that contain spaces, diacritics, only digits, hyphens or parentheses (probe test, 2026-10-29).
 
 **Not yet verified**
 
@@ -293,4 +294,3 @@ Risk levels are my own estimates and are not backed by measured data. They are o
 - The Billing page reading for Actions storage (the API evidence says it does not count).
 - The licence of the transitive dependency `buffers@0.1.1` (no license field; see `THIRD-PARTY-NOTICES.md`).
 - The 5 real HR/accounting templates (a 12-document stand-in passes).
-- `easy-template-x` parses and fills tag names that contain spaces, diacritics or only digits.

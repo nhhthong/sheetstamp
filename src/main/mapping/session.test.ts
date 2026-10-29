@@ -51,6 +51,21 @@ describe("openMapping", () => {
     expect(stored).toEqual({ ho_ten: { kind: "column", column: "Họ tên" } });
   });
 
+  it("hands the cells of the first row to the view", async () => {
+    const opened = await openMapping(
+      storage,
+      table(
+        ["Họ tên", "Khác"],
+        [
+          ["An", ""],
+          ["Bình", "x"],
+        ],
+      ),
+      id,
+    );
+    expect(opened.ok && opened.view.firstRow).toEqual(["An", ""]);
+  });
+
   it("keeps valid choices, reports the lost column and saves the new state", async () => {
     await openMapping(storage, table(["Họ tên", "Lý do"]), id);
     const again = await openMapping(storage, table(["Họ tên", "Khác"]), id);
@@ -122,6 +137,25 @@ describe("setMappingEntry", () => {
     expect((await storage.getTemplate(id))?.mapping).toEqual({});
   });
 
+  it("gives a taken column to the chosen field and reports the field that lost it", async () => {
+    await set("ho_ten", { kind: "column", column: "Khác" });
+    const result = await set("ly_do", { kind: "column", column: "Khác" });
+    expect(result).toEqual({
+      ok: true,
+      entries: { ly_do: { kind: "column", column: "Khác" } },
+      cleared: ["ho_ten"],
+    });
+    expect((await storage.getTemplate(id))?.mapping).toEqual({
+      ly_do: { kind: "column", column: "Khác" },
+    });
+  });
+
+  it("does not limit fixed text or empty, and reports nothing cleared", async () => {
+    await set("ho_ten", { kind: "column", column: "Khác" });
+    expect(await set("ly_do", { kind: "empty" })).toMatchObject({ ok: true, cleared: [] });
+    expect(await set("ho_ten", { kind: "column", column: "Khác" })).toMatchObject({ cleared: [] });
+  });
+
   it("keeps quick saves in order", async () => {
     await Promise.all([
       set("ho_ten", { kind: "column", column: "Khác" }),
@@ -181,10 +215,14 @@ describe("image templates", () => {
 
   it("maps the fields of the boxes and saves the profile like a Word template", async () => {
     const made = await make([box("a", "ho_ten"), box("b", "ho_ten"), box("c", "ly_do")]);
-    const data = table(["Họ tên", "Khác"]);
+    const data = table(["Họ tên"]);
     const opened = await openMapping(storage, data, made.id);
     expect(opened.ok && opened.view.kind).toBe("image");
     expect(opened.ok && opened.view.fields.map((f) => f.key)).toEqual(["ho_ten", "ly_do"]);
+    // The first field takes the first column; the second has no column left.
+    expect((await storage.getTemplate(made.id))?.mapping).toEqual({
+      ho_ten: { kind: "column", column: "Họ tên" },
+    });
     expect(opened.ok && opened.view.unmatched).toEqual(["ly_do"]);
     const set = await setMappingEntry(storage, data, {
       templateId: made.id,
@@ -194,6 +232,16 @@ describe("image templates", () => {
     expect(set.ok).toBe(true);
     const again = await openMapping(storage, data, made.id);
     expect(again.ok && again.view.unmatched).toEqual([]);
+  });
+
+  it("matches the n-th field to the n-th column whatever the column names are", async () => {
+    const made = await make([box("a", "ly_do"), box("b", "ho_ten")]);
+    const opened = await openMapping(storage, table(["Cột A", "Cột B", "Cột C"]), made.id);
+    expect(opened.ok && opened.view.unmatched).toEqual([]);
+    expect((await storage.getTemplate(made.id))?.mapping).toEqual({
+      ly_do: { kind: "column", column: "Cột A" },
+      ho_ten: { kind: "column", column: "Cột B" },
+    });
   });
 
   it("gives the boxes without ids and the background", async () => {

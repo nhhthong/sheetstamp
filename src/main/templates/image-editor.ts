@@ -4,7 +4,7 @@ import { emptyImageLayout, parseImageLayout } from "../../shared/image-layout";
 import type { ImageEditorDoc, SampleRow, SaveLayoutRequest } from "../../shared/ipc/images";
 import type { Outcome } from "../../shared/ipc/templates";
 import type { DataTable } from "../data";
-import { matchFields, suggestLabel } from "../mapping";
+import { matchByPosition, suggestLabel } from "../mapping";
 import { type Storage, StorageError } from "../storage";
 import { fail, messages } from "./library";
 
@@ -78,7 +78,7 @@ export async function saveImageLayout(
   }
 }
 
-/** The first row's cell for every field that the existing matching rules pair with a column. */
+/** The first row's cell for every field, taking the fields in order: the n-th field gets the n-th column. */
 export function sampleRow(
   table: DataTable | undefined,
   fields: readonly { key: string; label: string }[],
@@ -86,7 +86,7 @@ export function sampleRow(
   const first = table?.rows[0];
   if (!table || !first) return { hasData: false, values: {} };
   const values: Record<string, string> = {};
-  for (const match of matchFields(fields, table.columns)) {
+  for (const match of matchByPosition(fields, table.columns)) {
     if (match.column === null) continue;
     const cell = first[table.columns.indexOf(match.column)];
     if (cell !== undefined) values[match.field] = cell;

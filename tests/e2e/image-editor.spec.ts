@@ -85,7 +85,7 @@ test("create an image template, add two boxes, drag one, delete the other, save 
   await page.getByRole("button", { name: "+ Thêm chữ" }).click();
   const items = page.getByTestId("box-item");
   await expect(items).toHaveCount(2);
-  await expect(page.getByTestId("editor-live")).toContainText("Đã chọn ô chữ Họ và tên");
+  await expect(page.getByTestId("editor-live")).toContainText("Đã chọn ô chữ Trường 2");
 
   // Drag the first box: its position is read from the list, the canvas scale from the canvas size.
   const readXY = async (i: number) => {
@@ -137,33 +137,15 @@ test("create an image template, add two boxes, drag one, delete the other, save 
   await expect(items).toHaveCount(1);
   await expect(page.getByTestId("editor-live")).toContainText("Đã xóa ô chữ");
 
-  // Pick a field per box: a typed one.
+  // Name the field of the box as free text: no list, no suggestions. The field has a number.
   await items.first().click();
-  const field = page.getByRole("combobox", { name: "Trường", exact: true });
-  // Nothing is listed until something is typed, and then only the fields that match.
-  const suggestions = page
-    .getByRole("listbox", { name: "Trường", exact: true })
-    .getByRole("option");
-  await field.click();
-  await expect(suggestions).toHaveCount(0);
+  const field = page.getByLabel("Trường số 1", { exact: true });
+  await expect(field).toHaveValue("Trường 1");
+  await expect(page.getByText("Cột thứ 1 của file dữ liệu sẽ điền vào trường này.")).toBeVisible();
   await field.fill("ngay");
-  // At most six fields, best first, and the typed text as a new field at the end.
-  await expect(suggestions).toHaveCount(7);
-  await expect(suggestions.first()).toHaveText("Ngày sinh");
-  // The key (ngay_sinh) is an implementation detail and is not shown.
-  await expect(page.getByRole("listbox", { name: "Trường", exact: true })).not.toContainText(
-    "ngay_",
-  );
-  await expect(suggestions.last()).toHaveText("Thêm “ngay” làm trường mới");
-  await field.fill("Số quyết định");
-  await expect(suggestions).toHaveText(["Thêm “Số quyết định” làm trường mới"]);
-  await page.keyboard.press("Enter");
-  await expect(items.first()).toContainText("Số quyết định");
-
-  // A listed field is picked with the mouse.
-  await field.fill("phong");
-  await page.getByRole("option", { name: /Phòng ban/ }).click();
-  await expect(items.first()).toContainText("Phòng ban");
+  await expect(page.getByRole("listbox")).toHaveCount(0);
+  await field.fill("?!");
+  await expect(page.getByText("Nhập tên trường có chữ hoặc số.")).toBeVisible();
   await field.fill("Số quyết định");
   await page.keyboard.press("Enter");
   await expect(items.first()).toContainText("Số quyết định");

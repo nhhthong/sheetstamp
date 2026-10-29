@@ -5,8 +5,8 @@ import { type Channel, channel, integer, nothing, oneOf, record, string } from "
 /** A field of a template: the tag key and the label the user sees (the label is optional). */
 export type MappingField = { key: string; label?: string };
 
-export type MatchRule = "exact" | "synonym" | "fuzzy";
-export const MATCH_RULES = ["exact", "synonym", "fuzzy"] as const;
+export type MatchRule = "exact" | "fuzzy" | "position";
+export const MATCH_RULES = ["exact", "fuzzy", "position"] as const;
 
 /** The column found for one field, or none. `score` is 1 for the best possible match and falls toward the threshold. */
 export type FieldMatch =
@@ -108,6 +108,8 @@ export type MappingView = {
   unmatched: string[];
   /** Fields that lost their column because the data changed. */
   lost: LostField[];
+  /** The cells of the first data row, in the order of `columns` (empty when the file has no rows). */
+  firstRow: string[];
 };
 
 export type OpenedMapping = { ok: true; view: MappingView } | { ok: false; message: string };
@@ -126,7 +128,12 @@ export const openMapping: Channel<{ templateId: string }, OpenedMapping> = chann
 
 export type SetEntryRequest = { templateId: string; key: string; entry: FieldMapping | null };
 export type SetEntryResult =
-  | { ok: true; entries: Record<string, FieldMapping> }
+  | {
+      ok: true;
+      entries: Record<string, FieldMapping>;
+      /** Fields that gave their column up because the chosen field took it. */
+      cleared: string[];
+    }
   | { ok: false; message: string };
 
 /** Save one field's choice with the template (null clears it). Column names must exist in the loaded data. */

@@ -319,3 +319,33 @@ test("fixed text previews as you type and is saved; narrow window stacks the col
     .toEqual({ kind: "fixed", text: "Việt Nam" });
   await app.close();
 });
+
+test("every row shows its first-row value, and a column taken by another field is moved with an alert", async () => {
+  const storage = await openStorage(dataDir);
+  await storage.updateTemplate(templateId, { mapping: {} });
+  const app = await launch();
+  const page = await app.firstWindow();
+  await toStepMapping(app, page);
+
+  await page.getByRole("button", { name: "Xem 2 trường đã khớp" }).click();
+  const rows = page.getByTestId("mapping-row");
+  const nameRow = rows.filter({ hasText: "Họ và tên" });
+  await expect(nameRow.getByTestId("first-value")).toHaveText("Dòng đầu: Nguyễn Văn An");
+
+  // The odd field takes the column "Họ tên" from the field that had it.
+  const birthRow = rows.filter({ hasText: "Nơi sinh" });
+  await birthRow.getByRole("combobox").selectOption({ label: "Họ tên" });
+  await expect(birthRow.getByTestId("first-value")).toHaveText("Dòng đầu: Nguyễn Văn An");
+  await expect(nameRow).toHaveAttribute("data-state", "unresolved");
+  await expect(nameRow).toContainText("Cột này đã chuyển sang trường khác. Chọn cột khác.");
+  await expect(nameRow.getByTestId("first-value")).toHaveCount(0);
+  await expect(heading(page)).toHaveText("1 trường cần bạn chọn cột.");
+  await expect(next(page)).toBeDisabled();
+  await shoot(page, "column-taken");
+
+  // Choosing again clears the alert.
+  await nameRow.getByRole("combobox").selectOption({ label: "Vùng miền" });
+  await expect(nameRow).not.toContainText("Cột này đã chuyển sang trường khác");
+  await expect(heading(page)).toHaveText("Tất cả 3 trường đã ghép.");
+  await app.close();
+});
