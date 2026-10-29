@@ -12,9 +12,12 @@ export default defineConfig(({ mode }) => ({
           index: "src/main/index.ts",
           "generate-worker": "src/worker/generate-worker.ts",
           batch: "src/main/export/batch.ts",
+          "image-worker": "src/worker/image-worker.ts",
         },
       },
     },
+    // True only in the e2e build, which loads the test font (src/main/images/e2e-build.ts).
+    define: { __SHEETSTAMP_E2E__: JSON.stringify(mode === "e2e") },
   },
   // A sandboxed preload script must be CommonJS, even though the package is ESM.
   preload: {
