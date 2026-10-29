@@ -1,11 +1,19 @@
 // Handlers of the "images" channels declared in src/shared/ipc/images.ts.
 import { join } from "node:path";
 import { app } from "electron";
-import { listFonts, openImageEditor, render, saveImageLayout } from "../../shared/ipc/images";
+import {
+  listFonts,
+  openImageEditor,
+  render,
+  sampleRow as sampleRowChannel,
+  saveImageLayout,
+} from "../../shared/ipc/images";
+import { getCurrentTable } from "../data-session";
 import { isE2eBuild } from "../images/e2e-build";
 import { createImageService, imageWorkerFileIn } from "../images/service";
 import {
   openImageEditor as openEditor,
+  sampleRow,
   saveImageLayout as saveLayout,
 } from "../templates/image-editor";
 import { getStorage } from "../templates/store";
@@ -23,6 +31,7 @@ export function register(): void {
   handle(render, (request) => service.render(request));
   handle(openImageEditor, async ({ id }) => openEditor(await getStorage(), id));
   handle(saveImageLayout, async (request) => saveLayout(await getStorage(), request));
+  handle(sampleRowChannel, ({ fields }) => sampleRow(getCurrentTable(), fields));
   app.on("browser-window-focus", () => service.rescanIfStarted());
   app.on("will-quit", () => void service.close());
 }

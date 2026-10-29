@@ -28,6 +28,50 @@ export const ied = {
   newFieldName: "Tên trường mới",
   addField: "Thêm trường",
   fieldInvalid: "Nhập tên trường có chữ hoặc số.",
-  deleteBox: "Xóa ô chữ",
+  deleteBox: "Xóa khung chữ này",
+  selectBox: "Chọn một khung chữ để chỉnh font, cỡ chữ, màu và căn lề.",
+  font: "Font",
+  fontNote: "Chỉ hiện font đã cài trên máy này.",
+  fontSize: "Cỡ chữ",
+  fontSizeInvalid: "Nhập số nguyên từ 1 đến 1000.",
+  color: "Màu",
+  colorPicker: "Chọn màu",
+  colorHex: "Mã màu (hex)",
+  colorInvalid: (kept: string) =>
+    `Mã màu chưa đúng: dùng dạng #rrggbb (ví dụ #c00000). Đang giữ ${kept}.`,
+  fontStyle: "Kiểu chữ",
+  styles: { normal: "Thường", bold: "Đậm", italic: "Nghiêng", bolditalic: "Đậm nghiêng" },
+  styleMissing: "Font này không có kiểu chữ đó.",
+  align: "Căn lề",
+  aligns: { left: "Trái", center: "Giữa", right: "Phải" },
+  advanced: "Nâng cao",
+  maxLines: "Số dòng tối đa",
+  maxLinesInvalid: "Nhập số nguyên từ 1 đến 100.",
+  overflow: "Khi chữ quá dài",
+  overflows: {
+    shrink: "Thu nhỏ chữ",
+    wrap: "Xuống dòng",
+    truncate: "Cắt bớt và thêm …",
+    error: "Báo lỗi cho dòng đó",
+  },
+  missingFont: (families: string[]) =>
+    `Font đã lưu trong mẫu không còn trên máy này: ${families.join(", ")}. Chọn font khác cho từng khung chữ bên dưới; ứng dụng không tự thay font.`,
+  fontMissingOption: (family: string) => `${family} (không còn trên máy)`,
+  saveBlockedMissingFont:
+    "Chưa lưu: còn khung chữ dùng font không có trên máy. Chọn font khác cho khung đó rồi lưu lại.",
+  preview: "Xem trước",
+  previewing: "Đang vẽ…",
+  previewTitle: "Xem trước",
+  previewAlt: "Ảnh xem trước với chữ đã vẽ",
+  previewFailed: "Không vẽ được bản xem trước. Thử lại.",
+  previewSource: (hasData: boolean) =>
+    hasData
+      ? "Dùng dòng đầu tiên của dữ liệu đã nạp."
+      : "Chưa nạp dữ liệu: dùng tên trường làm chữ mẫu.",
+  textTooLong: (label: string) =>
+    `Chữ của “${label}” quá dài so với khung. Tăng chiều rộng hoặc số dòng, hoặc đổi cách xử lý khi chữ quá dài.`,
+  fontMissingRender: (family: string) =>
+    `Font “${family}” không còn trên máy này. Chọn font khác cho khung chữ dùng nó.`,
+  badBackground: "Không đọc được ảnh nền. Tải lại ảnh nền hoặc chọn ảnh khác.",
   fieldCount: (n: number) => `${n} trường được dùng.`,
 } as const;

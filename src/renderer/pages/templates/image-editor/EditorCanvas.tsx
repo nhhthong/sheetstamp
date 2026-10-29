@@ -11,6 +11,8 @@ type Props = {
   background: ImageBitmap;
   boxes: readonly LayoutBox[];
   labels: Readonly<Record<string, string>>;
+  /** First data row's values per field, when data is loaded. */
+  sample: Readonly<Record<string, string>>;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   onChange: (id: string, change: BoxChange) => void;
@@ -25,7 +27,15 @@ const konvaStyle = { normal: "normal", bold: "bold", italic: "italic", bolditali
  * The background and the boxes. react-konva only positions things: all positions are in pixels of the
  * background, and the stage scale (fit to the window) is a view concern. The canvas always shows the real image.
  */
-export function EditorCanvas({ background, boxes, labels, selectedId, onSelect, onChange }: Props) {
+export function EditorCanvas({
+  background,
+  boxes,
+  labels,
+  sample,
+  selectedId,
+  onSelect,
+  onChange,
+}: Props) {
   const holder = useRef<HTMLDivElement>(null);
   const [room, setRoom] = useState({ width: 0, height: 0 });
 
@@ -62,7 +72,7 @@ export function EditorCanvas({ background, boxes, labels, selectedId, onSelect, 
             <KonvaImage name="background" image={background} />
             {boxes.map((box) => {
               const selected = box.id === selectedId;
-              const height = box.fontSize * LINE_HEIGHT;
+              const height = box.fontSize * LINE_HEIGHT * box.maxLines;
               return (
                 <Group
                   key={box.id}
@@ -84,7 +94,7 @@ export function EditorCanvas({ background, boxes, labels, selectedId, onSelect, 
                     dash={selected ? undefined : [6 / scale, 4 / scale]}
                   />
                   <Text
-                    text={sampleText(box.field, labels)}
+                    text={sampleText(box.field, labels, sample)}
                     width={box.width}
                     height={height}
                     fontSize={box.fontSize}
@@ -93,7 +103,7 @@ export function EditorCanvas({ background, boxes, labels, selectedId, onSelect, 
                     fill={box.color}
                     align={box.align}
                     lineHeight={LINE_HEIGHT}
-                    wrap="none"
+                    wrap={box.overflow === "wrap" && box.maxLines > 1 ? "word" : "none"}
                     ellipsis
                     listening={false}
                   />
