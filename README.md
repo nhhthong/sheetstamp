@@ -38,7 +38,7 @@ Sheetstamp does it on your own computer. Pick a template, pick a spreadsheet, ch
 | **Word templates** | Put `{{name}}` tags in a normal `.docx`, including tables, headers and footers. Templates live in a local library. |
 | **Image templates** | Place text boxes on a PNG or JPEG background in a built-in editor. Any installed font; shrink, wrap, truncate or error when text is too long. Export PNG or JPG. |
 | **Spreadsheets** | Reads `.csv` and `.xlsx` (several sheets). Detects Vietnamese encodings (UTF-8, Windows-1258) and keeps leading zeros in IDs and phone numbers. |
-| **Automatic matching** | Matches columns to tags ignoring diacritics, with an HR synonym list. A preview shows the first rows filled in. |
+| **Automatic matching** | Matches columns to tags by name, ignoring diacritics and small typos. A preview shows the first rows filled in. |
 | **Safe file names** | Names files from a pattern such as `{{name}}`, avoids duplicates and characters Windows rejects. |
 | **One ZIP** | Progress and a Cancel button. One bad row never stops the batch; a CSV report lists the rows that failed. |
 | **Private by design** | Works offline. No automatic updates, no network calls, no account. |

@@ -91,13 +91,13 @@ describe("image editor open and save", () => {
     expect(await openImageEditor(storage, word.id)).toMatchObject({ ok: false });
   });
 
-  it("falls back to the dictionary label when none is sent", async () => {
+  it("falls back to a readable label from the key when none is sent", async () => {
     await saveImageLayout(storage, {
       id,
       layout: { version: 1, boxes: [box(1, "ho_ten")] },
       labels: {},
     });
-    expect((await storage.getTemplate(id))?.tags).toEqual([{ name: "ho_ten", label: "Họ và tên" }]);
+    expect((await storage.getTemplate(id))?.tags).toEqual([{ name: "ho_ten", label: "Ho ten" }]);
   });
 });
 

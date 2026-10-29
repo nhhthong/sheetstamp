@@ -132,3 +132,17 @@ describe("EasyTemplateXEngine: documents as Word writes them", () => {
     expect(await textOf(data, "word/document.xml")).toBe("Họ tên: A");
   });
 });
+
+describe("EasyTemplateXEngine: tag names", () => {
+  it("lists and fills names with spaces, diacritics, digits, hyphens and parentheses", async () => {
+    const names = ["Họ và tên", "1", "a-b", "ten(1)"];
+    const docx = await makeDocx({ body: names.map((n) => paragraph(run(`{{${n}}}`))).join("") });
+    expect((await engine.parseTags(docx)).map((t) => t.key)).toEqual(names);
+    const { data, missing } = await engine.render(
+      docx,
+      Object.fromEntries(names.map((n) => [n, `v:${n}`])),
+    );
+    expect(missing).toEqual([]);
+    expect(await textOf(data, "word/document.xml")).toBe(names.map((n) => `v:${n}`).join("\n"));
+  });
+});

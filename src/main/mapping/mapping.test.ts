@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import cases from "../../../tests/fixtures/mapping/cases.json";
 import { buildCases, type FixtureCase } from "../../../tests/fixtures/mapping/make-fixtures";
 import type { FieldMatch, MappingProfile } from "../../shared/ipc/mapping";
-import { dictionary, matchFields, normalize, reconcile, suggestLabel } from "./index";
+import { matchFields, reconcile, suggestLabel } from "./index";
 
 const fixtures = cases as unknown as FixtureCase[];
 const f = (...keys: string[]) => keys.map((key) => ({ key }));
@@ -27,11 +27,11 @@ describe("fixtures", () => {
 });
 
 describe("matchFields", () => {
-  it('maps "Họ và tên" to ho_ten and "SĐT" to so_dien_thoai', () => {
-    const got = matchFields(f("ho_ten", "so_dien_thoai"), ["STT", "Họ và tên", "SĐT"]);
+  it('maps "Họ tên" to ho_ten and leaves "SĐT" for so_dien_thoai unmatched', () => {
+    const got = matchFields(f("ho_ten", "so_dien_thoai"), ["STT", "Họ tên", "SĐT"]);
     expect(got).toMatchObject([
-      { field: "ho_ten", column: "Họ và tên", rule: "exact" },
-      { field: "so_dien_thoai", column: "SĐT", rule: "synonym" },
+      { field: "ho_ten", column: "Họ tên", rule: "exact" },
+      { field: "so_dien_thoai", column: null },
     ]);
   });
 
@@ -45,22 +45,19 @@ describe("matchFields", () => {
     expect(got[0]).toMatchObject({ rule: "exact" });
   });
 
-  it("reports the rule and a score below 1 for synonyms and fuzzy matches", () => {
-    const [syn, fuzzy] = matchFields(f("ma_nhan_vien", "ngay_sinh"), ["MNV", "Sinh ngày"]);
-    expect(syn).toMatchObject({ rule: "synonym" });
+  it("reports the rule and a score below 1 for fuzzy matches", () => {
+    const [fuzzy] = matchFields(f("ngay_sinh"), ["Sinh ngày"]);
     expect(fuzzy).toMatchObject({ rule: "fuzzy" });
     const score = (m: FieldMatch | undefined) => (m && m.column !== null ? m.score : 0);
-    expect(score(syn)).toBeLessThan(1);
+    expect(score(fuzzy)).toBeLessThan(1);
     expect(score(fuzzy)).toBeGreaterThan(0.75);
   });
 
-  it("handles word order, abbreviations and longer phone names", () => {
-    const cols = ["Họ và tên", "MNV", "Số điện thoại di động", "Ho ten"];
-    expect(matchFields(f("ho_ten"), cols)[0]).toMatchObject({ column: "Họ và tên" });
-    expect(matchFields(f("ma_nhan_vien"), cols)[0]).toMatchObject({ column: "MNV" });
-    expect(matchFields(f("so_dien_thoai"), cols)[0]).toMatchObject({
-      column: "Số điện thoại di động",
-    });
+  it("handles word order and does not guess abbreviations or longer names", () => {
+    const cols = ["Tên họ", "MNV", "Số điện thoại di động"];
+    expect(matchFields(f("ho_ten"), cols)[0]).toMatchObject({ column: "Tên họ", rule: "fuzzy" });
+    expect(matchFields(f("ma_nhan_vien"), cols)[0]).toMatchObject({ column: null });
+    expect(matchFields(f("so_dien_thoai"), cols)[0]).toMatchObject({ column: null });
   });
 
   it("leaves a field unmatched instead of guessing", () => {
@@ -71,7 +68,7 @@ describe("matchFields", () => {
   });
 
   it("gives a column to one field only", () => {
-    const got = matchFields(f("ten", "ho_ten"), ["Họ và tên"]);
+    const got = matchFields([{ key: "ho_ten" }, { key: "ho_ten_2", label: "Ho ten" }], ["Ho ten"]);
     expect(got.filter((m) => m.column !== null)).toHaveLength(1);
   });
 
@@ -86,49 +83,10 @@ describe("matchFields", () => {
   });
 });
 
-describe("dictionary", () => {
-  it("has no synonym shared by two entries, and no synonym equal to another entry's key or label", () => {
-    const owner = new Map<string, string>();
-    for (const e of dictionary) {
-      for (const name of [e.key, e.label, e.labelEn, ...e.synonyms]) {
-        const n = normalize(name);
-        const prior = owner.get(n);
-        // An entry may repeat its own names (the label is usually also a synonym).
-        expect(
-          prior === undefined || prior === e.key,
-          `"${name}" is in ${prior} and ${e.key}`,
-        ).toBe(true);
-        owner.set(n, e.key);
-      }
-    }
-  });
-
-  it("is compiled into the built bundle, not read from disk", () => {
-    const outMain = join(process.cwd(), "out", "main");
-    if (!existsSync(outMain)) {
-      console.warn("out/main is missing: run `npm run build` to check the bundle");
-      return;
-    }
-    const bundle = readdirSync(outMain, { recursive: true, encoding: "utf8" })
-      .filter((p) => p.endsWith(".js"))
-      .map((p) => readFileSync(join(outMain, p), "utf8"))
-      .join("\n");
-    // Entries from the start and the end of the file, with Vietnamese text as written in it.
-    expect(bundle).toContain("ly_do_nghi_viec");
-    expect(bundle).toContain("Lý do nghỉ việc");
-    expect(bundle).toContain("nguoi_ky");
-    expect(bundle).not.toContain("hr-dictionary.json");
-  });
-});
-
 describe("suggestLabel", () => {
-  it("uses the dictionary label, also for a tag typed with diacritics or capitals", () => {
-    expect(suggestLabel("ten")).toBe("Tên");
-    expect(suggestLabel("ho_ten")).toBe("Họ và tên");
-    expect(suggestLabel("Họ_Tên")).toBe("Họ và tên");
-  });
-
-  it("falls back to underscores as spaces and a capital first letter", () => {
+  it("turns underscores into spaces and capitalises the first letter", () => {
+    expect(suggestLabel("ho_ten")).toBe("Ho ten");
+    expect(suggestLabel("Họ_Tên")).toBe("Họ Tên");
     expect(suggestLabel("ten_phuong_tien")).toBe("Ten phuong tien");
     expect(suggestLabel("ngày_vào")).toBe("Ngày vào");
     expect(suggestLabel("__x__")).toBe("X");
@@ -178,8 +136,8 @@ describe("reconcile", () => {
   });
 
   it("starts from nothing: fills what it can and lists the rest as unmatched", () => {
-    const r = reconcile(null, fields, ["Họ và tên", "Khác"]);
-    expect(r.profile.fields).toEqual({ ho_ten: { kind: "column", column: "Họ và tên" } });
+    const r = reconcile(null, fields, ["Ho ten", "Khác"]);
+    expect(r.profile.fields).toEqual({ ho_ten: { kind: "column", column: "Ho ten" } });
     expect(r.unmatched).toEqual(["ngay_sinh", "dia_chi", "ghi_chu_rieng"]);
     expect(r.lost).toEqual([]);
   });
