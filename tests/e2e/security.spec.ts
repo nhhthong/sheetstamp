@@ -95,6 +95,8 @@ test("a file dropped outside a drop zone does not navigate the window", async ()
   const page = await app.firstWindow();
   await expect(page).toHaveTitle("Sheetstamp");
   const appUrl = page.url();
+  // The title is static; the navigation only exists once the app's script has run and registered its listeners.
+  await expect(page.getByRole("navigation", { name: "Điều hướng chính" })).toBeVisible();
 
   // Record what the page did with each event once all of its own listeners have run.
   await page.evaluate(() => {
@@ -114,7 +116,13 @@ test("a file dropped outside a drop zone does not navigate the window", async ()
   await cdp.send("Input.dispatchDragEvent", { type: "dragEnter", x, y, data });
   await cdp.send("Input.dispatchDragEvent", { type: "dragOver", x, y, data });
   await cdp.send("Input.dispatchDragEvent", { type: "drop", x, y, data });
-  await page.waitForTimeout(700);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window as unknown as { seen: Record<string, boolean[]> }).seen.dragover?.length,
+      ),
+    )
+    .toBeGreaterThan(0);
 
   const seen = await page.evaluate(
     () => (window as unknown as { seen: Record<string, boolean[]> }).seen,

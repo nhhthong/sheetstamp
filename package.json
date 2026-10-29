@@ -2,6 +2,7 @@
   "name": "sheetstamp",
   "version": "0.1.0",
   "description": "Fill Word and image templates from CSV or Excel files, offline.",
+  "homepage": "https://github.com/nhhthong/sheetstamp",
   "license": "MIT",
   "author": "nhhthong",
   "private": true,
@@ -37,9 +38,13 @@
     "electron-builder": "^26.18.0",
     "electron-vite": "^6.0.0",
     "iconv-lite": "^0.7.3",
+    "konva": "10.8.0",
     "lucide-react": "^1.63.0",
+    "pe-library": "0.4.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-konva": "19.3.2",
+    "resedit": "1.7.2",
     "tailwind-merge": "^3.7.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
@@ -65,7 +70,9 @@
       "class-variance-authority",
       "clsx",
       "tailwind-merge",
-      "docx-preview"
+      "docx-preview",
+      "react-konva",
+      "konva"
     ]
   }
 }

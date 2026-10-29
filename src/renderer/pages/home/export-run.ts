@@ -7,6 +7,7 @@ import {
   type ExportProgress,
   type ExportView,
   type FailureCode,
+  type ImageFormat,
   progress,
   resetData,
   start,
@@ -20,7 +21,7 @@ export type Run =
   | { kind: "idle" }
   | { kind: "running"; done: number; total: number; failed: number; canceling: boolean }
   | { kind: "canceled" }
-  | { kind: "failed"; code: FailureCode }
+  | { kind: "failed"; code: FailureCode; fonts?: string[] }
   | { kind: "finished"; result: ExportDone; inputs: string };
 
 /** What the earlier steps finished with; a finished export is only shown while these have not changed. */
@@ -78,7 +79,12 @@ export const exportRun = {
    * and the template at the start, the data and the mapping cannot change under a running export.
    */
   async start(
-    request: { templateId: string; pattern: string; removeDiacritics: boolean },
+    request: {
+      templateId: string;
+      pattern: string;
+      removeDiacritics: boolean;
+      imageFormat?: ImageFormat;
+    },
     total: number,
   ) {
     if (run.kind === "running") return;
@@ -95,7 +101,7 @@ export const exportRun = {
       const result = await call(start, request);
       if (result.ok) outcome = { kind: "finished", result: result.done, inputs: inputsKey() };
       else if (result.canceled) outcome = { kind: "canceled" };
-      else outcome = { kind: "failed", code: result.code };
+      else outcome = { kind: "failed", code: result.code, fonts: result.fonts };
     } catch {
       outcome = { kind: "failed", code: "unknown" };
     }

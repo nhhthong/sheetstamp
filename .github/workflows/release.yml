@@ -50,6 +50,12 @@ jobs:
       - name: Self-test the packaged app
         if: runner.os != 'Linux'
         run: node scripts/check-selftest.mjs ${{ matrix.unpacked }}
+      - name: Check the embedded metadata (Windows exe)
+        if: runner.os == 'Windows'
+        run: node scripts/check-package-metadata.mjs ${{ matrix.unpacked }}
+      - name: Check the embedded metadata (.deb)
+        if: runner.os == 'Linux'
+        run: node scripts/check-package-metadata.mjs release/Sheetstamp-x64.deb
       - name: Upload installers
         if: matrix.files != ''
         uses: actions/upload-artifact@v4

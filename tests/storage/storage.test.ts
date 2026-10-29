@@ -54,6 +54,7 @@ describe("round trip", () => {
       lastOutputFolder: "/tmp/out",
       lastGroupFilter: null,
       removeDiacritics: true,
+      imageFormat: null,
     });
   });
 
@@ -152,6 +153,70 @@ describe("corrupt files", () => {
     );
   });
 
+  it("settings: default System, remembered across reopen, written atomically", async () => {
+    const a = await openStorage(dataDir);
+    expect(await a.getSettings()).toEqual({ theme: "system" });
+    expect(await listDir()).not.toContain("settings.json");
+    await a.setSettings({ theme: "dark" });
+    expect((await listDir()).filter((f) => f.startsWith("settings"))).toEqual(["settings.json"]);
+    expect(await (await openStorage(dataDir)).getSettings()).toEqual({ theme: "dark" });
+    await expect(a.setSettings({ theme: "pink" as never })).rejects.toThrow(StorageError);
+    expect(await a.getSettings()).toEqual({ theme: "dark" });
+  });
+
+  it("a corrupt or unknown-theme settings.json falls back to System and costs no other file", async () => {
+    await fsp.writeFile(path.join(dataDir, "settings.json"), '{"schemaVersion": 1, "data": {oops');
+    const s = await openStorage(dataDir);
+    expect(s.warnings.map((w) => w.file)).toEqual(["settings.json"]);
+    expect(await s.getSettings()).toEqual({ theme: "system" });
+    expect(await listDir()).toContain("settings.json.bak");
+
+    await fsp.writeFile(
+      path.join(dataDir, "settings.json"),
+      JSON.stringify({ schemaVersion: 1, data: { theme: "pink" } }),
+    );
+    const t = await openStorage(dataDir);
+    expect(t.warnings.map((w) => w.file)).toEqual(["settings.json"]);
+    expect(await t.getSettings()).toEqual({ theme: "system" });
+  });
+
+  it("loads a choices file written before the image format existed, and remembers a chosen format", async () => {
+    await fsp.writeFile(
+      path.join(dataDir, "choices.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        data: { lastOutputFolder: "/x", lastGroupFilter: null, removeDiacritics: true },
+      }),
+    );
+    const s = await openStorage(dataDir);
+    expect(s.warnings).toEqual([]);
+    expect(await s.getChoices()).toEqual({
+      lastOutputFolder: "/x",
+      lastGroupFilter: null,
+      removeDiacritics: true,
+      imageFormat: null,
+    });
+    await s.setChoices({ imageFormat: "jpg" });
+    expect((await (await openStorage(dataDir)).getChoices()).imageFormat).toBe("jpg");
+  });
+
+  it("an unknown image format in the choices file is corrupt", async () => {
+    await fsp.writeFile(
+      path.join(dataDir, "choices.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        data: {
+          lastOutputFolder: null,
+          lastGroupFilter: null,
+          removeDiacritics: false,
+          imageFormat: "gif",
+        },
+      }),
+    );
+    const s = await openStorage(dataDir);
+    expect(s.warnings.map((w) => w.file)).toEqual(["choices.json"]);
+  });
+
   it("treats valid JSON of the wrong shape as corrupt", async () => {
     await fsp.writeFile(
       path.join(dataDir, "choices.json"),
@@ -224,6 +289,7 @@ describe("schema version", () => {
       lastOutputFolder: "/x",
       lastGroupFilter: null,
       removeDiacritics: true,
+      imageFormat: null,
     });
     expect(JSON.parse(await fsp.readFile(file, "utf8")).schemaVersion).toBe(2);
     expect(await fsp.readFile(path.join(dataDir, "choices.json.v1.bak"), "utf8")).toBe(old);

@@ -6,6 +6,10 @@ directories:
 files:
   - out/**/*
   - package.json
+# Shown in Cài đặt > Giới thiệu; read from resources/ (outside the archive).
+extraResources:
+  - LICENSE
+  - THIRD-PARTY-NOTICES.md
 asar: true
 # Native modules cannot load from inside the ASAR archive.
 asarUnpack:
@@ -18,7 +22,11 @@ win:
     - target: nsis
       arch: [x64]
   artifactName: Sheetstamp-Setup-x64.${ext}
+  icon: build/icon.ico
+  # The exe's ProductName and LegalCopyright come from productName and copyright above, and
+  # FileVersion and ProductVersion from package.json (checked by scripts/check-package-metadata.mjs).
 nsis:
+  uninstallDisplayName: Sheetstamp
   oneClick: true
   perMachine: false # per-user install, no administrator rights
   allowElevation: false
@@ -31,6 +39,7 @@ linux:
     - target: AppImage
       arch: [x64]
   artifactName: Sheetstamp-x64.${ext}
+  icon: build/icon.png
   category: Office
   maintainer: nhhthong <50626102+nhhthong@users.noreply.github.com>
   synopsis: Fill Word and image templates from CSV or Excel files

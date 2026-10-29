@@ -1,0 +1,157 @@
+// IPC channels of the "images" feature (fonts and the image template render), handled in src/main/ipc/images.ts.
+// The drawing itself runs in a worker thread: main and the window never load the canvas library.
+import type { FontStyle, RenderErrorCode, TextBox } from "../../worker/render/types";
+import type { ImageLayout } from "../image-layout";
+import {
+  arrayOf,
+  bytes,
+  channel,
+  IpcValidationError,
+  integer,
+  nothing,
+  oneOf,
+  record,
+  string,
+} from "./define";
+import type { Outcome } from "./templates";
+
+export type { FontStyle, RenderErrorCode, TextBox };
+
+/** An installed family with only the styles it really has a face for. */
+export type FontFamilyInfo = { family: string; styles: FontStyle[] };
+
+/** Background limits decided in spike T-24 (`.work/phase-2/T-24-report.md`). */
+export const MAX_BACKGROUND_BYTES = 20 * 1024 * 1024;
+export const MAX_BACKGROUND_PIXELS = 25_000_000;
+/** Above this a warning shows; the image is still accepted. */
+export const LARGE_BACKGROUND_PIXELS = 4_000_000;
+export const MAX_BOXES = 200;
+const MAX_VALUES = 5000;
+
+export type RenderRequest = {
+  /** The background image (PNG or JPEG bytes). */
+  background: Uint8Array;
+  boxes: TextBox[];
+  /** One row's values keyed by tag key; for a sample, the field labels. */
+  values: Record<string, string>;
+};
+
+/** A row-level failure comes back as a code, never as an exception. `field` is the tag key (the font family for `font-missing`). */
+export type RenderResponse =
+  | { ok: true; png: Uint8Array }
+  | { ok: false; code: RenderErrorCode; field?: string };
+
+const STYLES = ["normal", "bold", "italic", "bolditalic"] as const satisfies readonly FontStyle[];
+const ALIGNS = ["left", "center", "right"] as const;
+const OVERFLOWS = ["shrink", "wrap", "truncate", "error"] as const;
+const HEX_COLOR = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
+function finite(value: unknown, what: string, min: number, max: number): number {
+  if (typeof value !== "number" || !Number.isFinite(value))
+    throw new IpcValidationError(`${what} must be a number`);
+  if (value < min || value > max) throw new IpcValidationError(`${what} is out of range`);
+  return value;
+}
+
+export function parseBox(value: unknown, index: number): TextBox {
+  const box = record(value, `box ${index}`);
+  const color = string(box.color, "color", { max: 9 });
+  if (!HEX_COLOR.test(color)) throw new IpcValidationError("color must be a hex color");
+  return {
+    field: string(box.field, "field", { min: 1, max: 1000 }),
+    x: finite(box.x, "x", -100_000, 100_000),
+    y: finite(box.y, "y", -100_000, 100_000),
+    width: finite(box.width, "width", 1, 100_000),
+    fontSize: finite(box.fontSize, "fontSize", 1, 10_000),
+    fontFamily: string(box.fontFamily, "fontFamily", { min: 1, max: 200 }),
+    style: oneOf(box.style, "style", STYLES),
+    color,
+    align: oneOf(box.align, "align", ALIGNS),
+    maxLines: integer(box.maxLines, "maxLines", { min: 1, max: 100 }),
+    overflow: oneOf(box.overflow, "overflow", OVERFLOWS),
+  };
+}
+
+function parseRenderRequest(value: unknown): RenderRequest {
+  const request = record(value);
+  const rawValues = record(request.values, "values");
+  const keys = Object.keys(rawValues);
+  if (keys.length > MAX_VALUES) throw new IpcValidationError("values has too many items");
+  const values: Record<string, string> = {};
+  for (const key of keys) values[key] = string(rawValues[key], `value of ${key}`, { max: 100_000 });
+  return {
+    background: bytes(request.background, "background", MAX_BACKGROUND_BYTES),
+    boxes: arrayOf(request.boxes, "boxes", parseBox, MAX_BOXES),
+    values,
+  };
+}
+
+/** What the image editor opens with. `labels` maps each field key used by a box to its display label. */
+export type ImageEditorDoc = {
+  name: string;
+  background: Uint8Array;
+  layout: ImageLayout;
+  labels: Record<string, string>;
+};
+
+export type SaveLayoutRequest = {
+  id: string;
+  /** Checked in main with `parseImageLayout`; the renderer sends what it has. */
+  layout: unknown;
+  /** Display label per field key; the template's tags are derived from the boxes and these labels. */
+  labels: Record<string, string>;
+};
+
+const MAX_LABELS = 1000;
+
+function parseSaveLayout(value: unknown): SaveLayoutRequest {
+  const request = record(value);
+  const rawLabels = record(request.labels, "labels");
+  const keys = Object.keys(rawLabels);
+  if (keys.length > MAX_LABELS) throw new IpcValidationError("labels has too many entries");
+  const labels: Record<string, string> = {};
+  for (const key of keys) labels[key] = string(rawLabels[key], "label", { max: 500 });
+  return { id: string(request.id, "id", { min: 1, max: 200 }), layout: request.layout, labels };
+}
+
+/** The first data row for the fields that have a matching column; `hasData` is false when nothing is loaded. */
+export type SampleRow = { hasData: boolean; values: Record<string, string> };
+
+export type SampleRequest = { fields: { key: string; label: string }[] };
+
+function parseSampleRequest(value: unknown): SampleRequest {
+  const fields = arrayOf(
+    record(value).fields,
+    "fields",
+    (item, index) => {
+      const field = record(item, `field ${index}`);
+      return {
+        key: string(field.key, "key", { min: 1, max: 1000 }),
+        label: string(field.label, "label", { max: 500 }),
+      };
+    },
+    MAX_LABELS,
+  );
+  return { fields };
+}
+
+export const listFonts = channel<undefined, FontFamilyInfo[]>("fonts:list", nothing);
+export const render = channel<RenderRequest, RenderResponse>("image:render", parseRenderRequest);
+
+export const openImageEditor = channel<{ id: string }, Outcome<ImageEditorDoc>>(
+  "image-editor:open",
+  (value) => ({ id: string(record(value).id, "id", { min: 1, max: 200 }) }),
+);
+export const saveImageLayout = channel<SaveLayoutRequest, Outcome<undefined>>(
+  "image-editor:save",
+  parseSaveLayout,
+);
+
+/** Sample text for the editor: the first row of the Home data session, matched to the fields by the mapping rules. */
+export const sampleRow = channel<SampleRequest, SampleRow>(
+  "image-editor:sample",
+  parseSampleRequest,
+);
+
+export const channels = [listFonts, render, openImageEditor, saveImageLayout, sampleRow] as const;
+export const events = [] as const;

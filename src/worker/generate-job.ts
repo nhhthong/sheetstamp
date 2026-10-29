@@ -1,4 +1,5 @@
 import { EasyTemplateXEngine } from "../main/template-engine/easy-template-x-engine";
+import { type ImageInit, rescanFonts } from "./image-job";
 import { JobError } from "./pool";
 import { renderImage } from "./render/render";
 import { type ImageTemplate, type OutputFormat, RenderError } from "./render/types";
@@ -6,7 +7,7 @@ import { type ImageTemplate, type OutputFormat, RenderError } from "./render/typ
 /** What each worker is started with: the template, sent once per batch. */
 export type GenerateInit =
   | { kind: "word"; template: Uint8Array }
-  | { kind: "image"; template: ImageTemplate; format: OutputFormat };
+  | { kind: "image"; template: ImageTemplate; format: OutputFormat; fonts?: ImageInit };
 
 /** One row's values, keyed by tag key. */
 export type GenerateJob = { values: Record<string, string> };
@@ -25,12 +26,13 @@ export function createGenerator(init: GenerateInit): (job: GenerateJob) => Promi
       }
     };
   }
+  // Fonts installed since the process started are not known to a new worker until the folders are scanned again.
+  if (init.fonts) rescanFonts(init.fonts);
   return async ({ values }) => {
     try {
       return (await renderImage(init.template, values, init.format)).data;
     } catch (error) {
-      if (error instanceof RenderError && error.code !== "bad-background")
-        throw new JobError(error.code);
+      if (error instanceof RenderError) throw new JobError(error.code);
       throw new JobError("render-failed");
     }
   };

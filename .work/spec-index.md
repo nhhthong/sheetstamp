@@ -177,7 +177,7 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 |---|---|---|---|
 | M1 | 4,000 rows to ZIP without UI freeze | no freeze | ✅ |
 | M2 | Export time, Word, 4 cores and SSD | ≤ 60 s (provisional) | ⚠️ final after R0.8 |
-| M3 | Export time, image, 4 cores and SSD | ≤ 120 s (provisional) | ⚠️ final after R0.8 |
+| M3 | Export time, image, 4 cores and SSD | ≤ 120 s at 1600x1000 (provisional); about 40 s JPG, 90 s PNG measured; 6 MP about 170 s | ✅ restated in `.work/proof/phase-2-benchmark.md` |
 | M4 | Cancellation works | supported | ✅ |
 | M5 | Every placeholder mapped or flagged | 100% | ✅ |
 | M6 | One failed row does not break the batch | holds | ✅ |
@@ -201,6 +201,8 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 - ✅ O-13: not in practice: one Release run uploaded 566 MB of artifacts to a public repository without error; all artifacts use `retention-days: 1` (ticket T-9). Owner may confirm on the Billing page.
 
 - ⚠️ O-14: Transitive dependency `buffers@0.1.1` (via exceljs) declares no license. Owed by owner, since 2026-10-28. Needed before the first release (R11.4, R13.10). Options in `.work/phase-0-report.md` (T-12).
+- ✅ O-15 (owner delegated analysed decisions, 2026-10-29): Where do an image template's fields come from (no file to scan)? Recommended: HR dictionary labels plus a typed new field. Owner to confirm. Needed before T-29 (R4.2).
+- ✅ O-16 (owner delegated analysed decisions, 2026-10-29): Where is PNG or JPG chosen? Recommended: a choice in Step 4, default the background's format, remembered. Owner to confirm. Needed before T-33 (R4.8).
 
 ## Decisions
 - notes 2026-10-28 `storage`: local JSON with atomic writes behind `Storage`. ADR: `docs/adr/0001-json-storage.md`.

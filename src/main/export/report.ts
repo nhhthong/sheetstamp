@@ -4,6 +4,7 @@ export type RowErrorCode =
   | "invalid-value"
   | "font-missing"
   | "text-too-long"
+  | "bad-background"
   | "render-failed"
   | "invalid-name"
   | "unknown";

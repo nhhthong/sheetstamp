@@ -1,7 +1,9 @@
 // Step 3 of the Home page in main: the template, the loaded table and the stored mapping meet here.
 // Pure Node: the storage and the table are passed in, so the logic is testable without Electron.
+import { parseImageLayout } from "../../shared/image-layout";
 import {
   type FieldMapping,
+  type ImageSource,
   MAX_FIXED_TEXT,
   type OpenedMapping,
   type RowResult,
@@ -23,6 +25,9 @@ export const mappingMessages = {
   badRow: "Dòng này không có trong file dữ liệu.",
   saveFailed: "Không lưu được cách ghép cột. Thử lại.",
   readFailed: "Không đọc được file mẫu. Chọn lại mẫu ở bước trước.",
+  notImage: "Mẫu này không phải mẫu ảnh. Chọn mẫu khác.",
+  noBoxes: "Mẫu này chưa có khung chữ. Mở mẫu để thêm.",
+  badLayout: "Bố cục của mẫu này không đọc được. Mở mẫu để kiểm tra hoặc tạo lại từ ảnh nền.",
 } as const;
 
 type Fail = { ok: false; message: string };
@@ -33,6 +38,20 @@ async function wordTemplate(storage: Storage, id: string): Promise<Template | Fa
   if (!template) return fail(mappingMessages.missing);
   if (template.kind !== "word") return fail(mappingMessages.notWord);
   return template;
+}
+
+/** A Word or an image template (both are mapped the same way). */
+async function mappableTemplate(storage: Storage, id: string): Promise<Template | Fail> {
+  const template = await storage.getTemplate(id);
+  return template ?? fail(mappingMessages.missing);
+}
+
+/** Why an image template cannot be used yet (no text boxes, or a layout that cannot be read); null when it can. */
+export function imageProblem(template: Template): string | null {
+  if (template.kind !== "image") return null;
+  const parsed = parseImageLayout(template.imageLayout ?? { version: 1, boxes: [] });
+  if (!parsed.ok) return mappingMessages.badLayout;
+  return parsed.layout.boxes.length === 0 ? mappingMessages.noBoxes : null;
 }
 
 /** Same content, regardless of key order. */
@@ -49,8 +68,10 @@ export async function openMapping(
   templateId: string,
 ): Promise<OpenedMapping> {
   if (!table) return fail(mappingMessages.noData);
-  const template = await wordTemplate(storage, templateId);
+  const template = await mappableTemplate(storage, templateId);
   if ("ok" in template) return template;
+  const problem = imageProblem(template);
+  if (problem) return fail(problem);
 
   const fields = template.tags.map((t) => ({ key: t.name, label: t.label }));
   // Matching and saving happen inside the storage queue, from the freshest mapping.
@@ -72,6 +93,7 @@ export async function openMapping(
     ok: true,
     view: {
       templateName: template.name,
+      kind: template.kind,
       fields,
       columns: table.columns,
       rowCount: table.rows.length,
@@ -91,7 +113,7 @@ export async function setMappingEntry(
   request: { templateId: string; key: string; entry: FieldMapping | null },
 ): Promise<SetEntryResult> {
   if (!table) return fail(mappingMessages.noData);
-  const template = await wordTemplate(storage, request.templateId);
+  const template = await mappableTemplate(storage, request.templateId);
   if ("ok" in template) return template;
   const { entry } = request;
   if (entry?.kind === "column" && !table.columns.includes(entry.column)) {
@@ -132,6 +154,27 @@ export async function templateBytes(storage: Storage, templateId: string): Promi
   try {
     const buffer = await storage.readSource(template.id);
     return { ok: true, docx: new Uint8Array(buffer) };
+  } catch {
+    return fail(mappingMessages.readFailed);
+  }
+}
+
+/** The background and the text boxes of an image template, for the preview (drawn by `image:render`). */
+export async function imageSource(storage: Storage, templateId: string): Promise<ImageSource> {
+  const template = await storage.getTemplate(templateId);
+  if (!template) return fail(mappingMessages.missing);
+  if (template.kind !== "image") return fail(mappingMessages.notImage);
+  const problem = imageProblem(template);
+  if (problem) return fail(problem);
+  const parsed = parseImageLayout(template.imageLayout);
+  if (!parsed.ok) return fail(mappingMessages.badLayout);
+  try {
+    const background = await storage.readSource(template.id);
+    return {
+      ok: true,
+      background: new Uint8Array(background),
+      boxes: parsed.layout.boxes.map(({ id: _id, ...box }) => box),
+    };
   } catch {
     return fail(mappingMessages.readFailed);
   }

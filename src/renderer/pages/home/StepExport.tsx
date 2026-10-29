@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  type ExportBlocker,
   type ExportView,
+  estimate,
   example,
+  IMAGE_FORMATS,
+  type ImageFormat,
   openExport,
   type PatternProblemView,
   pickFolder,
   savePattern,
   setDiacritics,
+  setImageFormat,
 } from "../../../shared/ipc/export";
 import { Button } from "../../components/ui/button";
 import { Status } from "../../components/ui/status";
@@ -99,6 +104,9 @@ function Options({
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState<string | null>(null);
   const [problems, setProblems] = useState<PatternProblemView[]>([]);
+  const [format, setFormat] = useState<ImageFormat>(view.imageFormat);
+  const [blocker, setBlocker] = useState<ExportBlocker | null>(view.blocker);
+  const [size, setSize] = useState<"busy" | "none" | number>("busy");
   const [saveState, setSaveState] = useState<"idle" | "saved" | "failed">("idle");
   const ask = useRef(0);
   const pattern = patternOf(chips);
@@ -106,7 +114,7 @@ function Options({
   // The example comes from main for the first row, the mapping and the real planner; the newest answer wins.
   useEffect(() => {
     const mine = ++ask.current;
-    call(example, { templateId, pattern, removeDiacritics }).then(
+    call(example, { templateId, pattern, removeDiacritics, imageFormat: format }).then(
       (result) => {
         if (mine !== ask.current || !result.ok) return;
         setProblems(result.problems);
@@ -114,7 +122,35 @@ function Options({
       },
       () => undefined,
     );
-  }, [templateId, pattern, removeDiacritics]);
+  }, [templateId, pattern, removeDiacritics, format]);
+
+  // Image templates: the size comes from a few rows drawn in main; the newest answer wins.
+  const sized = useRef(0);
+  const image = view.kind === "image";
+  useEffect(() => {
+    if (!image || blocker) return;
+    const mine = ++sized.current;
+    setSize("busy");
+    call(estimate, { templateId, imageFormat: format }).then(
+      (result) => {
+        if (mine !== sized.current) return;
+        setSize(result.ok && result.bytes !== null ? result.bytes : "none");
+      },
+      () => mine === sized.current && setSize("none"),
+    );
+  }, [image, blocker, templateId, format]);
+
+  // A font installed or a template fixed meanwhile: ask again when the window comes back, so the block lifts.
+  useEffect(() => {
+    if (!blocker) return;
+    const recheck = () =>
+      void call(openExport, { templateId }).then(
+        (opened) => opened.ok && setBlocker(opened.view.blocker),
+        () => undefined,
+      );
+    window.addEventListener("focus", recheck);
+    return () => window.removeEventListener("focus", recheck);
+  }, [blocker, templateId]);
 
   useEffect(() => {
     exportRun.setDraft({ templateId, version, chips, removeDiacritics });
@@ -122,6 +158,12 @@ function Options({
 
   // With a problem the editor opens by itself, so the message and the fix are in front of the user.
   const invalid = problems.length > 0;
+  const blockedText =
+    blocker === null
+      ? ""
+      : blocker.kind === "font-missing"
+        ? t.blocked.fontMissing(blocker.fonts)
+        : t.blocked[blocker.kind];
   useEffect(() => {
     if (invalid) setEditing(true);
   }, [invalid]);
@@ -134,6 +176,11 @@ function Options({
   function changeDiacritics(value: boolean) {
     setRemoveDiacritics(value);
     void call(setDiacritics, { removeDiacritics: value }).catch(() => undefined);
+  }
+
+  function changeFormat(value: ImageFormat) {
+    setFormat(value);
+    void call(setImageFormat, { imageFormat: value }).catch(() => undefined);
   }
 
   async function changeFolder() {
@@ -161,7 +208,9 @@ function Options({
       ) : null}
       {run.kind === "failed" ? (
         <Status kind="danger" focusOnMount>
-          {t.failed[run.code]}
+          {run.code === "font-missing" && run.fonts
+            ? t.blocked.fontMissing(run.fonts)
+            : t.failed[run.code]}
         </Status>
       ) : null}
 
@@ -183,6 +232,42 @@ function Options({
       </dl>
       {folderError ? <Status kind="danger">{t.folderFailed}</Status> : null}
 
+      {image ? (
+        <div className="flex flex-col gap-2" data-testid="image-options">
+          <fieldset className="m-0 flex flex-wrap items-center gap-4 border-0 p-0">
+            <legend className="float-left mr-4 font-semibold">{t.image.formatLabel}</legend>
+            {IMAGE_FORMATS.map((value) => (
+              <label key={value} className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="image-format"
+                  value={value}
+                  checked={format === value}
+                  onChange={() => changeFormat(value)}
+                  className="size-5 accent-[var(--accent)]"
+                />
+                {t.image[value]}
+              </label>
+            ))}
+          </fieldset>
+          <p className="m-0 text-muted">{t.image.pngNote}</p>
+          {blocker === null ? (
+            <p role="status" className="m-0" data-testid="size-estimate">
+              {size === "busy"
+                ? t.image.estimating
+                : size === "none"
+                  ? t.image.estimateNone
+                  : t.image.estimate(megabytes(size))}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+      {blocker ? (
+        <Status kind="danger" alert>
+          <span data-testid="export-blocker">{blockedText}</span>
+        </Status>
+      ) : null}
+
       {editing ? (
         <ExportEditor
           chips={chips}
@@ -200,10 +285,13 @@ function Options({
       <StepFooter>
         <Button
           size="lg"
-          disabled={invalid}
+          disabled={invalid || blocker !== null}
           aria-describedby={invalid ? "export-blocked" : undefined}
           onClick={() =>
-            void exportRun.start({ templateId, pattern, removeDiacritics }, view.rowCount)
+            void exportRun.start(
+              { templateId, pattern, removeDiacritics, ...(image ? { imageFormat: format } : {}) },
+              view.rowCount,
+            )
           }
         >
           {t.export(view.rowCount)}
@@ -216,6 +304,14 @@ function Options({
       </StepFooter>
     </div>
   );
+}
+
+/** "12,5" for 12.5 million bytes; one decimal below 10 MB, whole numbers above. */
+function megabytes(bytes: number): string {
+  const mb = bytes / 1e6;
+  return mb < 10
+    ? mb.toLocaleString("vi-VN", { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+    : Math.round(mb).toLocaleString("vi-VN");
 }
 
 function ChangeLink({ label, onClick }: { label: string; onClick: () => void }) {

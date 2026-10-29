@@ -8,16 +8,20 @@ import {
   DEFAULT_CHOICES,
   DEFAULT_FILENAME_PATTERN,
   DEFAULT_GROUP_NAMES,
+  DEFAULT_SETTINGS,
   type Group,
+  IMAGE_FORMATS,
   type MappingProfile,
   type NewTemplate,
   SCHEMA_VERSION,
+  type Settings,
   type SourceFile,
   type Storage,
   StorageError,
   type StorageWarning,
   type Template,
   type TemplatePatch,
+  THEMES,
   UNGROUPED_ID,
   UNGROUPED_NAME,
 } from "./types";
@@ -75,7 +79,14 @@ const isChoices = (v: unknown): v is Choices =>
   isObject(v) &&
   (v.lastOutputFolder === null || typeof v.lastOutputFolder === "string") &&
   (v.lastGroupFilter === null || typeof v.lastGroupFilter === "string") &&
-  typeof v.removeDiacritics === "boolean";
+  typeof v.removeDiacritics === "boolean" &&
+  // Added after the first release: a file written before it has no such key and still loads.
+  (v.imageFormat === undefined ||
+    v.imageFormat === null ||
+    (IMAGE_FORMATS as readonly unknown[]).includes(v.imageFormat));
+
+const isSettings = (v: unknown): v is Settings =>
+  isObject(v) && (THEMES as readonly unknown[]).includes(v.theme);
 
 function requireName(name: unknown): string {
   if (typeof name !== "string" || name.trim() === "") {
@@ -130,6 +141,14 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
     empty: () => ({ ...DEFAULT_CHOICES }),
     isValid: isChoices,
     migrations: migrations["choices.json"] ?? {},
+  });
+
+  const settings = await Collection.open<Settings>({
+    ...common,
+    file: "settings.json",
+    empty: () => ({ ...DEFAULT_SETTINGS }),
+    isValid: isSettings,
+    migrations: migrations["settings.json"] ?? {},
   });
 
   // A first run writes the default groups so their ids stay stable; templates pointing at a group that
@@ -373,7 +392,7 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
 
     async getChoices() {
       await choices.settled();
-      return { ...choices.get() };
+      return { ...DEFAULT_CHOICES, ...choices.get() };
     },
     setChoices: (patch: Partial<Choices>) =>
       serial(() =>
@@ -381,6 +400,24 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
           if (patch.lastOutputFolder !== undefined) draft.lastOutputFolder = patch.lastOutputFolder;
           if (patch.lastGroupFilter !== undefined) draft.lastGroupFilter = patch.lastGroupFilter;
           if (patch.removeDiacritics !== undefined) draft.removeDiacritics = patch.removeDiacritics;
+          if (patch.imageFormat !== undefined) draft.imageFormat = patch.imageFormat;
+          return { ...draft };
+        }),
+      ),
+
+    async getSettings() {
+      await settings.settled();
+      return { ...settings.get() };
+    },
+    setSettings: (patch: Partial<Settings>) =>
+      serial(() =>
+        settings.mutate((draft) => {
+          if (patch.theme !== undefined) {
+            if (!(THEMES as readonly string[]).includes(patch.theme)) {
+              throw new StorageError("invalid", "Giao diện không hợp lệ.");
+            }
+            draft.theme = patch.theme;
+          }
           return { ...draft };
         }),
       ),
