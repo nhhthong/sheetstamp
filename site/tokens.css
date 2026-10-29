@@ -52,6 +52,7 @@
   --color-muted: oklch(70% 0.016 262);
   --color-rule: oklch(30% 0.016 266);
   --color-light: oklch(100% 0 0);
+  --color-veil: oklch(100% 0 0);
   --color-shade: oklch(10% 0.022 268);
   --color-accent: oklch(77% 0.1 274);
   --color-accent-ink: oklch(19% 0.035 274);
@@ -87,4 +88,59 @@
   --rule-hair: 1px;
   --tracking-display: -0.022em;
   --display-weight: 500;
+}
+
+/* Light theme: chosen with the toggle, or the system setting when nothing is saved */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-paper: oklch(98.6% 0.004 85);
+  --color-paper-2: oklch(95.8% 0.006 85);
+  --color-paper-3: oklch(92.5% 0.008 85);
+  --color-ink: oklch(21% 0.02 268);
+  --color-ink-2: oklch(36% 0.02 266);
+  --color-muted: oklch(46% 0.016 264);
+  --color-rule: oklch(88% 0.008 85);
+  --color-veil: oklch(21% 0.02 268);
+  --color-accent: oklch(48% 0.17 274);
+  --color-accent-ink: oklch(99% 0.003 85);
+  --color-accent-hi: oklch(42% 0.17 274);
+  --color-accent-deep: oklch(43% 0.16 274);
+  --color-focus: oklch(48% 0.17 274);
+  --color-error: oklch(52% 0.19 27);
+  --color-success: oklch(46% 0.12 150);
+  --color-well: oklch(100% 0 0);
+  --color-well-2: oklch(96% 0.006 85);
+  --color-well-ink: oklch(21% 0.016 268);
+  --color-well-muted: oklch(45% 0.016 265);
+  --color-well-rule: oklch(89% 0.008 85);
+  --color-card: oklch(100% 0 0);
+  --shadow-card: 0 1px 2px oklch(20% 0.02 268 / 0.08), 0 24px 48px -24px oklch(20% 0.03 268 / 0.22);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --color-paper: oklch(98.6% 0.004 85);
+    --color-paper-2: oklch(95.8% 0.006 85);
+    --color-paper-3: oklch(92.5% 0.008 85);
+    --color-ink: oklch(21% 0.02 268);
+    --color-ink-2: oklch(36% 0.02 266);
+    --color-muted: oklch(46% 0.016 264);
+    --color-rule: oklch(88% 0.008 85);
+    --color-veil: oklch(21% 0.02 268);
+    --color-accent: oklch(48% 0.17 274);
+    --color-accent-ink: oklch(99% 0.003 85);
+    --color-accent-hi: oklch(42% 0.17 274);
+    --color-accent-deep: oklch(43% 0.16 274);
+    --color-focus: oklch(48% 0.17 274);
+    --color-error: oklch(52% 0.19 27);
+    --color-success: oklch(46% 0.12 150);
+    --color-well: oklch(100% 0 0);
+    --color-well-2: oklch(96% 0.006 85);
+    --color-well-ink: oklch(21% 0.016 268);
+    --color-well-muted: oklch(45% 0.016 265);
+    --color-well-rule: oklch(89% 0.008 85);
+    --color-card: oklch(100% 0 0);
+    --shadow-card:
+      0 1px 2px oklch(20% 0.02 268 / 0.08), 0 24px 48px -24px oklch(20% 0.03 268 / 0.22);
+  }
 }

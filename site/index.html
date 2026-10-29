@@ -1,96 +1,127 @@
 <!doctype html>
-<html lang="vi">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <title>Sheetstamp: tạo file hàng loạt từ Excel</title>
-    <meta
-      name="description"
-      content="Điền mẫu Word hoặc ảnh bằng dữ liệu Excel/CSV, xuất hàng trăm file trong một file ZIP. Chạy hoàn toàn trên máy bạn."
-    />
+    <title>Sheetstamp: fill Word & image templates from Excel in bulk</title>
+    <meta name="description" content="Fill Word and image templates with Excel or CSV data and export hundreds of files in one ZIP. Runs fully offline on Windows and Ubuntu." />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#14151c" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)" />
+    <link rel="canonical" href="https://nhhthong.github.io/sheetstamp/" />
+    <link rel="alternate" hreflang="en" href="https://nhhthong.github.io/sheetstamp/" />
+    <link rel="alternate" hreflang="vi" href="https://nhhthong.github.io/sheetstamp/vi/" />
+    <link rel="alternate" hreflang="x-default" href="https://nhhthong.github.io/sheetstamp/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sheetstamp" />
+    <meta property="og:title" content="Sheetstamp: fill Word & image templates from Excel in bulk" />
+    <meta property="og:description" content="Fill Word and image templates with Excel or CSV data and export hundreds of files in one ZIP. Runs fully offline on Windows and Ubuntu." />
+    <meta property="og:url" content="https://nhhthong.github.io/sheetstamp/" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="vi_VN" />
+    <meta property="og:image" content="https://nhhthong.github.io/sheetstamp/assets/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Sheetstamp turns an Excel or CSV file into hundreds of filled Word and image documents" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sheetstamp: fill Word & image templates from Excel in bulk" />
+    <meta name="twitter:description" content="Fill Word and image templates with Excel or CSV data and export hundreds of files in one ZIP. Runs fully offline on Windows and Ubuntu." />
+    <meta name="twitter:image" content="https://nhhthong.github.io/sheetstamp/assets/og.png" />
     <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <script>
+      // Apply the saved theme before the first paint (no flash). Without a saved choice the system setting applies.
+      try {
+        var t = localStorage.getItem("theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
     <link rel="stylesheet" href="assets/devices-surface-book.css" />
     <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Sheetstamp",
+        "url": "https://nhhthong.github.io/sheetstamp/",
+        "description": "Fill Word and image templates with Excel or CSV data and export hundreds of files in one ZIP. Runs fully offline on Windows and Ubuntu.",
+        "inLanguage": "en",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Windows 10, Windows 11, Ubuntu 22.04, Ubuntu 24.04",
+        "license": "https://github.com/nhhthong/sheetstamp/blob/main/LICENSE",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
   </head>
   <body>
     <header class="bar">
       <div class="wrap">
         <a class="brand" href="#top"><img src="assets/icon.png" alt="" width="30" height="30" />Sheetstamp</a>
-        <nav aria-label="Điều hướng trang">
-          <a href="#cach-hoat-dong">Cách hoạt động</a>
-          <a href="#rieng-tu">Riêng tư</a>
+        <nav aria-label="Page navigation">
+          <a href="#how">How it works</a>
+          <a href="#privacy">Privacy</a>
           <a href="https://github.com/nhhthong/sheetstamp">GitHub</a>
-          <a class="pill sm keep" href="#cai-dat">Tải về</a>
         </nav>
+        <div class="tools">
+          <a class="lang" href="vi/" hreflang="vi" lang="vi" aria-label="Tiếng Việt">VI</a>
+          <button class="theme" type="button" data-theme-toggle aria-label="Switch to the light theme" data-to-light="Switch to the light theme" data-to-dark="Switch to the dark theme">
+            <svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            <svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          </button>
+          <a class="pill sm keep" href="#install">Download</a>
+        </div>
       </div>
     </header>
 
     <main id="top">
-      <section class="hero" data-scroll>
-        <div class="hero-stick">
+      <section class="hero">
+        <div class="grid-bg" aria-hidden="true"><div class="cells"></div></div>
         <div class="wrap">
           <div class="head2">
-            <h1>Điền mẫu, xuất hàng trăm file.</h1>
+            <h1>Fill templates. Export hundreds of files.</h1>
             <div>
-              <p class="lead">Excel hoặc CSV vào mẫu Word và ảnh, xuất một file ZIP.</p>
+              <p class="lead">Excel or CSV into Word and image templates, one ZIP out.</p>
               <div class="actions">
-                <a class="pill" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-Setup-x64.exe">Tải cho Windows</a>
-                <a class="pill ghost" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">Tải cho Ubuntu</a>
+                <a class="pill" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-Setup-x64.exe">Download for Windows</a>
+                <a class="pill ghost" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">Download for Ubuntu</a>
               </div>
-              <p class="fine">
-                Sheetstamp đang được phát triển. Chưa có bản phát hành chính thức; các nút sẽ hoạt động khi bản đầu tiên ra mắt.
-              </p>
+              <p class="fine">Sheetstamp is in development. There is no public release yet; the buttons work once the first version ships.</p>
             </div>
           </div>
-          <div class="stage">
-            <div class="dev" data-fit>
-              <div class="device device-surface-book">
-                <div class="device-frame">
-                  <video
-                    class="device-screen"
-                    src="assets/demo.mp4"
-                    poster="assets/demo-poster.jpg"
-                    width="540"
-                    height="360"
-                    muted
-                    loop
-                    playsinline
-                    controls
-                    preload="metadata"
-                    data-autoplay
-                    aria-label="Video demo: từ file Excel đến một file ZIP chứa các thiệp sinh nhật đã điền tên, trong bốn bước."
-                  >
-                  </video>
-                </div>
-                <div class="device-btns"></div>
-                <div class="device-power"></div>
-                <div class="deck" aria-hidden="true"></div>
-              </div>
-            </div>
+          <div class="hero-video">
+            <video
+              src="assets/demo.mp4"
+              poster="assets/demo-poster.jpg"
+              width="1260"
+              height="840"
+              autoplay
+              muted
+              loop
+              playsinline
+              controls
+              preload="auto"
+              data-autoplay
+              aria-label="Demo video: from an Excel file to one ZIP of filled birthday cards, in four steps."
+            ></video>
           </div>
-        </div>
         </div>
       </section>
 
-      <section class="sec band tour" id="cach-hoat-dong">
-        <input type="radio" name="tour" id="t1" checked aria-label="Chọn dữ liệu và mẫu" />
-        <input type="radio" name="tour" id="t2" aria-label="Ghép cột" />
-        <input type="radio" name="tour" id="t3" aria-label="Soạn mẫu ảnh" />
+      <section class="sec band tour" id="how">
+        <input type="radio" name="tour" id="t1" checked aria-label="Data and template" />
+        <input type="radio" name="tour" id="t2" aria-label="Match columns and export" />
+        <input type="radio" name="tour" id="t3" aria-label="Image templates" />
         <div class="wrap">
-          <div>
-            <h2>Làm theo từng bước, mỗi lần một việc</h2>
-            <div class="list">
-              <label class="item" for="t1"><div><b>Dữ liệu và mẫu</b><span>Chọn file Excel hoặc CSV, rồi mẫu Word hoặc ảnh trong thư viện.</span></div></label>
-              <label class="item" for="t2"><div><b>Ghép cột và xuất file</b><span>Chỉ sửa những trường chưa khớp; xem trước từng dòng. Đặt tên file, chọn thư mục, nhận một file ZIP.</span></div></label>
-              <label class="item" for="t3"><div><b>Mẫu ảnh</b><span>Đặt khung chữ lên ảnh nền, chọn font đã cài trên máy, xem trước đúng như khi xuất.</span></div></label>
-            </div>
+          <h2>Four steps, one thing at a time</h2>
+          <div class="steps-tabs">
+            <label class="item" for="t1"><b>Data and template</b><span>Pick an Excel or CSV file, then a Word or image template.</span></label>
+            <label class="item" for="t2"><b>Match columns and export</b><span>Fix only the fields that did not match, preview every row, get one ZIP.</span></label>
+            <label class="item" for="t3"><b>Image templates</b><span>Place text on a background, pick an installed font, preview as exported.</span></label>
           </div>
-          <div>
+          <div class="panes">
             <div class="pane" id="p1">
               <div class="dev" data-fit>
                 <div class="device device-surface-book">
-                  <div class="device-frame"><img class="device-screen" src="assets/app-chon-mau.png" width="540" height="360" alt="Bước Mẫu: ô tìm kiếm, nhóm mẫu và danh sách mẫu, mỗi mẫu ghi số trường khớp với cột dữ liệu." loading="lazy" /></div>
+                  <div class="device-frame"><img class="device-screen" src="assets/app-chon-mau.png" width="540" height="360" alt="Template step: a search box, template groups and a list of templates, each showing how many fields match the data columns." loading="lazy" /></div>
                   <div class="device-btns"></div>
                   <div class="device-power"></div>
                 </div>
@@ -99,7 +130,7 @@
             <div class="pane" id="p2">
               <div class="dev" data-fit>
                 <div class="device device-surface-book">
-                  <div class="device-frame"><img class="device-screen" src="assets/app-ghep-cot.png" width="540" height="360" alt="Bước Ghép cột: tất cả 3 trường đã ghép, xem trước thiệp sinh nhật theo từng dòng." loading="lazy" /></div>
+                  <div class="device-frame"><img class="device-screen" src="assets/app-ghep-cot.png" width="540" height="360" alt="Match step: all 5 fields matched, with a row-by-row preview of the birthday card." loading="lazy" /></div>
                   <div class="device-btns"></div>
                   <div class="device-power"></div>
                 </div>
@@ -108,7 +139,7 @@
             <div class="pane" id="p3">
               <div class="dev" data-fit>
                 <div class="device device-surface-book">
-                  <div class="device-frame"><img class="device-screen" src="assets/app-soan-anh.png" width="540" height="360" alt="Trình soạn mẫu ảnh: các khung chữ trên thiệp sinh nhật và bảng thuộc tính của khung đang chọn." loading="lazy" /></div>
+                  <div class="device-frame"><img class="device-screen" src="assets/app-soan-anh.png" width="540" height="360" alt="Image template editor: text boxes on the card and the properties of the selected box." loading="lazy" /></div>
                   <div class="device-btns"></div>
                   <div class="device-power"></div>
                 </div>
@@ -118,115 +149,103 @@
         </div>
       </section>
 
-      <section class="sec" id="cai-dat">
+      <section class="sec" id="install">
         <div class="wrap">
           <div class="head">
-            <h2>Cài đặt</h2>
-            <p class="sub">Chọn hệ điều hành. Cài trong vài phút, không cần tài khoản.</p>
+            <h2>Install</h2>
+            <p class="sub">Pick your system. A few minutes, no account.</p>
           </div>
           <div class="pick">
             <input type="radio" name="os" id="os-win" checked aria-label="Windows" />
             <input type="radio" name="os" id="os-ubuntu" aria-label="Ubuntu" />
             <input type="radio" name="os" id="os-mac" aria-label="macOS" />
             <div class="os" role="presentation">
-              <label for="os-win"><div>Windows<small>10 và 11, 64-bit</small></div></label>
-              <label for="os-ubuntu"><div>Ubuntu<small>22.04 và 24.04, 64-bit</small></div></label>
-              <label for="os-mac"><div>macOS<small>Sắp có</small></div></label>
+              <label for="os-win"><div>Windows<small>10 and 11, 64-bit</small></div></label>
+              <label for="os-ubuntu"><div>Ubuntu<small>22.04 and 24.04, 64-bit</small></div></label>
+              <label for="os-mac"><div>macOS<small>Coming soon</small></div></label>
             </div>
 
             <div>
               <article class="panel" id="windows">
                 <h3>Windows 10/11 (64-bit)</h3>
-                <p class="req">Cài cho riêng bạn, không cần quyền quản trị.</p>
+                <p class="req">Per-user install, no administrator rights.</p>
                 <div class="get">
-                  <a class="pill" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-Setup-x64.exe">Tải Sheetstamp-Setup-x64.exe</a>
+                  <a class="pill" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-Setup-x64.exe">Download Sheetstamp-Setup-x64.exe</a>
                 </div>
                 <ol class="steps">
-                  <li>Tải <code>Sheetstamp-Setup-x64.exe</code> bằng nút ở trên.</li>
-                  <li>Bấm đúp vào file. Không cần quyền quản trị.</li>
-                  <li>
-                    Nếu Windows hiện “Windows đã bảo vệ PC của bạn”: bấm <strong>Thông tin thêm</strong>, rồi <strong>Vẫn chạy</strong>.
-                  </li>
+                  <li>Download <code>Sheetstamp-Setup-x64.exe</code> with the button above.</li>
+                  <li>Double-click the file. No administrator rights needed.</li>
+                  <li>If Windows shows “Windows protected your PC”: click <strong>More info</strong>, then <strong>Run anyway</strong>.</li>
                 </ol>
                 <details>
-                  <summary>Kiểm tra file đã tải</summary>
-                  <p>
-                    Mở PowerShell tại thư mục tải về và chạy lệnh dưới, rồi so với dòng tương ứng trong
-                    <a href="https://github.com/nhhthong/sheetstamp/releases/latest/download/SHA256SUMS.txt">SHA256SUMS.txt</a>.
-                  </p>
-                  <div class="cmd"><pre>Get-FileHash .\Sheetstamp-Setup-x64.exe -Algorithm SHA256</pre><button type="button" data-copy>Chép</button></div>
+                  <summary>Verify the download</summary>
+                  <p>Open PowerShell in the download folder, run the command, and compare it with the matching line in <a href="https://github.com/nhhthong/sheetstamp/releases/latest/download/SHA256SUMS.txt">SHA256SUMS.txt</a>.</p>
+                  <div class="cmd"><pre>Get-FileHash .\Sheetstamp-Setup-x64.exe -Algorithm SHA256</pre><button type="button" data-copy data-done="Copied">Copy</button></div>
                 </details>
               </article>
 
               <article class="panel" id="ubuntu">
                 <h3>Ubuntu 22.04 / 24.04 (64-bit)</h3>
-                <p class="req">Gói <code>.deb</code> là cách cài chính.</p>
+                <p class="req">The <code>.deb</code> package is the main way to install.</p>
                 <div class="get">
-                  <a class="pill" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">Tải Sheetstamp-x64.deb</a>
+                  <a class="pill" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">Download Sheetstamp-x64.deb</a>
                   <a class="pill ghost" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.AppImage">AppImage</a>
                 </div>
                 <ol class="steps">
                   <li>
-                    Mở terminal trong thư mục tải về và chạy:
-                    <div class="cmd"><pre>sudo apt install ./Sheetstamp-x64.deb</pre><button type="button" data-copy>Chép</button></div>
+                    Open a terminal in the download folder and run:
+                    <div class="cmd"><pre>sudo apt install ./Sheetstamp-x64.deb</pre><button type="button" data-copy data-done="Copied">Copy</button></div>
                   </li>
-                  <li>Mở Sheetstamp từ menu ứng dụng.</li>
-                  <li>
-                    Dùng bản AppImage trên Ubuntu 24.04 thì cần cài thêm <code>libfuse2t64</code>
-                    (<code>sudo apt install libfuse2t64</code>). Bản <code>.deb</code> không gặp vấn đề này.
-                  </li>
+                  <li>Open Sheetstamp from the application menu.</li>
+                  <li>The AppImage on Ubuntu 24.04 also needs <code>libfuse2t64</code> (<code>sudo apt install libfuse2t64</code>). The <code>.deb</code> does not.</li>
                 </ol>
                 <details>
-                  <summary>Kiểm tra file đã tải</summary>
-                  <p>
-                    Chạy lệnh dưới trong thư mục tải về, rồi so với dòng tương ứng trong
-                    <a href="https://github.com/nhhthong/sheetstamp/releases/latest/download/SHA256SUMS.txt">SHA256SUMS.txt</a>.
-                  </p>
-                  <div class="cmd"><pre>sha256sum Sheetstamp-x64.deb</pre><button type="button" data-copy>Chép</button></div>
+                  <summary>Verify the download</summary>
+                  <p>Run the command in the download folder and compare it with the matching line in <a href="https://github.com/nhhthong/sheetstamp/releases/latest/download/SHA256SUMS.txt">SHA256SUMS.txt</a>.</p>
+                  <div class="cmd"><pre>sha256sum Sheetstamp-x64.deb</pre><button type="button" data-copy data-done="Copied">Copy</button></div>
                 </details>
               </article>
 
               <article class="panel" id="macos">
-                <h3>macOS: sắp có</h3>
-                <p class="req">Chưa có bản công khai. Bản macOS sẽ được phát hành khi có thể ký và công chứng với Apple.</p>
+                <h3>macOS: coming soon</h3>
+                <p class="req">No public build yet. macOS will ship once it can be signed and notarized with Apple.</p>
               </article>
-              <p class="note">
-                Phiên bản Electron đi kèm được hỗ trợ bảo mật đến 27/04/2027; hãy cập nhật Sheetstamp trước thời điểm đó.
-              </p>
+              <p class="note">The bundled Electron is security-supported until 27 April 2027; update Sheetstamp before then.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="sec band" id="rieng-tu">
+      <section class="sec band" id="privacy">
         <div class="wrap">
           <div class="head">
-            <h2>Chạy hoàn toàn trên máy của bạn</h2>
-            <p class="sub">Không tải dữ liệu lên mạng, không cần tài khoản.</p>
+            <h2>Runs entirely on your computer</h2>
+            <p class="sub">Your data never leaves it. No account needed.</p>
           </div>
           <div class="trio">
             <div>
-              <h3>Ngoại tuyến</h3>
-              <p>Sheetstamp chạy ngoại tuyến, không gửi dữ liệu đi đâu.</p>
+              <h3>Offline</h3>
+              <p>Sheetstamp runs offline and sends your data nowhere.</p>
             </div>
             <div>
-              <h3>Không thống kê</h3>
-              <p>Không thu thập thống kê, không cần đăng nhập.</p>
+              <h3>No tracking</h3>
+              <p>No statistics are collected and no sign-in is needed.</p>
             </div>
             <div>
-              <h3>Không tự cập nhật</h3>
-              <p>Nút “Kiểm tra bản mới” chỉ mở trang này trong trình duyệt.</p>
+              <h3>No auto-update</h3>
+              <p>“Check for updates” only opens this page in your browser.</p>
             </div>
           </div>
         </div>
       </section>
-      <section class="sec band close">
+
+      <section class="sec close">
         <div class="wrap">
-          <h2>Tải Sheetstamp</h2>
+          <h2>Download Sheetstamp</h2>
           <div class="actions">
-            <a class="pill" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-Setup-x64.exe">Tải cho Windows</a>
-            <a class="pill ghost" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">Tải cho Ubuntu</a>
-            <a class="pill ghost" href="#macos" data-os="os-mac">macOS: sắp có</a>
+            <a class="pill" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-Setup-x64.exe">Download for Windows</a>
+            <a class="pill ghost" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">Download for Ubuntu</a>
+            <a class="pill ghost" href="#macos" data-os="os-mac">macOS: coming soon</a>
           </div>
         </div>
       </section>
@@ -235,21 +254,15 @@
     <footer>
       <div class="wrap">
         <a class="brand" href="#top"><img src="assets/icon.png" alt="" width="30" height="30" />Sheetstamp</a>
-        <span>
-          Giấy phép <a href="https://github.com/nhhthong/sheetstamp/blob/main/LICENSE">MIT</a>.
-          Giấy phép các thành phần bên thứ ba:
-          <a href="https://github.com/nhhthong/sheetstamp/blob/main/THIRD-PARTY-NOTICES.md">THIRD-PARTY-NOTICES.md</a>.
-          Font Wix Madefor, <a href="assets/fonts/OFL.txt">SIL OFL 1.1</a>.
-        </span>
-        <nav aria-label="Liên kết">
+        <span>Licensed under <a href="https://github.com/nhhthong/sheetstamp/blob/main/LICENSE">MIT</a>. Third-party licenses: <a href="https://github.com/nhhthong/sheetstamp/blob/main/THIRD-PARTY-NOTICES.md">THIRD-PARTY-NOTICES.md</a>. Font Wix Madefor, <a href="assets/fonts/OFL.txt">SIL OFL 1.1</a>.</span>
+        <nav aria-label="Links">
           <a href="https://github.com/nhhthong/sheetstamp/releases/latest/download/SHA256SUMS.txt">SHA256SUMS.txt</a>
-          <a href="https://github.com/nhhthong/sheetstamp">Mã nguồn</a>
+          <a href="https://github.com/nhhthong/sheetstamp">Source code</a>
         </nav>
       </div>
     </footer>
 
     <script>
-      // Pick the tab that fits the visitor's system; the radios already work without this.
       (function () {
         var ua = navigator.userAgent || "";
         var id = /Linux|X11/.test(ua) && !/Android/.test(ua) ? "os-ubuntu" : /Macintosh|Mac OS/.test(ua) ? "os-mac" : "os-win";
@@ -262,24 +275,35 @@
           });
         });
         document.querySelectorAll("[data-copy]").forEach(function (b) {
+          var label = b.textContent;
           b.addEventListener("click", function () {
-            var text = b.previousElementSibling.textContent;
             if (!navigator.clipboard) return;
-            navigator.clipboard.writeText(text).then(function () {
-              b.textContent = "Đã chép";
-              setTimeout(function () { b.textContent = "Chép"; }, 1600);
+            navigator.clipboard.writeText(b.previousElementSibling.textContent).then(function () {
+              b.textContent = b.getAttribute("data-done");
+              setTimeout(function () { b.textContent = label; }, 1600);
             });
           });
         });
-      })();
-    </script>
-    <script>
-      // Scale each device frame to its column, open the laptop as the page scrolls, and play the demo when it is open.
-      (function () {
+
+        // Theme: dark or light, saved in this browser; the system setting applies until the visitor chooses.
+        var root = document.documentElement;
+        var dark = window.matchMedia("(prefers-color-scheme: dark)");
+        var toggle = document.querySelector("[data-theme-toggle]");
+        var labels = { toLight: toggle.getAttribute("data-to-light"), toDark: toggle.getAttribute("data-to-dark") };
+        function current() { return root.dataset.theme || (dark.matches ? "dark" : "light"); }
+        function paint() { toggle.setAttribute("aria-label", current() === "dark" ? labels.toLight : labels.toDark); }
+        toggle.addEventListener("click", function () {
+          var next = current() === "dark" ? "light" : "dark";
+          root.dataset.theme = next;
+          try { localStorage.setItem("theme", next); } catch (e) {}
+          paint();
+        });
+        dark.addEventListener && dark.addEventListener("change", paint);
+        paint();
+
+        // Scale each device frame to its column.
         var NATURAL = 728;
         var phone = window.matchMedia("(max-width: 40em)");
-        var wide = window.matchMedia("(min-width: 48em)");
-        var still = window.matchMedia("(prefers-reduced-motion: reduce)");
         function fit(box) {
           var inner = box.firstElementChild;
           if (phone.matches) { inner.style.transform = ""; box.style.height = ""; return; }
@@ -293,51 +317,33 @@
         if (window.ResizeObserver) boxes.forEach(function (b) { new ResizeObserver(function () { fit(b); }).observe(b); });
         window.addEventListener("resize", all);
 
-        var hero = document.querySelector(".hero[data-scroll]");
+        // A sheet of cells behind the hero: a few of them light up one after another, like data being filled in.
+        var cells = document.querySelector(".cells");
+        if (cells && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          var SIZE = 48;
+          var box = cells.parentElement;
+          var cols = Math.ceil(box.clientWidth / SIZE);
+          var rows = Math.min(Math.ceil(box.clientHeight / SIZE), 10);
+          for (var i = 0; i < Math.min(18, cols * rows / 8); i++) {
+            var c = document.createElement("i");
+            c.style.left = Math.floor(Math.random() * cols) * SIZE + "px";
+            c.style.top = Math.floor(Math.random() * rows) * SIZE + "px";
+            c.style.animationDelay = (Math.random() * -9).toFixed(2) + "s";
+            c.style.animationDuration = (5 + Math.random() * 5).toFixed(2) + "s";
+            cells.appendChild(c);
+          }
+        }
+
+        // The demo plays by itself while it is on screen, unless the visitor asked for less motion.
         var v = document.querySelector("video[data-autoplay]");
-        var queued = false;
-        var playing = false;
-        function ease(p) { p = Math.max(0, Math.min(1, p)); return p * p * (3 - 2 * p); }
-        function setPlaying(on) {
-          if (!v || on === playing) return;
-          playing = on;
-          if (on) v.play().catch(function () {}); else v.pause();
-        }
-        function update() {
-          queued = false;
-          if (!hero.classList.contains("is-scroll")) return;
-          var top = hero.getBoundingClientRect().top;
-          var total = hero.offsetHeight - (window.innerHeight - 68);
-          var p = Math.max(0, Math.min(1, (68 - top) / total));
-          var t = ease(p / 0.3);
-          var o = ease((p - 0.04) / 0.5);
-          hero.style.setProperty("--t", t.toFixed(3));
-          hero.style.setProperty("--o", o.toFixed(3));
-          setPlaying(o > 0.85);
-        }
-        function request() { if (!queued) { queued = true; requestAnimationFrame(update); } }
-        function mode() {
-          var on = hero && wide.matches && !still.matches;
-          if (!hero) return;
-          hero.classList.toggle("is-scroll", on);
-          if (!on) { hero.style.removeProperty("--t"); hero.style.removeProperty("--o"); }
-          all();
-          if (on) update();
-        }
-        if (hero) {
-          window.addEventListener("scroll", request, { passive: true });
-          window.addEventListener("resize", function () { mode(); });
-          mode();
-        }
-        // Outside the scroll scene the demo plays while it is on screen, unless motion is reduced.
-        if (v && "IntersectionObserver" in window) {
-          new IntersectionObserver(function (entries) {
-            entries.forEach(function (e) {
-              if (hero && hero.classList.contains("is-scroll")) return;
-              if (still.matches) return;
-              setPlaying(e.isIntersecting);
-            });
-          }, { threshold: 0.4 }).observe(v);
+        var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+        if (v) {
+          if (still.matches) { v.removeAttribute("autoplay"); v.pause(); }
+          else if ("IntersectionObserver" in window) {
+            new IntersectionObserver(function (entries) {
+              entries.forEach(function (e) { if (e.isIntersecting) v.play().catch(function () {}); else v.pause(); });
+            }, { threshold: 0.25 }).observe(v);
+          }
         }
       })();
     </script>
