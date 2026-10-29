@@ -7,6 +7,7 @@ import type {
 } from "../../shared/ipc/mapping";
 import { matchFields } from "./match";
 import { normalize } from "./normalize";
+import { matchByPosition } from "./position";
 
 /** A saved column name that differs from a current one only by case, diacritics or punctuation still counts. */
 function findColumn(saved: string, columns: readonly string[]): string | undefined {
@@ -19,12 +20,14 @@ function findColumn(saved: string, columns: readonly string[]): string | undefin
  * Recompute a profile after the data's columns changed. Fixed texts and "empty" are kept, a column choice is
  * kept when the column still exists, and a field with no choice (or whose column is gone) is matched again
  * automatically. Fields that lost their column are listed so the user can be told. Fields no longer in the
- * template are dropped. The input profile is not changed.
+ * template are dropped. The input profile is not changed. `byPosition` (image templates) matches the n-th field to
+ * the n-th column instead of by name.
  */
 export function reconcile(
   profile: MappingProfile | null,
   fields: readonly MappingField[],
   columns: readonly string[],
+  { byPosition = false }: { byPosition?: boolean } = {},
 ): ReconcileResult {
   const kept: Record<string, FieldMapping> = {};
   const lostPrevious = new Map<string, string>();
@@ -54,8 +57,11 @@ export function reconcile(
   );
   const free = columns.filter((c) => !taken.has(c));
   const filled: ReconcileResult["filled"] = [];
-  for (const m of matchFields(open, free)) {
-    if (m.column === null) continue;
+  const matches = byPosition
+    ? matchByPosition(fields, columns).filter((m) => open.some((f) => f.key === m.field))
+    : matchFields(open, free);
+  for (const m of matches) {
+    if (m.column === null || taken.has(m.column)) continue;
     kept[m.field] = { kind: "column", column: m.column };
     filled.push(m);
   }

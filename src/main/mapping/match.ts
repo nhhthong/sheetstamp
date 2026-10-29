@@ -21,7 +21,7 @@ const DEFAULT_MARGIN = 0.05;
 const MIN_FUZZY_LENGTH = 5;
 /** Compact forms (spaces removed) must have nearly the same length, so "ho" never fuzzy-matches "hoten". */
 const MIN_LENGTH_RATIO = 0.85;
-const RANK: Record<MatchRule, number> = { exact: 0, fuzzy: 1 };
+const RANK: Record<MatchRule, number> = { exact: 0, fuzzy: 1, position: 2 };
 
 /**
  * Fuse scores a pattern against a text loosely (a pattern found inside a longer text, or with a few

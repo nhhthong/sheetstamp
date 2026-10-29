@@ -31,7 +31,7 @@ function writeCsv(path: string, rows: string[][]) {
   );
 }
 
-// "Vùng miền" is the oddly named column: no rule links it to the field "Nơi sinh".
+// Image fields take the columns by position: the file has three columns, so the fourth field has none.
 const ROWS = [
   ["Họ tên", "CCCD", "Vùng miền"],
   ["Nguyễn Văn An", "012345678901", "Hà Nam"],
@@ -59,6 +59,7 @@ const FIELDS = [
   { name: "ho_ten", label: "Họ và tên" },
   { name: "cccd", label: "CCCD" },
   { name: "noi_sinh", label: "Nơi sinh" },
+  { name: "ghi_chu", label: "Ghi chú" },
 ];
 
 let work: string;
@@ -86,6 +87,7 @@ test.beforeAll(async () => {
     box("a", "ho_ten", 10),
     box("b", "cccd", 50),
     box("c", "noi_sinh", 90),
+    box("d", "ghi_chu", 130),
   ]);
   await image("Giấy trống", []);
   await image(
@@ -143,7 +145,7 @@ test("an image template is listed with its icon and fit, mapped, and the real im
 
   const item = row(page, "Giấy khen");
   await expect(item.getByTestId("template-icon-image")).toBeVisible();
-  await expect(item.getByTestId("template-hint")).toContainText("Khớp 2/3 trường");
+  await expect(item.getByTestId("template-hint")).toContainText("Khớp 3/4 trường");
   await item.click();
   await next(page).click();
   await expect(step(page, "mapping")).toHaveAttribute("data-status", "active");
@@ -151,17 +153,18 @@ test("an image template is listed with its icon and fit, mapped, and the real im
   await expect(page.getByTestId("mapping-heading")).toHaveText("1 trường cần bạn chọn cột.");
   await expect(next(page)).toBeDisabled();
   await expect(shown(page)).toBeVisible();
-  await expect(page.getByTestId("image-unmapped")).toContainText("Nơi sinh");
+  await expect(page.getByTestId("image-unmapped")).toContainText("Ghi chú");
   const first = await srcOf(page);
 
-  // Fix the odd field: the image is drawn again, the note goes.
+  // Settle the field that has no column with fixed text: the image is drawn again, the note goes.
   await page
     .getByTestId("mapping-row")
     .first()
     .getByRole("combobox")
-    .selectOption({ label: "Vùng miền" });
+    .selectOption({ label: "Nhập chữ cố định" });
+  await page.getByLabel("Chữ cố định cho trường Ghi chú").fill("Đạt");
   await expect(page.getByTestId("image-unmapped")).toHaveCount(0);
-  await expect(page.getByTestId("mapping-heading")).toHaveText("Tất cả 3 trường đã ghép.");
+  await expect(page.getByTestId("mapping-heading")).toHaveText("Tất cả 4 trường đã ghép.");
   await expect.poll(() => srcOf(page)).not.toBe(first);
   await expect(next(page)).toBeEnabled();
 
@@ -175,7 +178,7 @@ test("an image template is listed with its icon and fit, mapped, and the real im
 
   // "Để trống" counts as resolved and draws nothing for that field.
   const withText = await srcOf(page);
-  await page.getByRole("button", { name: "Xem 2 trường đã khớp" }).click();
+  await page.getByRole("button", { name: "Xem 3 trường đã khớp" }).click();
   await page.getByLabel("Cột cho trường CCCD").selectOption({ label: "Để trống" });
   await expect.poll(() => srcOf(page)).not.toBe(withText);
   await expect(next(page)).toBeEnabled();
@@ -187,7 +190,7 @@ test("the saved profile comes back when the image template is chosen again", asy
   const app = await launch();
   const page = await app.firstWindow();
   await toStepMapping(app, page, "Giấy khen");
-  await expect(page.getByTestId("mapping-heading")).toHaveText("Tất cả 3 trường đã ghép.");
+  await expect(page.getByTestId("mapping-heading")).toHaveText("Tất cả 4 trường đã ghép.");
   await expect(shown(page)).toBeVisible();
   await expect(next(page)).toBeEnabled();
   await app.close();

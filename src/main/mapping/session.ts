@@ -98,7 +98,9 @@ export async function openMapping(
   try {
     await storage.patchMapping(template.id, (mapping, current) => {
       const currentFields = current.tags.map((t) => ({ key: t.name, label: t.label }));
-      const reconciled = reconcile(toProfile(mapping), currentFields, table.columns);
+      const reconciled = reconcile(toProfile(mapping), currentFields, table.columns, {
+        byPosition: current.kind === "image",
+      });
       result = reconciled;
       entries = toRecord(reconciled.profile);
       return canonical(entries) !== canonical(toRecord(toProfile(mapping))) ? entries : null;

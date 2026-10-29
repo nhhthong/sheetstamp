@@ -13,8 +13,8 @@ import { ied } from "../../../strings/image-editor";
 import { BoxInspector, type InspectorChange } from "./BoxInspector";
 import { defaultFont } from "./default-font";
 import { EditorCanvas } from "./EditorCanvas";
-import { FieldPicker } from "./FieldPicker";
-import { dictionaryFields, type FieldOption, labelFor, newField, sampleText } from "./fields";
+import { FieldNameInput } from "./FieldNameInput";
+import { labelFor, newField, sampleText } from "./fields";
 import { missingFamilies } from "./inspector";
 import { newBox } from "./new-box";
 
@@ -49,6 +49,7 @@ export function ImageEditorPage({
   const [loadError, setLoadError] = useState("");
   const [boxes, setBoxes] = useState<LayoutBox[]>([]);
   const [labels, setLabels] = useState<Record<string, string>>({});
+  const [justAdded, setJustAdded] = useState<string | null>(null);
   const [fontFamily, setFontFamily] = useState("sans-serif");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
@@ -113,7 +114,9 @@ export function ImageEditorPage({
     setMessage(null);
   }, []);
 
-  const usedFields = [...new Set(boxes.map((b) => b.field))].sort().join("\n");
+  // In the order the fields were added: main pairs the n-th field with the n-th column.
+  const orderedFields = [...new Set(boxes.map((b) => b.field))];
+  const usedFields = orderedFields.join("\n");
   // The first data row's cells for the fields in use; main pairs columns with fields by the mapping rules.
   useEffect(() => {
     if (!loaded) return;
@@ -161,9 +164,13 @@ export function ImageEditorPage({
 
   function addBox() {
     if (!loaded || boxes.length >= MAX_BOXES) return;
+    // A new field named "Trường n"; the name is selected in the inspector, so typing replaces it.
     const used = new Set(boxes.map((b) => b.field));
-    const field =
-      (dictionaryFields.find((f) => !used.has(f.key)) ?? dictionaryFields[0])?.key ?? "ten";
+    let n = used.size + 1;
+    while (used.has(newField(`${ied.fieldNew} ${n}`, {})?.key ?? "")) n += 1;
+    const created = newField(`${ied.fieldNew} ${n}`, labels);
+    if (!created) return;
+    const field = created.key;
     counter.current += 1;
     const box = newBox(
       field,
@@ -171,10 +178,11 @@ export function ImageEditorPage({
       { imageWidth: loaded.bitmap.width, imageHeight: loaded.bitmap.height, fontFamily },
       `box-${Date.now().toString(36)}-${counter.current}`,
     );
-    const label = labels[field] ?? dictionaryFields.find((f) => f.key === field)?.label ?? field;
+    const label = created.label;
     setLabels((l) => ({ ...l, [field]: l[field] ?? label }));
     setBoxes([...boxes, box]);
     setSelectedId(box.id);
+    setJustAdded(box.id);
     setAnnouncement(ied.selected(label, box.x, box.y));
     setDirty(true);
     setMessage(null);
@@ -209,18 +217,17 @@ export function ImageEditorPage({
     }
   }
 
-  function chooseField(box: LayoutBox, key: string) {
-    setBoxes((all) => all.map((b) => (b.id === box.id ? { ...b, field: key } : b)));
-    setDirty(true);
-    setMessage(null);
-  }
-
-  /** A name no field has yet: the typed text becomes the label, its key is made from it (see `newField`). */
-  function createField(box: LayoutBox, typed: string): boolean {
+  /**
+   * The typed name becomes the box's field: a field of that name that already exists is reused, else a new one is
+   * made (see `newField`). A field left without a box disappears with its last box.
+   */
+  function nameField(box: LayoutBox, typed: string): boolean {
     const field = newField(typed, labels);
     if (!field) return false;
-    setLabels((l) => ({ ...l, [field.key]: field.label }));
-    chooseField(box, field.key);
+    setLabels((l) => ({ ...l, [field.key]: l[field.key] ?? field.label }));
+    setBoxes((all) => all.map((b) => (b.id === box.id ? { ...b, field: field.key } : b)));
+    setDirty(true);
+    setMessage(null);
     return true;
   }
 
@@ -245,12 +252,6 @@ export function ImageEditorPage({
     setSaving(false);
   }
 
-  const options: FieldOption[] = [
-    ...dictionaryFields,
-    ...Object.entries(labels)
-      .filter(([key]) => !dictionaryFields.some((f) => f.key === key))
-      .map(([key, label]) => ({ key, label })),
-  ];
   const fieldCount = new Set(boxes.map((b) => b.field)).size;
 
   return (
@@ -355,18 +356,20 @@ export function ImageEditorPage({
               </ul>
               {selected ? (
                 <div className="flex flex-col gap-3 rounded-dialog border border-line p-3">
-                  <Field label={ied.field}>
+                  <Field label={ied.fieldNumber(orderedFields.indexOf(selected.field) + 1)}>
                     {(props) => (
-                      <FieldPicker
+                      <FieldNameInput
                         {...props}
-                        value={selected.field}
-                        labelOf={labelOf}
-                        options={options}
-                        onPick={(key) => chooseField(selected, key)}
-                        onCreate={(typed) => createField(selected, typed)}
+                        key={selected.id}
+                        label={labelOf(selected.field)}
+                        autoFocus={selected.id === justAdded}
+                        onCommit={(typed) => nameField(selected, typed)}
                       />
                     )}
                   </Field>
+                  <p className="text-sm text-muted">
+                    {ied.fieldColumnHint(orderedFields.indexOf(selected.field) + 1)}
+                  </p>
                   <p className="text-sm text-muted">
                     {sampleText(selected.field, labels, sample.values)}
                   </p>

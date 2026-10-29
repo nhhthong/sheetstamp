@@ -112,14 +112,16 @@ describe("sampleRow", () => {
     numericColumns: [false, false, false],
   };
   const fields = [
-    { key: "ho_ten", label: "Họ và tên" },
     { key: "so_quyet_dinh", label: "Số quyết định" },
+    { key: "ho_ten", label: "Họ và tên" },
+    { key: "ghi_chu", label: "Ghi chú" },
+    { key: "them", label: "Thêm" },
   ];
 
-  it("gives the first row's cell for a field whose column matches, and nothing for the others", () => {
+  it("gives the first row's cell of the n-th column to the n-th field, and nothing past the last column", () => {
     expect(sampleRow(table, fields)).toEqual({
       hasData: true,
-      values: { ho_ten: "Nguyễn Văn An" },
+      values: { so_quyet_dinh: "Nguyễn Văn An", ho_ten: "Kế toán", ghi_chu: "x" },
     });
   });
 
