@@ -63,11 +63,6 @@ test("create, keep across restart, and delete a Word template", async () => {
   await expect(page.getByText("Chưa có mẫu tài liệu nào.")).toBeVisible();
   await shoot(page, "empty");
 
-  // The images tab is a notice for now.
-  await page.getByRole("button", { name: "Ảnh", exact: true }).click();
-  await expect(page.getByText(/Sắp có/)).toBeVisible();
-  await page.getByRole("button", { name: "Tài liệu", exact: true }).click();
-
   // New template dialog.
   await stubOpenDialog(app, file);
   await page.getByRole("button", { name: "Tạo mẫu đầu tiên" }).click();

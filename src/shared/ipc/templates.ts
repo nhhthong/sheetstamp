@@ -38,6 +38,11 @@ export type FoundTag = { key: string; raw: string; kind: "field" | "unsupported"
 
 export type ParsedFile = { fileName: string; tags: FoundTag[] };
 
+/** A background image that passed the checks. `large`: above 4 megapixels, accepted with a warning. */
+export type ParsedImage = { fileName: string; width: number; height: number; large: boolean };
+
+export type CreateImageRequest = { path: string; name: string; groupId: string; note: string };
+
 /** Failures the user can fix are returned, not thrown, so the dialog can show the message inline. */
 export type Outcome<T> = { ok: true; value: T } | { ok: false; message: string };
 
@@ -130,6 +135,26 @@ export const create: Channel<CreateRequest, Outcome<{ id: string }>> = channel(
     };
   },
 );
+export const chooseImage: Channel<undefined, string | null> = channel(
+  "templates:choose-image",
+  nothing,
+);
+export const parseImage: Channel<{ path: string }, Outcome<ParsedImage>> = channel(
+  "templates:parse-image",
+  parsePath,
+);
+export const createImage: Channel<CreateImageRequest, Outcome<{ id: string }>> = channel(
+  "templates:create-image",
+  (value) => {
+    const r = record(value);
+    return {
+      path: parsePath(r).path,
+      name: string(r.name, "name", { min: 1, max: 200 }),
+      groupId: string(r.groupId, "groupId", { min: 1, max: 200 }),
+      note: string(r.note, "note", { max: 2000 }),
+    };
+  },
+);
 export const groupsList: Channel<undefined, GroupInfo[]> = channel("groups:list", nothing);
 export const groupsCreate: Channel<{ name: string }, Outcome<GroupInfo>> = channel(
   "groups:create",
@@ -190,6 +215,9 @@ export const channels = [
   chooseFile,
   parseFile,
   create,
+  chooseImage,
+  parseImage,
+  createImage,
   groupsList,
   groupsCreate,
   replacePreview,

@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { FileText, ImageIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { TemplateSummary } from "../../../shared/ipc/templates";
 import * as ipc from "../../../shared/ipc/templates";
@@ -12,6 +12,7 @@ import { tpl } from "../../strings/templates";
 import { vi } from "../../strings/vi";
 import { EditTemplateDialog } from "./EditTemplateDialog";
 import { GroupsDialog } from "./GroupsDialog";
+import { NewImageTemplateDialog } from "./NewImageTemplateDialog";
 import { NewTemplateDialog } from "./NewTemplateDialog";
 import { StorageBanner, useStorageStatus } from "./StorageBanner";
 
@@ -23,7 +24,9 @@ const formatDate = (iso: string) => new Date(iso).toLocaleDateString("vi-VN");
 
 function hint(t: TemplateSummary): string {
   const used = t.lastUsedAt ? tpl.usedOn(formatDate(t.lastUsedAt)) : tpl.neverUsed;
-  const base = `${tpl.fieldsCount(t.tagCount)}, ${used}`;
+  const fields = `${tpl.fieldsCount(t.tagCount)}, ${used}`;
+  // Image rows also show the background file: it is the only thing besides the name that tells them apart.
+  const base = t.kind === "image" ? `${t.sourceFileName}, ${fields}` : fields;
   return t.note ? `${base}. ${t.note}` : base;
 }
 
@@ -52,6 +55,14 @@ export function TemplatesPage() {
     if (storage && !storage.error) void refresh();
   }, [refresh, storage]);
 
+  /**
+   * Seam for T-29: after an image template is saved the image editor opens for `templateId`. Until the editor
+   * exists the user stays on the list (the dialog has already shown "Đã lưu mẫu.").
+   */
+  function continueToImageEditor(_templateId: string) {
+    void refresh();
+  }
+
   async function remove(id: string) {
     try {
       await call(ipc.remove, { id });
@@ -63,7 +74,8 @@ export function TemplatesPage() {
     await refresh();
   }
 
-  const docs = (templates ?? []).filter((t) => t.kind === "word");
+  const rows = (templates ?? []).filter((t) => t.kind === (tab === "docs" ? "word" : "image"));
+  const Icon = tab === "docs" ? FileText : ImageIcon;
 
   return (
     <Page
@@ -74,7 +86,7 @@ export function TemplatesPage() {
           <Button variant="secondary" disabled={blocked} onClick={() => setGroupsOpen(true)}>
             {tpl.manageGroups}
           </Button>
-          <Button onClick={() => setDialogOpen(true)} disabled={tab === "images" || blocked}>
+          <Button onClick={() => setDialogOpen(true)} disabled={blocked}>
             {tpl.newTemplate}
           </Button>
         </div>
@@ -109,26 +121,27 @@ export function TemplatesPage() {
         ))}
       </div>
 
-      {blocked ? null : tab === "images" ? (
-        <Status kind="info">{tpl.imagesSoon}</Status>
-      ) : error ? (
+      {blocked ? null : error ? (
         <Status kind="danger">{tpl.loadError}</Status>
       ) : templates === null ? (
         <p className="text-muted">{vi.common.loading}</p>
-      ) : docs.length === 0 ? (
+      ) : rows.length === 0 ? (
         <div className="flex flex-col items-start gap-4 rounded-dialog border border-line p-6">
-          <p>{tpl.emptyDocs}</p>
+          <p>{tab === "docs" ? tpl.emptyDocs : tpl.emptyImages}</p>
           <Button onClick={() => setDialogOpen(true)}>{tpl.createFirst}</Button>
         </div>
       ) : (
-        <ul aria-label={tpl.list} className="m-0 flex list-none flex-col gap-2 p-0">
-          {docs.map((t) => (
+        <ul
+          aria-label={tab === "docs" ? tpl.list : tpl.listImages}
+          className="m-0 flex list-none flex-col gap-2 p-0"
+        >
+          {rows.map((t) => (
             <li
               key={t.id}
               data-testid="template-row"
               className="flex items-center gap-4 rounded-dialog border border-line px-4 py-3"
             >
-              <FileText aria-hidden="true" className="size-6 shrink-0 text-muted" />
+              <Icon aria-hidden="true" className="size-6 shrink-0 text-muted" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-bold">{t.name}</p>
                 <p className="truncate text-sm text-muted">{hint(t)}</p>
@@ -153,14 +166,16 @@ export function TemplatesPage() {
                 </div>
               ) : (
                 <div className="flex shrink-0 gap-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    aria-label={`${tpl.edit} ${t.name}`}
-                    onClick={() => setEditing(t.id)}
-                  >
-                    {tpl.edit}
-                  </Button>
+                  {t.kind === "word" ? (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      aria-label={`${tpl.edit} ${t.name}`}
+                      onClick={() => setEditing(t.id)}
+                    >
+                      {tpl.edit}
+                    </Button>
+                  ) : null}
                   <Button
                     variant="secondary"
                     size="sm"
@@ -177,9 +192,14 @@ export function TemplatesPage() {
       )}
 
       <NewTemplateDialog
-        open={dialogOpen}
+        open={dialogOpen && tab === "docs"}
         onOpenChange={setDialogOpen}
         onCreated={() => void refresh()}
+      />
+      <NewImageTemplateDialog
+        open={dialogOpen && tab === "images"}
+        onOpenChange={setDialogOpen}
+        onCreated={continueToImageEditor}
       />
       <EditTemplateDialog
         open={editing !== null}
