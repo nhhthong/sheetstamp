@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fieldKeyOf } from "../../../../shared/image-layout/field-key";
 import { ied } from "../../../strings/image-editor";
 
@@ -23,6 +23,14 @@ export function FieldNameInput({
   "aria-invalid"?: boolean;
 }) {
   const [draft, setDraft] = useState<string | null>(null);
+  const input = useRef<HTMLInputElement>(null);
+
+  // Focus without scrolling: on a short window the page must stay where it is, or the canvas moves under the pointer.
+  useEffect(() => {
+    if (!autoFocus) return;
+    input.current?.focus({ preventScroll: true });
+    input.current?.select();
+  }, [autoFocus]);
   const invalid = draft !== null && draft.trim() !== "" && fieldKeyOf(draft.trim()) === "";
 
   function commit() {
@@ -35,11 +43,11 @@ export function FieldNameInput({
     <div>
       <input
         {...aria}
+        ref={input}
         id={id}
         type="text"
         autoComplete="off"
         spellCheck={false}
-        autoFocus={autoFocus}
         placeholder={ied.fieldHint}
         value={draft ?? label}
         aria-invalid={invalid || aria["aria-invalid"]}
