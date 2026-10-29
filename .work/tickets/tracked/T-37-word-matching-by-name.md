@@ -7,7 +7,7 @@
 **Status:** in-review
 **Tracker:** #21
 **New infrastructure:** none
-**Files:** src/main/mapping/dictionary.ts, src/main/mapping/match.ts, src/main/mapping/index.ts, src/main/mapping/mapping.test.ts, src/main/templates/library.ts, src/main/templates/image-editor.ts, src/main/template-engine/easy-template-x-engine.test.ts, README.md
+**Files:** src/main/mapping/dictionary.ts, src/main/mapping/match.ts, src/main/mapping/index.ts, src/main/mapping/label.ts, src/main/mapping/mapping.test.ts, src/main/templates/image-editor.test.ts, src/shared/ipc/mapping.ts, tests/fixtures/mapping, tests/e2e/templates.spec.ts, src/main/template-engine/easy-template-x-engine.test.ts, README.md
 **Proof:** `npm test` passes; a Word template with a tag `{{ho_ten}}` and a column "Họ tên" is matched by name, and a column "SĐT" is no longer matched to `{{so_dien_thoai}}` (it shows as unmatched).
 **Step:** close
 **Base:** d4eceac2eb745c4598ab038520ff08af7e8064c5

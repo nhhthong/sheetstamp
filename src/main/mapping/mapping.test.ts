@@ -1,5 +1,3 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import cases from "../../../tests/fixtures/mapping/cases.json";
 import { buildCases, type FixtureCase } from "../../../tests/fixtures/mapping/make-fixtures";
@@ -70,6 +68,9 @@ describe("matchFields", () => {
   it("gives a column to one field only", () => {
     const got = matchFields([{ key: "ho_ten" }, { key: "ho_ten_2", label: "Ho ten" }], ["Ho ten"]);
     expect(got.filter((m) => m.column !== null)).toHaveLength(1);
+    // The first field in template order wins the column.
+    expect(got[0]).toMatchObject({ field: "ho_ten", column: "Ho ten" });
+    expect(got[1]).toEqual({ field: "ho_ten_2", column: null });
   });
 
   it("refuses a fuzzy choice when two columns fit equally well", () => {
