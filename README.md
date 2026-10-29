@@ -6,9 +6,8 @@ Everything runs on your computer: no upload, no account, no telemetry.
 Made for HR, accounting and administrative staff who produce contracts, payroll documents, transfer letters or
 letters for hundreds of people. The interface is in Vietnamese.
 
-> **Status:** in development, Phase 1. The Word flow works end to end: import data, template library, column mapping
-> with a preview, filename pattern, ZIP export. Image templates, the theme choice, Settings and installers come
-> later, and there is no public release yet. See [docs/specification.md](docs/specification.md).
+> **Status:** feature complete for the first release (Phase 2); installers build in CI but nothing is published yet.
+> Word and image templates both work end to end. See [docs/specification.md](docs/specification.md).
 
 ## What it does
 
@@ -21,8 +20,9 @@ letters for hundreds of people. The interface is in Vietnamese.
 - Names files from a pattern such as `{{ten}}`, avoids duplicates and characters Windows rejects.
 - Exports one ZIP with progress and a Cancel button. One bad row never stops the batch; a CSV report lists the rows that failed.
 
-Not yet in the app: image templates (text boxes on a PNG or JPEG, any installed font), the light/dark theme choice,
-the Settings page and the installers.
+- Image templates: put text boxes on a PNG or JPEG background in an editor (any installed font, shrink / wrap / truncate
+  / error when text is too long), export PNG or JPG.
+- Light, dark or system theme, and an About page in Settings. No automatic updates and no network calls.
 
 ## Platforms
 

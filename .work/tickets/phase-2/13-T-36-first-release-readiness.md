@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R13.7, R13.10, R11.4, R6.6, R0.10, R0.11
 **Blocked by:** T-25, T-27, T-31, T-33, T-35
-**Status:** ready
+**Status:** in-review
 **New infrastructure:** none
 **Files:** THIRD-PARTY-NOTICES.md, README.md, site/index.html, docs/specification.md, .work/phase-2-report.md
 **Proof:** A dry run of the `Release` workflow is green, `SHA256SUMS.txt` lists the three installers, the owner's checklist in `.work/phase-2-report.md` is complete, and the owner pushes the tag `v0.1.0` (publishing is the owner's action).
