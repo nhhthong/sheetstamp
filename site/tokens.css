@@ -54,6 +54,11 @@
   --color-light: oklch(100% 0 0);
   --color-veil: oklch(100% 0 0);
   --color-shade: oklch(10% 0.022 268);
+  --color-night: oklch(17.5% 0.014 268);
+  --color-night-2: oklch(21% 0.016 268);
+  --color-night-ink: oklch(96% 0.006 75);
+  --color-night-muted: oklch(70% 0.016 262);
+  --color-night-rule: oklch(30% 0.016 266);
   --color-accent: oklch(77% 0.1 274);
   --color-accent-ink: oklch(19% 0.035 274);
   --color-accent-hi: oklch(84% 0.085 274);
