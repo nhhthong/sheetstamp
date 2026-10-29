@@ -139,13 +139,38 @@ test("create an image template, add two boxes, drag one, delete the other, save 
 
   // Pick a field per box: a typed one.
   await items.first().click();
-  await page.getByLabel("Trường", { exact: true }).selectOption({ label: "+ Trường mới…" });
-  await page.getByLabel("Tên trường mới").fill("Số quyết định");
-  await page.getByRole("button", { name: "Thêm trường" }).click();
+  const field = page.getByRole("combobox", { name: "Trường", exact: true });
+  // Nothing is listed until something is typed, and then only the fields that match.
+  const suggestions = page
+    .getByRole("listbox", { name: "Trường", exact: true })
+    .getByRole("option");
+  await field.click();
+  await expect(suggestions).toHaveCount(0);
+  await field.fill("ngay");
+  // At most six fields, best first, and the typed text as a new field at the end.
+  await expect(suggestions).toHaveCount(7);
+  await expect(suggestions.first()).toHaveText("Ngày sinh");
+  // The key (ngay_sinh) is an implementation detail and is not shown.
+  await expect(page.getByRole("listbox", { name: "Trường", exact: true })).not.toContainText(
+    "ngay_",
+  );
+  await expect(suggestions.last()).toHaveText("Thêm “ngay” làm trường mới");
+  await field.fill("Số quyết định");
+  await expect(suggestions).toHaveText(["Thêm “Số quyết định” làm trường mới"]);
+  await page.keyboard.press("Enter");
+  await expect(items.first()).toContainText("Số quyết định");
+
+  // A listed field is picked with the mouse.
+  await field.fill("phong");
+  await page.getByRole("option", { name: /Phòng ban/ }).click();
+  await expect(items.first()).toContainText("Phòng ban");
+  await field.fill("Số quyết định");
+  await page.keyboard.press("Enter");
   await expect(items.first()).toContainText("Số quyết định");
 
   await page.getByRole("button", { name: "Lưu mẫu" }).click();
-  await expect(page.getByText("Đã lưu mẫu.")).toBeVisible();
+  // The page shows the message inline and as a toast: either one proves the save.
+  await expect(page.getByText("Đã lưu mẫu.").first()).toBeVisible();
   await page.getByRole("button", { name: "‹ Mẫu" }).click();
 
   // The library counts distinct fields; reopening finds the box where it was saved.
