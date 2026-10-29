@@ -18,7 +18,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:e2e": "npm run build:e2e && playwright test",
-    "bench": "node scripts/bench.mjs --write"
+    "bench": "node scripts/bench.mjs --write",
+    "build:site": "node scripts/build-site.mjs"
   },
   "devDependencies": {
     "@base-ui/react": "^1.9.0",

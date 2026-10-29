@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://nhhthong.github.io/sheetstamp/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nhhthong.github.io/sheetstamp/" />
+    <xhtml:link rel="alternate" hreflang="vi" href="https://nhhthong.github.io/sheetstamp/vi/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nhhthong.github.io/sheetstamp/" />
+  </url>
+  <url>
+    <loc>https://nhhthong.github.io/sheetstamp/vi/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://nhhthong.github.io/sheetstamp/" />
+    <xhtml:link rel="alternate" hreflang="vi" href="https://nhhthong.github.io/sheetstamp/vi/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://nhhthong.github.io/sheetstamp/" />
+  </url>
+</urlset>
