@@ -323,7 +323,9 @@
           var SIZE = 48;
           var box = cells.parentElement;
           var cols = Math.ceil(box.clientWidth / SIZE);
-          var rows = Math.min(Math.ceil(box.clientHeight / SIZE), 10);
+          var head = document.querySelector(".head2");
+          var reach = head.getBoundingClientRect().bottom - box.getBoundingClientRect().top;
+          var rows = Math.min(Math.ceil(reach / SIZE), 10);
           for (var i = 0; i < Math.min(18, cols * rows / 8); i++) {
             var c = document.createElement("i");
             c.style.left = Math.floor(Math.random() * cols) * SIZE + "px";

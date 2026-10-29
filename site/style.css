@@ -271,7 +271,11 @@ a:hover {
   border-radius: var(--radius-card);
   overflow: hidden;
   background: var(--color-card);
-  box-shadow: var(--shadow-card);
+  /* An edge and a deeper lift: the white app window must stand apart from the page in both themes. */
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--color-veil) 20%, transparent),
+    0 2px 4px color-mix(in oklab, var(--color-shade) 12%, transparent),
+    0 36px 72px -28px color-mix(in oklab, var(--color-shade) 45%, transparent);
 }
 .hero-video video {
   display: block;
