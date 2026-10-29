@@ -5,8 +5,8 @@ import { type Channel, channel, integer, nothing, oneOf, record, string } from "
 /** A field of a template: the tag key and the label the user sees (the label is optional). */
 export type MappingField = { key: string; label?: string };
 
-export type MatchRule = "exact" | "fuzzy";
-export const MATCH_RULES = ["exact", "fuzzy"] as const;
+export type MatchRule = "exact" | "fuzzy" | "position";
+export const MATCH_RULES = ["exact", "fuzzy", "position"] as const;
 
 /** The column found for one field, or none. `score` is 1 for the best possible match and falls toward the threshold. */
 export type FieldMatch =
