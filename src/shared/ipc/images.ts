@@ -1,6 +1,7 @@
 // IPC channels of the "images" feature (fonts and the image template render), handled in src/main/ipc/images.ts.
 // The drawing itself runs in a worker thread: main and the window never load the canvas library.
 import type { FontStyle, RenderErrorCode, TextBox } from "../../worker/render/types";
+import type { ImageLayout } from "../image-layout";
 import {
   arrayOf,
   bytes,
@@ -12,6 +13,7 @@ import {
   record,
   string,
 } from "./define";
+import type { Outcome } from "./templates";
 
 export type { FontStyle, RenderErrorCode, TextBox };
 
@@ -84,8 +86,45 @@ function parseRenderRequest(value: unknown): RenderRequest {
   };
 }
 
+/** What the image editor opens with. `labels` maps each field key used by a box to its display label. */
+export type ImageEditorDoc = {
+  name: string;
+  background: Uint8Array;
+  layout: ImageLayout;
+  labels: Record<string, string>;
+};
+
+export type SaveLayoutRequest = {
+  id: string;
+  /** Checked in main with `parseImageLayout`; the renderer sends what it has. */
+  layout: unknown;
+  /** Display label per field key; the template's tags are derived from the boxes and these labels. */
+  labels: Record<string, string>;
+};
+
+const MAX_LABELS = 1000;
+
+function parseSaveLayout(value: unknown): SaveLayoutRequest {
+  const request = record(value);
+  const rawLabels = record(request.labels, "labels");
+  const keys = Object.keys(rawLabels);
+  if (keys.length > MAX_LABELS) throw new IpcValidationError("labels has too many entries");
+  const labels: Record<string, string> = {};
+  for (const key of keys) labels[key] = string(rawLabels[key], "label", { max: 500 });
+  return { id: string(request.id, "id", { min: 1, max: 200 }), layout: request.layout, labels };
+}
+
 export const listFonts = channel<undefined, FontFamilyInfo[]>("fonts:list", nothing);
 export const render = channel<RenderRequest, RenderResponse>("image:render", parseRenderRequest);
 
-export const channels = [listFonts, render] as const;
+export const openImageEditor = channel<{ id: string }, Outcome<ImageEditorDoc>>(
+  "image-editor:open",
+  (value) => ({ id: string(record(value).id, "id", { min: 1, max: 200 }) }),
+);
+export const saveImageLayout = channel<SaveLayoutRequest, Outcome<undefined>>(
+  "image-editor:save",
+  parseSaveLayout,
+);
+
+export const channels = [listFonts, render, openImageEditor, saveImageLayout] as const;
 export const events = [] as const;
