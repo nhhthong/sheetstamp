@@ -6,3 +6,6 @@ test-results/
 playwright-report/
 *.log
 .claude/worktrees/
+
+# Hallmark scratch output (screenshots, before/after records)
+.hallmark/

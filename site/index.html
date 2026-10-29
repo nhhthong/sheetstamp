@@ -8,115 +8,236 @@
       name="description"
       content="Điền mẫu Word hoặc ảnh bằng dữ liệu Excel/CSV, xuất hàng trăm file trong một file ZIP. Chạy hoàn toàn trên máy bạn."
     />
-    <style>
-      :root {
-        --bg: #ffffff;
-        --panel: #f5f6f8;
-        --text: #15181d;
-        --muted: #505863;
-        --line: #d9dde3;
-        --accent: #1f5fd1;
-        --on-accent: #ffffff;
-        --warn-bg: #fff4d6;
-        --warn-text: #5c4300;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --bg: #14171c;
-          --panel: #1d2128;
-          --text: #eef0f3;
-          --muted: #a6adb8;
-          --line: #343a44;
-          --accent: #6ea0ff;
-          --on-accent: #0b1220;
-          --warn-bg: #3a2f10;
-          --warn-text: #ffe29a;
-        }
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        font: 16px/1.6 "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-      }
-      main { max-width: 760px; margin: 0 auto; padding: 44px 16px 64px; }
-      h1 { font-size: 32px; line-height: 1.2; margin: 0 0 8px; }
-      h2 { font-size: 20px; margin: 40px 0 8px; padding-top: 24px; border-top: 1px solid var(--line); }
-      p, li { max-width: 70ch; }
-      .muted { color: var(--muted); font-size: 14px; }
-      .buttons { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0 8px; }
-      .button {
-        display: inline-block; padding: 12px 20px; border-radius: 12px; font-weight: 600;
-        background: var(--accent); color: var(--on-accent); text-decoration: none;
-      }
-      .button.secondary { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
-      .button[aria-disabled="true"] { background: var(--panel); color: var(--muted); border: 2px solid var(--line); }
-      a:focus-visible, .button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-      .note { background: var(--warn-bg); color: var(--warn-text); padding: 12px 16px; border-radius: 12px; }
-      code, pre { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 14px; }
-      pre { background: var(--panel); padding: 12px 16px; border-radius: 10px; overflow-x: auto; }
-      @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
-    </style>
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main>
-      <h1>Sheetstamp</h1>
-      <p>
-        Điền mẫu Word hoặc ảnh bằng dữ liệu Excel/CSV, rồi xuất hàng trăm file trong một file ZIP. Chạy hoàn toàn trên
-        máy của bạn: không tải dữ liệu lên mạng, không cần tài khoản.
-      </p>
-
-      <p class="note">Sheetstamp đang được phát triển. Chưa có bản phát hành chính thức; các nút bên dưới sẽ hoạt động khi bản đầu tiên ra mắt.</p>
-
-      <div class="buttons">
-        <a class="button" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-Setup-x64.exe">Tải cho Windows 10/11 (64-bit)</a>
-        <a class="button secondary" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">Tải cho Ubuntu (.deb)</a>
-        <a class="button secondary" aria-disabled="true" href="#macos">macOS: sắp có</a>
+    <header class="bar">
+      <div class="wrap">
+        <a class="brand" href="#top"><img src="assets/icon.png" alt="" width="28" height="28" />Sheetstamp</a>
+        <nav aria-label="Điều hướng trang">
+          <a href="#cai-dat" class="keep">Cài đặt</a>
+          <a href="#cach-hoat-dong">Cách hoạt động</a>
+          <a href="#code-signing-policy">Chính sách ký mã</a>
+          <a href="https://github.com/nhhthong/sheetstamp">GitHub</a>
+        </nav>
       </div>
-      <p class="muted">
-        Kiểm tra file đã tải: <a href="https://github.com/nhhthong/sheetstamp/releases/latest/download/SHA256SUMS.txt">SHA256SUMS.txt</a>.
-        Phiên bản Electron đi kèm được hỗ trợ bảo mật đến 27/04/2027; hãy cập nhật Sheetstamp trước thời điểm đó.
-      </p>
+    </header>
 
-      <h2 id="windows">Cài đặt trên Windows</h2>
-      <ol>
-        <li>Tải <code>Sheetstamp-Setup-x64.exe</code> bằng nút ở trên.</li>
-        <li>Bấm đúp vào file. Không cần quyền quản trị.</li>
-        <li>
-          Nếu Windows hiện “Windows đã bảo vệ PC của bạn”: bấm <strong>Thông tin thêm</strong>, rồi <strong>Vẫn chạy</strong>.
-          Cảnh báo này xuất hiện vì bản đầu tiên chưa được ký số (xem phần “Chính sách ký mã” bên dưới).
-        </li>
-        <li>
-          Muốn chắc file không bị thay đổi, mở PowerShell tại thư mục tải về và chạy
-          <pre>Get-FileHash .\Sheetstamp-Setup-x64.exe -Algorithm SHA256</pre>
-          rồi so với dòng tương ứng trong <code>SHA256SUMS.txt</code>.
-        </li>
-      </ol>
+    <main id="top">
+      <section class="hero">
+        <div class="wrap">
+          <div>
+            <h1>Điền mẫu, xuất hàng trăm file.</h1>
+            <p class="lead">Excel hoặc CSV vào mẫu Word và ảnh, xuất một file ZIP.</p>
+            <div class="actions">
+              <a class="btn primary" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-Setup-x64.exe">Tải cho Windows</a>
+              <a class="btn" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">Tải cho Ubuntu</a>
+            </div>
+            <p class="fine">
+              Sheetstamp đang được phát triển. Chưa có bản phát hành chính thức; các nút sẽ hoạt động khi bản đầu tiên ra mắt.
+            </p>
+          </div>
+          <figure class="shot">
+            <img
+              src="assets/app-ghep-cot.png"
+              width="684"
+              height="676"
+              alt="Cửa sổ Sheetstamp ở bước Ghép cột: dữ liệu và mẫu đã chọn, tất cả 3 trường đã ghép."
+            />
+          </figure>
+        </div>
+      </section>
 
-      <h2 id="ubuntu">Cài đặt trên Ubuntu 22.04 / 24.04</h2>
-      <pre>sudo apt install ./Sheetstamp-x64.deb</pre>
-      <p>
-        Nếu dùng bản AppImage trên Ubuntu 24.04, cần cài thêm <code>libfuse2t64</code>
-        (<code>sudo apt install libfuse2t64</code>). Bản <code>.deb</code> không gặp vấn đề này.
-      </p>
+      <section class="sec band" id="cai-dat">
+        <div class="wrap">
+          <h2>Cài đặt</h2>
+          <p class="sub">Chọn hệ điều hành. Cài trong vài phút, không cần tài khoản.</p>
+          <div class="pick">
+            <input type="radio" name="os" id="os-win" checked />
+            <input type="radio" name="os" id="os-ubuntu" />
+            <input type="radio" name="os" id="os-mac" />
+            <div class="tabs" role="presentation">
+              <label for="os-win">Windows</label>
+              <label for="os-ubuntu">Ubuntu</label>
+              <label for="os-mac">macOS</label>
+            </div>
 
-      <h2 id="macos">macOS</h2>
-      <p>Chưa có bản công khai. Bản macOS sẽ được phát hành khi có thể ký và công chứng với Apple.</p>
+            <article class="panel" id="windows">
+              <div>
+                <h3>Windows 10/11 (64-bit)</h3>
+                <p class="req">Cài cho riêng bạn, không cần quyền quản trị.</p>
+                <div class="get">
+                  <a class="btn primary" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-Setup-x64.exe">Tải Sheetstamp-Setup-x64.exe</a>
+                </div>
+                <details>
+                  <summary>Kiểm tra file đã tải</summary>
+                  <p>
+                    Mở PowerShell tại thư mục tải về và chạy lệnh dưới, rồi so với dòng tương ứng trong
+                    <a href="https://github.com/nhhthong/sheetstamp/releases/latest/download/SHA256SUMS.txt">SHA256SUMS.txt</a>.
+                  </p>
+                  <div class="cmd"><pre>Get-FileHash .\Sheetstamp-Setup-x64.exe -Algorithm SHA256</pre><button type="button" data-copy>Chép</button></div>
+                </details>
+              </div>
+              <ol class="steps">
+                <li>Tải <code>Sheetstamp-Setup-x64.exe</code> bằng nút bên cạnh.</li>
+                <li>Bấm đúp vào file. Không cần quyền quản trị.</li>
+                <li>
+                  Nếu Windows hiện “Windows đã bảo vệ PC của bạn”: bấm <strong>Thông tin thêm</strong>, rồi <strong>Vẫn chạy</strong>.
+                  Cảnh báo này xuất hiện vì bản đầu tiên chưa được ký số (xem <a href="#code-signing-policy">Chính sách ký mã</a>).
+                </li>
+              </ol>
+            </article>
 
-      <h2 id="code-signing-policy">Chính sách ký mã (Code signing policy)</h2>
-      <ul>
-        <li>Bản Windows đầu tiên chưa được ký. Sau khi phát hành, dự án sẽ đăng ký chương trình ký mã miễn phí cho mã nguồn mở của <a href="https://signpath.org">SignPath</a>.</li>
-        <li>Mã nguồn công khai, giấy phép MIT: <a href="https://github.com/nhhthong/sheetstamp">github.com/nhhthong/sheetstamp</a>. Các bản dựng được tạo bởi GitHub Actions từ mã nguồn này.</li>
-        <li>Vai trò: tác giả, người xem xét và người phê duyệt đều là chủ dự án (<a href="https://github.com/nhhthong">nhhthong</a>). Mỗi bản phát hành được ký cần phê duyệt thủ công.</li>
-        <li>Quyền riêng tư: Sheetstamp chạy ngoại tuyến, không gửi dữ liệu đi đâu, không thu thập thống kê, không tự cập nhật. Nút “Kiểm tra bản mới” chỉ mở trang này trong trình duyệt.</li>
-      </ul>
+            <article class="panel" id="ubuntu">
+              <div>
+                <h3>Ubuntu 22.04 / 24.04 (64-bit)</h3>
+                <p class="req">Gói <code>.deb</code> là cách cài chính.</p>
+                <div class="get">
+                  <a class="btn primary" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">Tải Sheetstamp-x64.deb</a>
+                  <a class="btn" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.AppImage">AppImage</a>
+                </div>
+                <details>
+                  <summary>Kiểm tra file đã tải</summary>
+                  <p>
+                    Chạy lệnh dưới trong thư mục tải về, rồi so với dòng tương ứng trong
+                    <a href="https://github.com/nhhthong/sheetstamp/releases/latest/download/SHA256SUMS.txt">SHA256SUMS.txt</a>.
+                  </p>
+                  <div class="cmd"><pre>sha256sum Sheetstamp-x64.deb</pre><button type="button" data-copy>Chép</button></div>
+                </details>
+              </div>
+              <ol class="steps">
+                <li>
+                  Mở terminal trong thư mục tải về và chạy:
+                  <div class="cmd"><pre>sudo apt install ./Sheetstamp-x64.deb</pre><button type="button" data-copy>Chép</button></div>
+                </li>
+                <li>Mở Sheetstamp từ menu ứng dụng.</li>
+                <li>
+                  Dùng bản AppImage trên Ubuntu 24.04 thì cần cài thêm <code>libfuse2t64</code>
+                  (<code>sudo apt install libfuse2t64</code>). Bản <code>.deb</code> không gặp vấn đề này.
+                </li>
+              </ol>
+            </article>
 
-      <h2>Giấy phép</h2>
-      <p>
-        <a href="https://github.com/nhhthong/sheetstamp/blob/main/LICENSE">MIT</a>. Thông tin giấy phép các thành phần bên thứ ba:
-        <a href="https://github.com/nhhthong/sheetstamp/blob/main/THIRD-PARTY-NOTICES.md">THIRD-PARTY-NOTICES.md</a>.
-      </p>
+            <article class="panel soon" id="macos">
+              <div>
+                <h3>macOS: sắp có</h3>
+                <p class="req">Chưa có bản công khai. Bản macOS sẽ được phát hành khi có thể ký và công chứng với Apple.</p>
+              </div>
+            </article>
+          </div>
+          <p class="fine">
+            Phiên bản Electron đi kèm được hỗ trợ bảo mật đến 27/04/2027; hãy cập nhật Sheetstamp trước thời điểm đó.
+          </p>
+        </div>
+      </section>
+
+      <section class="sec how" id="cach-hoat-dong">
+        <div class="wrap">
+          <div>
+            <h2>Làm theo từng bước, mỗi lần một việc</h2>
+            <ol>
+              <li><div><strong>Dữ liệu</strong><span>Chọn file Excel hoặc CSV.</span></div></li>
+              <li><div><strong>Mẫu</strong><span>Chọn mẫu Word hoặc ảnh trong thư viện.</span></div></li>
+              <li><div><strong>Ghép cột</strong><span>Chỉ sửa những trường chưa khớp; xem trước từng dòng.</span></div></li>
+              <li><div><strong>Xuất file</strong><span>Đặt tên file, chọn thư mục, nhận một file ZIP.</span></div></li>
+            </ol>
+          </div>
+          <figure class="shot" style="justify-self: stretch; max-width: none">
+            <img
+              src="assets/app-xem-truoc.png"
+              width="780"
+              height="380"
+              alt="Xem trước một dòng trong mẫu hợp đồng Word: các giá trị đã điền được tô sáng, trường thiếu và trường trống được đánh dấu."
+              loading="lazy"
+            />
+          </figure>
+        </div>
+      </section>
+
+      <section class="sec band" id="rieng-tu">
+        <div class="wrap">
+          <h2>Chạy hoàn toàn trên máy của bạn</h2>
+          <p class="sub">Không tải dữ liệu lên mạng, không cần tài khoản.</p>
+          <div class="trio">
+            <div>
+              <h3>Ngoại tuyến</h3>
+              <p>Sheetstamp chạy ngoại tuyến, không gửi dữ liệu đi đâu.</p>
+            </div>
+            <div>
+              <h3>Không thống kê</h3>
+              <p>Không thu thập thống kê, không cần đăng nhập.</p>
+            </div>
+            <div>
+              <h3>Không tự cập nhật</h3>
+              <p>Nút “Kiểm tra bản mới” chỉ mở trang này trong trình duyệt.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec" id="code-signing-policy">
+        <div class="wrap cols">
+          <h2>Chính sách ký mã (Code signing policy)</h2>
+          <ul class="facts">
+            <li>Bản Windows đầu tiên chưa được ký. Sau khi phát hành, dự án sẽ đăng ký chương trình ký mã miễn phí cho mã nguồn mở của <a href="https://signpath.org">SignPath</a>.</li>
+            <li>Mã nguồn công khai, giấy phép MIT: <a href="https://github.com/nhhthong/sheetstamp">github.com/nhhthong/sheetstamp</a>. Các bản dựng được tạo bởi GitHub Actions từ mã nguồn này.</li>
+            <li>Vai trò: tác giả, người xem xét và người phê duyệt đều là chủ dự án (<a href="https://github.com/nhhthong">nhhthong</a>). Mỗi bản phát hành được ký cần phê duyệt thủ công.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="close band">
+        <div class="wrap">
+          <h2>Tải Sheetstamp</h2>
+          <div class="actions" style="margin-top: 0">
+            <a class="btn primary" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-Setup-x64.exe">Tải cho Windows</a>
+            <a class="btn" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">Tải cho Ubuntu</a>
+            <a class="btn" href="#macos" data-os="os-mac">macOS: sắp có</a>
+          </div>
+        </div>
+      </section>
     </main>
+
+    <footer>
+      <div class="wrap">
+        <a class="brand" href="#top"><img src="assets/icon.png" alt="" width="28" height="28" />Sheetstamp</a>
+        <span>
+          Giấy phép <a href="https://github.com/nhhthong/sheetstamp/blob/main/LICENSE">MIT</a>.
+          Giấy phép các thành phần bên thứ ba:
+          <a href="https://github.com/nhhthong/sheetstamp/blob/main/THIRD-PARTY-NOTICES.md">THIRD-PARTY-NOTICES.md</a>.
+        </span>
+        <nav aria-label="Liên kết">
+          <a href="https://github.com/nhhthong/sheetstamp/releases/latest/download/SHA256SUMS.txt">SHA256SUMS.txt</a>
+          <a href="https://github.com/nhhthong/sheetstamp">Mã nguồn</a>
+        </nav>
+      </div>
+    </footer>
+
+    <script>
+      // Pick the tab that fits the visitor's system; the radios already work without this.
+      (function () {
+        var ua = navigator.userAgent || "";
+        var id = /Linux|X11/.test(ua) && !/Android/.test(ua) ? "os-ubuntu" : /Macintosh|Mac OS/.test(ua) ? "os-mac" : "os-win";
+        var radio = document.getElementById(id);
+        if (radio) radio.checked = true;
+        document.querySelectorAll("[data-os]").forEach(function (a) {
+          a.addEventListener("click", function () {
+            var r = document.getElementById(a.getAttribute("data-os"));
+            if (r) r.checked = true;
+          });
+        });
+        document.querySelectorAll("[data-copy]").forEach(function (b) {
+          b.addEventListener("click", function () {
+            var text = b.previousElementSibling.textContent;
+            if (!navigator.clipboard) return;
+            navigator.clipboard.writeText(text).then(function () {
+              b.textContent = "Đã chép";
+              setTimeout(function () { b.textContent = "Chép"; }, 1600);
+            });
+          });
+        });
+      })();
+    </script>
   </body>
 </html>
