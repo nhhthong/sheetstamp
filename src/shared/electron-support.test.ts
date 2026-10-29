@@ -31,8 +31,8 @@ describe("Electron end-of-support table", () => {
     expect(endOfSupportOf("9.0.0")).toBeNull();
   });
 
-  it("matches the date on the download page", () => {
-    const site = readFileSync(join(root, "site/index.html"), "utf8");
-    expect(site).toContain("27/04/2027");
+  it("matches the date on both download pages", () => {
+    expect(readFileSync(join(root, "site/index.html"), "utf8")).toContain("27 April 2027");
+    expect(readFileSync(join(root, "site/vi/index.html"), "utf8")).toContain("27/04/2027");
   });
 });
