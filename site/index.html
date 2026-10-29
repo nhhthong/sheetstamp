@@ -27,7 +27,8 @@
     </header>
 
     <main id="top">
-      <section class="hero">
+      <section class="hero" data-scroll>
+        <div class="hero-stick">
         <div class="wrap">
           <div class="head2">
             <h1>Điền mẫu, xuất hàng trăm file.</h1>
@@ -64,9 +65,11 @@
                 </div>
                 <div class="device-btns"></div>
                 <div class="device-power"></div>
+                <div class="deck" aria-hidden="true"></div>
               </div>
             </div>
           </div>
+        </div>
         </div>
       </section>
 
@@ -271,11 +274,15 @@
       })();
     </script>
     <script>
-      // Scale each device frame to its column, and play the demo when it is on screen.
+      // Scale each device frame to its column, open the laptop as the page scrolls, and play the demo when it is open.
       (function () {
         var NATURAL = 728;
+        var phone = window.matchMedia("(max-width: 40em)");
+        var wide = window.matchMedia("(min-width: 48em)");
+        var still = window.matchMedia("(prefers-reduced-motion: reduce)");
         function fit(box) {
           var inner = box.firstElementChild;
+          if (phone.matches) { inner.style.transform = ""; box.style.height = ""; return; }
           var s = box.clientWidth / NATURAL;
           inner.style.transform = "scale(" + s + ")";
           box.style.height = inner.offsetHeight * s + "px";
@@ -284,12 +291,52 @@
         function all() { boxes.forEach(fit); }
         all();
         if (window.ResizeObserver) boxes.forEach(function (b) { new ResizeObserver(function () { fit(b); }).observe(b); });
-        else window.addEventListener("resize", all);
+        window.addEventListener("resize", all);
+
+        var hero = document.querySelector(".hero[data-scroll]");
         var v = document.querySelector("video[data-autoplay]");
-        var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (v && !still && "IntersectionObserver" in window) {
+        var queued = false;
+        var playing = false;
+        function ease(p) { p = Math.max(0, Math.min(1, p)); return p * p * (3 - 2 * p); }
+        function setPlaying(on) {
+          if (!v || on === playing) return;
+          playing = on;
+          if (on) v.play().catch(function () {}); else v.pause();
+        }
+        function update() {
+          queued = false;
+          if (!hero.classList.contains("is-scroll")) return;
+          var top = hero.getBoundingClientRect().top;
+          var total = hero.offsetHeight - (window.innerHeight - 68);
+          var p = Math.max(0, Math.min(1, (68 - top) / total));
+          var t = ease(p / 0.3);
+          var o = ease((p - 0.04) / 0.5);
+          hero.style.setProperty("--t", t.toFixed(3));
+          hero.style.setProperty("--o", o.toFixed(3));
+          setPlaying(o > 0.85);
+        }
+        function request() { if (!queued) { queued = true; requestAnimationFrame(update); } }
+        function mode() {
+          var on = hero && wide.matches && !still.matches;
+          if (!hero) return;
+          hero.classList.toggle("is-scroll", on);
+          if (!on) { hero.style.removeProperty("--t"); hero.style.removeProperty("--o"); }
+          all();
+          if (on) update();
+        }
+        if (hero) {
+          window.addEventListener("scroll", request, { passive: true });
+          window.addEventListener("resize", function () { mode(); });
+          mode();
+        }
+        // Outside the scroll scene the demo plays while it is on screen, unless motion is reduced.
+        if (v && "IntersectionObserver" in window) {
           new IntersectionObserver(function (entries) {
-            entries.forEach(function (e) { if (e.isIntersecting) v.play().catch(function () {}); else v.pause(); });
+            entries.forEach(function (e) {
+              if (hero && hero.classList.contains("is-scroll")) return;
+              if (still.matches) return;
+              setPlaying(e.isIntersecting);
+            });
           }, { threshold: 0.4 }).observe(v);
         }
       })();
