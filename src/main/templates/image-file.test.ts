@@ -22,7 +22,64 @@ function jpeg(width: number, height: number, end = true): Uint8Array {
   return Uint8Array.from(out);
 }
 
+/** A JPEG whose APP1 segment carries only the EXIF orientation tag (little-endian TIFF). */
+function jpegWithOrientation(width: number, height: number, orientation: number): Uint8Array {
+  const tiff = [
+    0x49,
+    0x49,
+    0x2a,
+    0x00,
+    8,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0x12,
+    0x01,
+    3,
+    0,
+    1,
+    0,
+    0,
+    0,
+    orientation,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+  ];
+  const body = [0x45, 0x78, 0x69, 0x66, 0x00, 0x00, ...tiff];
+  const length = body.length + 2;
+  const base = Array.from(jpeg(width, height));
+  return Uint8Array.from([
+    0xff,
+    0xd8,
+    0xff,
+    0xe1,
+    length >> 8,
+    length & 255,
+    ...body,
+    ...base.slice(2),
+  ]);
+}
+
 describe("checkImage", () => {
+  it("uses the upright size of a JPEG with an EXIF orientation of 5 to 8", () => {
+    expect(checkImage(jpegWithOrientation(400, 300, 1))).toMatchObject({
+      info: { width: 400, height: 300 },
+    });
+    expect(checkImage(jpegWithOrientation(400, 300, 3))).toMatchObject({
+      info: { width: 400, height: 300 },
+    });
+    expect(checkImage(jpegWithOrientation(400, 300, 6))).toMatchObject({
+      info: { width: 300, height: 400 },
+    });
+  });
+
   it("reads PNG and JPEG sizes from the headers", () => {
     expect(checkImage(png(1600, 1000))).toEqual({
       ok: true,

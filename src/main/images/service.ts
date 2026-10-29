@@ -5,6 +5,7 @@ import type { FontFamilyInfo, RenderRequest, RenderResponse } from "../../shared
 import type { ImageInit, ImageJob, ImageReply } from "../../worker/image-job";
 import { WorkerPool } from "../../worker/pool";
 import type { ImageTemplate, OutputFormat } from "../../worker/render/types";
+import { checkImage } from "../templates/image-file";
 
 export const imageWorkerFileIn = (directory: string) => join(directory, "image-worker.js");
 
@@ -34,6 +35,8 @@ export class ImageService {
 
   /** The PNG the export would draw for this row. A row-level failure is a result with a code. */
   async render({ background, boxes, values }: RenderRequest): Promise<RenderResponse> {
+    // The renderer sends the bytes, so a small file that declares a huge canvas is refused before the worker sees it.
+    if (!checkImage(background).ok) return { ok: false, code: "bad-background" };
     // A worker that dies rejects: that is not a row-level failure and is not hidden as one.
     const reply = await this.#run({ kind: "render", template: { background, boxes }, values });
     if (reply.kind !== "render") throw new Error("unexpected reply");

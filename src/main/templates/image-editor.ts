@@ -61,6 +61,8 @@ export async function saveImageLayout(
     return { ok: true, value: undefined };
   } catch (error) {
     if (error instanceof StorageError && error.code === "invalid") return fail(error.message);
+    if (error instanceof StorageError && error.code === "not-found")
+      return fail(editorMessages.notFound);
     return fail(messages.saveFailed);
   }
 }

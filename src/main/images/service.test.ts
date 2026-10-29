@@ -18,6 +18,18 @@ const box = {
   overflow: "shrink",
 } as const;
 
+/** Only the signature and IHDR of a PNG: enough for the size checks. */
+function smallPng(width = 100, height = 100): Uint8Array {
+  const b = new Uint8Array(33);
+  b.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  const v = new DataView(b.buffer);
+  v.setUint32(8, 13);
+  b.set([0x49, 0x48, 0x44, 0x52], 12);
+  v.setUint32(16, width);
+  v.setUint32(20, height);
+  return b;
+}
+
 function fake(reply: (job: ImageJob) => Promise<ImageReply>) {
   const jobs: ImageJob[] = [];
   let started = 0;
@@ -50,6 +62,17 @@ describe("ImageService", () => {
     expect(counts().closed).toBe(1);
   });
 
+  it("refuses a background that declares a huge canvas before the worker sees it", async () => {
+    const worker = fake(async () => ({ kind: "render", ok: true, png: new Uint8Array(1) }));
+    const response = await worker.service.render({
+      background: smallPng(60000, 60000),
+      boxes: [box],
+      values: {},
+    });
+    expect(response).toEqual({ ok: false, code: "bad-background" });
+    expect(worker.jobs).toHaveLength(0);
+  });
+
   it("turns a row-level failure into a result and lets a dead worker reject", async () => {
     const failing = fake(async () => ({
       kind: "render",
@@ -57,7 +80,7 @@ describe("ImageService", () => {
       code: "font-missing",
       field: "F",
     }));
-    const request = { background: new Uint8Array(1), boxes: [box], values: {} };
+    const request = { background: smallPng(), boxes: [box], values: {} };
     expect(await failing.service.render(request)).toEqual({
       ok: false,
       code: "font-missing",

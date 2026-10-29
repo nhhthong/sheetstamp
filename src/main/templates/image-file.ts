@@ -56,6 +56,41 @@ function jpegSize(b: Uint8Array): { width: number; height: number } | null {
   return null;
 }
 
+/** EXIF orientation (1-8) of a JPEG, or 1 when there is none. Values 5-8 swap width and height when drawn. */
+function jpegOrientation(b: Uint8Array): number {
+  const view = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  let pos = 2;
+  while (pos + 4 <= b.length && b[pos] === 0xff) {
+    const marker = b[pos + 1] as number;
+    if (marker === 0xda || marker === 0xd9) break;
+    const length = view.getUint16(pos + 2);
+    const start = pos + 4;
+    const isExif =
+      marker === 0xe1 &&
+      length >= 16 &&
+      start + 14 <= b.length &&
+      String.fromCharCode(...b.subarray(start, start + 4)) === "Exif";
+    if (isExif) {
+      const tiff = start + 6;
+      const little = b[tiff] === 0x49;
+      const ifd = tiff + view.getUint32(tiff + 4, little);
+      if (ifd + 2 > b.length) return 1;
+      const count = view.getUint16(ifd, little);
+      for (let i = 0; i < count; i++) {
+        const entry = ifd + 2 + i * 12;
+        if (entry + 12 > b.length) return 1;
+        if (view.getUint16(entry, little) === 0x0112) {
+          const value = view.getUint16(entry + 8, little);
+          return value >= 1 && value <= 8 ? value : 1;
+        }
+      }
+      return 1;
+    }
+    pos += 2 + length;
+  }
+  return 1;
+}
+
 /** Applies the limits decided in T-24. The extension is never consulted. */
 export function checkImage(bytes: Uint8Array): ImageCheck {
   if (bytes.length > MAX_BACKGROUND_BYTES) return bad("too-big");
@@ -65,7 +100,10 @@ export function checkImage(bytes: Uint8Array): ImageCheck {
   if (isJpeg && !(bytes[bytes.length - 2] === 0xff && bytes[bytes.length - 1] === 0xd9)) {
     return bad("cut-off");
   }
-  const size = isPng ? pngSize(bytes) : jpegSize(bytes);
+  const raw = isPng ? pngSize(bytes) : jpegSize(bytes);
+  // The engine and the editor draw a JPEG upright, so the size that counts is the oriented one.
+  const size =
+    raw && !isPng && jpegOrientation(bytes) >= 5 ? { width: raw.height, height: raw.width } : raw;
   if (!size || size.width === 0 || size.height === 0) return bad("unreadable");
   const pixels = size.width * size.height;
   if (pixels > MAX_BACKGROUND_PIXELS) return bad("too-many-pixels");
