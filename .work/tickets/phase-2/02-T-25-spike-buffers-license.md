@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R11.4, R13.10, R14.5
 **Blocked by:** None (can start immediately)
-**Status:** ready
+**Status:** in-review
 **New infrastructure:** none
 **Files:** .work/notes.md, docs/specification.md
 **Proof:** A decision note (confirmed license with a source, or the replacement plan) is in `.work/notes.md` and O-14 is closed in the spec index.

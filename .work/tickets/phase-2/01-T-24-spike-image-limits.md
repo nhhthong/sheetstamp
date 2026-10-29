@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R4.1, R8.8
 **Blocked by:** None (can start immediately)
-**Status:** ready
+**Status:** done
 **New infrastructure:** none
 **Files:** prototypes/phase2/image-limits
 **Proof:** `node prototypes/phase2/image-limits/run.mjs` prints, for 1600x1000, 3000x2000 and 6000x4000 backgrounds, the render time per image and peak memory in a 3-worker pool, and whether a phone JPEG with EXIF orientation 6 and a CMYK JPEG draw upright and without error; the decision (limits) is written to `.work/notes.md`.

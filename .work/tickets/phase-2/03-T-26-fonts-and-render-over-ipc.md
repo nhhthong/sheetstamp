@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R4.3, R4.5, R4.6, R4.10, R14.6
 **Blocked by:** None (can start immediately)
-**Status:** ready
+**Status:** done
 **New infrastructure:** none
 **Files:** src/shared/ipc/images.ts, src/main/ipc/images.ts, src/main/images, src/worker/render, src/renderer/lib/ipc.ts, tests/e2e
 **Proof:** `npm run test:e2e` (built with the test font) lists the family "Sheetstamp Test" with only the styles that have a face, and renders a one-box template with Vietnamese text to a PNG whose size equals the background; unit tests cover a font that is no longer installed.

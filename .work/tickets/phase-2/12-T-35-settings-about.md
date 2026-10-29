@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R10.2, R10.5, R14.2
 **Blocked by:** T-34
-**Status:** ready
+**Status:** done
 **New infrastructure:** none
 **Files:** src/renderer/pages/settings, src/main/ipc/app.ts, src/shared/ipc/app.ts, src/main/index.ts, electron-builder.yml, tests/e2e
 **Proof:** `npm run test:e2e` opens Cài đặt > Giới thiệu and sees the version from `package.json`, the MIT licence, the third-party notices text, the Electron end-of-support date, and that "Kiểm tra bản mới" asks the main process to open exactly the download page URL; a test fails if the Electron major in `package.json` has no end-of-support date.

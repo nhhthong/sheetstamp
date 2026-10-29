@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R13.1, R13.2, R13.5, R13.8, R14.3
 **Blocked by:** None (can start immediately)
-**Status:** ready
+**Status:** done
 **New infrastructure:** Application icon (generated from an SVG in the repo), Windows file properties
 **Files:** build/icon.svg, build/icon.png, build/icon.ico, scripts/make-icons.mjs, electron-builder.yml, scripts/check-selftest.mjs, .github/workflows/release.yml
 **Proof:** A manual run of the `Release` workflow ("Run workflow", no tag) builds Windows, Ubuntu and macOS and the packaged self-test passes on each; `scripts/check-selftest.mjs` also reads the Windows exe's ProductName and FileVersion and the `.deb`'s control file and both match `package.json`.

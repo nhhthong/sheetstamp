@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R10.1, R10.6, R12.3
 **Blocked by:** None (can start immediately)
-**Status:** ready
+**Status:** done
 **New infrastructure:** none
 **Files:** src/main/storage, src/main/ipc, src/shared/ipc, src/renderer/pages/settings, src/renderer/styles.css, src/renderer/lib, tests/e2e
 **Proof:** `npm run test:e2e` opens Cài đặt, picks Tối and sees `data-theme="dark"` on `<html>`, restarts the app and finds it still dark, picks Theo hệ thống and the page follows the emulated OS scheme live; a unit test checks the contrast ratio of every status colour in both themes.

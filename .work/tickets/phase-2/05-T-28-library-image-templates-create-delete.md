@@ -18,6 +18,7 @@
 - [ ] The stored copy is kept in the app's data folder and the template keeps working after the original is moved.
 - [ ] The layout has a `version` and a validator; a newer version is refused, a corrupt layout does not stop the list from loading.
 - [ ] The tab Ảnh list and empty state ("Chưa có mẫu ảnh nào." with "Tạo mẫu đầu tiên") follow the spec; the Tài liệu tab is unchanged.
+- [ ] Limits come from the T-24 decision (`.work/phase-2/T-24-report.md`): PNG/JPEG by signature only, at most 20 MB and 25 megapixels, a JPEG must end with the EOI marker (FF D9) or is rejected as cut off, and above 4 megapixels a warning shows; EXIF orientation needs no handling (the engine applies it).
 - [ ] Delete asks inline, removes the record, the stored copy and the mapping profile.
 - [ ] A duplicate name in the same group shows a warning under the name field.
 
