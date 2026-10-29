@@ -157,3 +157,7 @@ td.num {
     scroll-behavior: auto !important;
   }
 }
+/* photographs: natural con=4 vib=6 */
+[data-slot] > img {
+  filter: contrast(1.04) saturate(1.03);
+}
