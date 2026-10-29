@@ -11,8 +11,9 @@ import { Status } from "../../../components/ui/status";
 import { call } from "../../../lib/ipc";
 import { ied } from "../../../strings/image-editor";
 import { BoxInspector, type InspectorChange } from "./BoxInspector";
+import { defaultFont } from "./default-font";
 import { EditorCanvas } from "./EditorCanvas";
-import { dictionaryFields, type FieldOption, newField, sampleText } from "./fields";
+import { dictionaryFields, type FieldOption, labelFor, newField, sampleText } from "./fields";
 import { missingFamilies } from "./inspector";
 import { newBox } from "./new-box";
 
@@ -80,8 +81,8 @@ export function ImageEditorPage({
         // Decoded in the renderer from the bytes main sent: no URL, so the CSP needs no blob: source.
         bitmap = await createImageBitmap(new Blob([opened.value.background.slice()]));
         if (!live) return bitmap.close();
-        const first = fonts?.[0];
-        if (first) setFontFamily(first.family);
+        const first = defaultFont(fonts ?? []);
+        if (first) setFontFamily(first);
         setFonts(fonts);
         setBoxes(opened.value.layout.boxes);
         setLabels(opened.value.labels);
@@ -98,7 +99,7 @@ export function ImageEditorPage({
   }, [templateId]);
 
   const selected = boxes.find((b) => b.id === selectedId) ?? null;
-  const labelOf = useCallback((field: string) => labels[field] ?? field, [labels]);
+  const labelOf = useCallback((field: string) => labelFor(field, labels), [labels]);
 
   const select = useCallback(
     (id: string | null) => {
@@ -124,7 +125,7 @@ export function ImageEditorPage({
     const fields =
       usedFields === ""
         ? []
-        : usedFields.split("\n").map((key) => ({ key, label: labels[key] ?? key }));
+        : usedFields.split("\n").map((key) => ({ key, label: labelFor(key, labels) }));
     call(imageIpc.sampleRow, { fields })
       .then((row) => live && setSample(row))
       .catch(() => {});
