@@ -17,7 +17,7 @@ export const imageMessages: Record<ImageProblem, string> = {
 };
 
 /** Reads a chosen file (checking its size before reading it) and checks the bytes, not the extension. */
-async function readImage(
+export async function readImage(
   path: string,
 ): Promise<Outcome<{ bytes: Uint8Array; fileName: string; info: ImageInfo }>> {
   if (!isAbsolute(path)) return fail(imageMessages["not-image"]);

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LayoutBox } from "../../../../shared/image-layout";
 import { IMAGE_LAYOUT_VERSION } from "../../../../shared/image-layout";
+import { boxFit } from "../../../../shared/image-layout/bounds";
 import type { FontFamilyInfo } from "../../../../shared/ipc/images";
 import * as imageIpc from "../../../../shared/ipc/images";
 import { MAX_BOXES } from "../../../../shared/ipc/images";
@@ -132,6 +133,14 @@ export function ImageEditorPage({
     };
   }, [loaded, usedFields, labels]);
 
+  // Boxes left outside the image (for example after the background was replaced): flagged, never moved here.
+  const flagged = new Set(
+    loaded
+      ? boxes
+          .filter((b) => boxFit(b, loaded.bitmap.width, loaded.bitmap.height) !== "inside")
+          .map((b) => b.id)
+      : [],
+  );
   const missing = fonts ? missingFamilies(boxes, fonts) : [];
 
   async function showPreview() {
@@ -301,6 +310,11 @@ export function ImageEditorPage({
               <Status kind="warning">{ied.missingFont(missing)}</Status>
             </div>
           ) : null}
+          {flagged.size > 0 ? (
+            <div data-testid="outside-banner" className="mb-3">
+              <Status kind="warning">{ied.outsideBanner(flagged.size)}</Status>
+            </div>
+          ) : null}
           <div className="mb-3 flex min-h-6 items-center gap-3 text-sm" aria-live="off">
             {message ? <Status kind={message.kind}>{message.text}</Status> : null}
             {!message && dirty ? <span className="text-muted">{ied.unsaved}</span> : null}
@@ -315,6 +329,7 @@ export function ImageEditorPage({
                   labels={labels}
                   sample={sample.values}
                   selectedId={selectedId}
+                  flaggedIds={flagged}
                   onSelect={select}
                   onChange={change}
                 />
@@ -336,6 +351,11 @@ export function ImageEditorPage({
                     >
                       <span className="block font-semibold">
                         {ied.boxName(labelOf(box.field), index + 1)}
+                        {flagged.has(box.id) ? (
+                          <span data-testid="box-outside" className="ml-2 text-sm text-warning">
+                            {ied.outsideBadge}
+                          </span>
+                        ) : null}
                       </span>
                       <span className="block text-sm text-muted" data-testid="box-position">
                         {ied.position(box.x, box.y, box.width)}
