@@ -76,13 +76,14 @@ test("create and delete an image template from a generated PNG", async () => {
   await dialog.getByLabel("Tên mẫu").fill("Thư mời");
   await dialog.getByRole("button", { name: "Lưu mẫu" }).click();
 
-  await expect(page.getByText("Đã lưu mẫu.")).toBeVisible();
+  // A new image template opens in the editor; "‹ Mẫu" returns to the list.
+  await page.getByRole("button", { name: "‹ Mẫu" }).click();
   await expect(dialog).toBeHidden();
   const row = page.getByTestId("template-row");
   await expect(row).toHaveCount(1);
   await expect(row).toContainText("Thư mời");
   await expect(row).toContainText("thu-moi.png, 0 trường, chưa dùng");
-  await expect(row.getByRole("button", { name: /^Sửa/ })).toHaveCount(0);
+  await expect(row.getByRole("button", { name: /^Sửa ảnh/ })).toHaveCount(1);
 
   // The Tài liệu tab has none of it.
   await page.getByRole("button", { name: "Tài liệu", exact: true }).click();
@@ -167,7 +168,7 @@ test("a duplicate name in the same group warns under the name field", async () =
     if (round === 1) {
       await expect(dialog.getByText(/Đã có mẫu cùng tên/)).toBeHidden();
       await dialog.getByRole("button", { name: "Lưu mẫu" }).click();
-      await expect(dialog).toBeHidden();
+      await page.getByRole("button", { name: "‹ Mẫu" }).click();
     } else {
       await expect(dialog.getByText(/Đã có mẫu cùng tên trong nhóm này/)).toBeVisible();
     }

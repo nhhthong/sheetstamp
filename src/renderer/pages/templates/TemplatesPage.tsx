@@ -12,6 +12,7 @@ import { tpl } from "../../strings/templates";
 import { vi } from "../../strings/vi";
 import { EditTemplateDialog } from "./EditTemplateDialog";
 import { GroupsDialog } from "./GroupsDialog";
+import { ImageEditorPage } from "./image-editor/ImageEditorPage";
 import { NewImageTemplateDialog } from "./NewImageTemplateDialog";
 import { NewTemplateDialog } from "./NewTemplateDialog";
 import { StorageBanner, useStorageStatus } from "./StorageBanner";
@@ -39,6 +40,7 @@ export function TemplatesPage() {
   const [confirming, setConfirming] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [groupsOpen, setGroupsOpen] = useState(false);
+  const [editingImage, setEditingImage] = useState<string | null>(null);
   const storage = useStorageStatus();
   // A data folder that could not be opened (for example written by a newer version) is read-only for the UI.
   const blocked = storage?.error != null;
@@ -55,12 +57,10 @@ export function TemplatesPage() {
     if (storage && !storage.error) void refresh();
   }, [refresh, storage]);
 
-  /**
-   * Seam for T-29: after an image template is saved the image editor opens for `templateId`. Until the editor
-   * exists the user stays on the list (the dialog has already shown "Đã lưu mẫu.").
-   */
-  function continueToImageEditor(_templateId: string) {
+  /** After an image template is created the image editor opens for it as a sub-page of Mẫu. */
+  function continueToImageEditor(templateId: string) {
     void refresh();
+    setEditingImage(templateId);
   }
 
   async function remove(id: string) {
@@ -76,6 +76,18 @@ export function TemplatesPage() {
 
   const rows = (templates ?? []).filter((t) => t.kind === (tab === "docs" ? "word" : "image"));
   const Icon = tab === "docs" ? FileText : ImageIcon;
+
+  if (editingImage !== null) {
+    return (
+      <ImageEditorPage
+        templateId={editingImage}
+        onBack={() => {
+          setEditingImage(null);
+          void refresh();
+        }}
+      />
+    );
+  }
 
   return (
     <Page
@@ -166,7 +178,16 @@ export function TemplatesPage() {
                 </div>
               ) : (
                 <div className="flex shrink-0 gap-2">
-                  {t.kind === "word" ? (
+                  {t.kind === "image" ? (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      aria-label={`${tpl.editImage} ${t.name}`}
+                      onClick={() => setEditingImage(t.id)}
+                    >
+                      {tpl.editImage}
+                    </Button>
+                  ) : (
                     <Button
                       variant="secondary"
                       size="sm"
@@ -175,7 +196,7 @@ export function TemplatesPage() {
                     >
                       {tpl.edit}
                     </Button>
-                  ) : null}
+                  )}
                   <Button
                     variant="secondary"
                     size="sm"

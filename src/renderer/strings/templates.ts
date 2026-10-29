@@ -15,6 +15,7 @@ export const tpl = {
   neverUsed: "chưa dùng",
   usedOn: (date: string) => `dùng ${date}`,
   edit: "Sửa",
+  editImage: "Sửa ảnh",
   delete: "Xóa",
   confirmDelete: "Xóa mẫu này?",
   confirmYes: "Xóa",
