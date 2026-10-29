@@ -45,6 +45,7 @@ test("Sáng, Tối and Theo hệ thống work, are remembered, and System follow
   expect(await background(page)).toBe(DARK_BG);
   expect(JSON.parse(readFileSync(join(dataDir, "settings.json"), "utf8")).data).toEqual({
     theme: "dark",
+    language: "en",
   });
   await app.close();
 
