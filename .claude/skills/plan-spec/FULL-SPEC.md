@@ -2,7 +2,7 @@
 
 The branch of [SKILL.md](SKILL.md) for a conversation or loose documents: sketch the seams, then fill this template.
 
-Sketch the seams at which you will test the feature. Existing seams are preferred to new ones. Use the highest seam possible. If new seams are needed, propose them at the highest point you can. The fewer seams across the codebase, the better; the ideal number is one. Check with the user that these seams match their expectations.
+Sketch the seams at which you will test the feature. Existing seams are preferred to new ones. Use the highest seam possible. If new seams are needed, propose them at the highest point you can. The fewer seams across the codebase, the better; the ideal number is one. Check with the user that these seams match their expectations (under `Mode: empowerment`, take them as proposed and write an `ASK:` line).
 
 ```markdown
 ## Problem Statement
@@ -15,13 +15,15 @@ The solution to the problem, from the user's perspective.
 
 ## User Stories
 
-A numbered list of user stories covering the feature. Size the list to the feature: a small feature needs a handful, a large one needs many. Each story is in the format:
+A numbered list of user stories covering the feature. Size the list to the feature: a small feature needs a handful, a large one needs many. Each story carries a requirement code, `R1.<n>` (or `R<phase>.<n>` when the source splits into phases), the same kind `plan-tickets` and `check-tickets.mts --covers` read from a spec index. Format:
 
-1. As an <actor>, I want a <feature>, so that <benefit>
+R1.1. As an <actor>, I want a <feature>, so that <benefit>
 
 <user-story-example>
-1. As a mobile bank customer, I want to see balance on my accounts, so that I can make better informed decisions about my spending
+R1.1. As a mobile bank customer, I want to see balance on my accounts, so that I can make better informed decisions about my spending
 </user-story-example>
+
+Cite these codes in Implementation Decisions and Testing Decisions where they bind one.
 
 ## Implementation Decisions
 

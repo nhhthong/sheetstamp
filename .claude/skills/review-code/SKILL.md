@@ -1,9 +1,10 @@
 ---
 name: review-code
-description: "Review the changes since a fixed point on separate axes: Standards, Spec and, for risky changes, Impact (what breaks outside the diff) and Adversary (attempts to break it, kept only when a run proves them)."
+description: "Review changes since a fixed point on separate axes: Standards, Spec and, for risky changes, Impact and Adversary (attempts to break it, kept only when a run proves them). On request, or under empowerment mode."
 argument-hint: "A commit, branch or tag to compare against, or a ticket id"
-disable-model-invocation: true
 ---
+
+**Who starts this.** The user asks for it (types it or names it), or `Mode` in `workflow.md` is `empowerment` and the work has reached this step. In any other case, tell the user which command to type, and stop.
 
 Review of the changes since a fixed point the user supplies, uncommitted work included, on separate axes:
 
@@ -20,7 +21,7 @@ Read this repo's configuration: `docs/agents/issue-tracker.md` and `docs/agents/
 
 ### 1. Pin the fixed point
 
-Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). A ticket id (`EC-7`) is accepted too: find its file under `.work/tickets/` and use its `**Base:**` line; that ticket file is then also the spec for step 2. If they didn't specify one, or the ticket has no `Base:` line, ask for it.
+Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). A ticket id (`EC-7`) is accepted too: find its file under `.work/tickets/` and use its `**Base:**` line; that ticket file is then also the spec for step 2. If they didn't specify one, or the ticket has no `Base:` line, ask for it (under `Mode: empowerment`, use the `Base:` of the ticket most recently set to `in-review`, else the merge-base with the default branch, and write an `ASK:` line).
 
 Capture the diff command once. The review usually runs before the commit, so it compares the **working tree**, not just commits:
 
@@ -37,7 +38,7 @@ Look for the originating spec, in this order:
 
 1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in the tracker doc.
 2. A path the user passed as an argument.
-3. The ticket file under `.work/tickets/` that matches the branch name (its `Requirements` line points into `.work/spec-index.md`), or a spec file under `docs/` or `specs/` matching the branch name or feature.
+3. The ticket file under `.work/tickets/` that matches the branch name (its `Requirements` line points into `.work/spec-index.md`), or a full spec at `.work/spec.md` / `.work/spec-*.md` (local tracker), or a spec file under `docs/` or `specs/` matching the branch name or feature.
 4. If nothing is found, the **Spec** sub-agent skips and reports "no spec found"; the user can run the review again with the spec's path.
 
 ### 3. Identify the standards sources
@@ -88,6 +89,8 @@ If the spec is missing, skip the Spec sub-agent and note this in the final repor
 ### 6. Judge and aggregate
 
 Sort each axis's findings as [JUDGMENT.md](JUDGMENT.md) says: Act on, Consider, Noted, Dismissed. Check a finding against the code before you dismiss it; a dismissal carries its reason.
+
+An axis that returns nothing, a placeholder, or a reply that does not match its expected format is not a clean report: spawn it again, once, with the same brief. Still broken the second time, write that axis's heading with one line, `no report: <what came back>`, instead of an empty section or invented findings.
 
 Judge the Adversary findings as [ADVERSARY.md](ADVERSARY.md) says first: rerun each command, and drop what does not reproduce.
 
