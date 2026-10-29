@@ -10,6 +10,7 @@ import {
   DEFAULT_GROUP_NAMES,
   DEFAULT_SETTINGS,
   type Group,
+  IMAGE_FORMATS,
   type MappingProfile,
   type NewTemplate,
   SCHEMA_VERSION,
@@ -78,7 +79,11 @@ const isChoices = (v: unknown): v is Choices =>
   isObject(v) &&
   (v.lastOutputFolder === null || typeof v.lastOutputFolder === "string") &&
   (v.lastGroupFilter === null || typeof v.lastGroupFilter === "string") &&
-  typeof v.removeDiacritics === "boolean";
+  typeof v.removeDiacritics === "boolean" &&
+  // Added after the first release: a file written before it has no such key and still loads.
+  (v.imageFormat === undefined ||
+    v.imageFormat === null ||
+    (IMAGE_FORMATS as readonly unknown[]).includes(v.imageFormat));
 
 const isSettings = (v: unknown): v is Settings =>
   isObject(v) && (THEMES as readonly unknown[]).includes(v.theme);
@@ -387,7 +392,7 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
 
     async getChoices() {
       await choices.settled();
-      return { ...choices.get() };
+      return { ...DEFAULT_CHOICES, ...choices.get() };
     },
     setChoices: (patch: Partial<Choices>) =>
       serial(() =>
@@ -395,6 +400,7 @@ export async function openStorage(folder: string, options: OpenOptions = {}): Pr
           if (patch.lastOutputFolder !== undefined) draft.lastOutputFolder = patch.lastOutputFolder;
           if (patch.lastGroupFilter !== undefined) draft.lastGroupFilter = patch.lastGroupFilter;
           if (patch.removeDiacritics !== undefined) draft.removeDiacritics = patch.removeDiacritics;
+          if (patch.imageFormat !== undefined) draft.imageFormat = patch.imageFormat;
           return { ...draft };
         }),
       ),

@@ -54,6 +54,7 @@ describe("round trip", () => {
       lastOutputFolder: "/tmp/out",
       lastGroupFilter: null,
       removeDiacritics: true,
+      imageFormat: null,
     });
   });
 
@@ -179,6 +180,43 @@ describe("corrupt files", () => {
     expect(await t.getSettings()).toEqual({ theme: "system" });
   });
 
+  it("loads a choices file written before the image format existed, and remembers a chosen format", async () => {
+    await fsp.writeFile(
+      path.join(dataDir, "choices.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        data: { lastOutputFolder: "/x", lastGroupFilter: null, removeDiacritics: true },
+      }),
+    );
+    const s = await openStorage(dataDir);
+    expect(s.warnings).toEqual([]);
+    expect(await s.getChoices()).toEqual({
+      lastOutputFolder: "/x",
+      lastGroupFilter: null,
+      removeDiacritics: true,
+      imageFormat: null,
+    });
+    await s.setChoices({ imageFormat: "jpg" });
+    expect((await (await openStorage(dataDir)).getChoices()).imageFormat).toBe("jpg");
+  });
+
+  it("an unknown image format in the choices file is corrupt", async () => {
+    await fsp.writeFile(
+      path.join(dataDir, "choices.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        data: {
+          lastOutputFolder: null,
+          lastGroupFilter: null,
+          removeDiacritics: false,
+          imageFormat: "gif",
+        },
+      }),
+    );
+    const s = await openStorage(dataDir);
+    expect(s.warnings.map((w) => w.file)).toEqual(["choices.json"]);
+  });
+
   it("treats valid JSON of the wrong shape as corrupt", async () => {
     await fsp.writeFile(
       path.join(dataDir, "choices.json"),
@@ -251,6 +289,7 @@ describe("schema version", () => {
       lastOutputFolder: "/x",
       lastGroupFilter: null,
       removeDiacritics: true,
+      imageFormat: null,
     });
     expect(JSON.parse(await fsp.readFile(file, "utf8")).schemaVersion).toBe(2);
     expect(await fsp.readFile(path.join(dataDir, "choices.json.v1.bak"), "utf8")).toBe(old);

@@ -71,6 +71,27 @@ describe("createGenerator: image", () => {
     expect([...data.slice(0, 4)]).toEqual([0x89, 0x50, 0x4e, 0x47]);
   });
 
+  it("fails the row with `bad-background` when the background cannot be read", async () => {
+    const generate = createGenerator({
+      kind: "image",
+      template: { ...imageTemplate("Sheetstamp Test"), background: new Uint8Array([1, 2, 3]) },
+      format: { type: "png" },
+    });
+    await expect(generate({ values: { ten: "A" } })).rejects.toMatchObject({
+      code: "bad-background",
+    });
+  });
+
+  it("writes a JPEG when asked", async () => {
+    const generate = createGenerator({
+      kind: "image",
+      template: imageTemplate("Sheetstamp Test"),
+      format: { type: "jpeg", quality: 90 },
+    });
+    const data = await generate({ values: { ten: "Hương" } });
+    expect([...data.slice(0, 3)]).toEqual([0xff, 0xd8, 0xff]);
+  });
+
   it.each([
     ["Gone Font", { ten: "A" }, "font-missing"],
     ["Sheetstamp Test", { ten: "x".repeat(200) }, "text-too-long"],

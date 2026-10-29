@@ -32,6 +32,7 @@ const KNOWN: ReadonlySet<string> = new Set<RowErrorCode>([
   "missing-tag",
   "font-missing",
   "text-too-long",
+  "bad-background",
   "render-failed",
 ]);
 

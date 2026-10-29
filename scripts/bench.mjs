@@ -1,5 +1,7 @@
-// Benchmark for T-10: 4,000 rows to a ZIP through the worker pool, Word and image.
-// Run `npm run build` first. Usage: node scripts/bench.mjs [--rows 4000] [--runs 3] [--sizes 1,3,4] [--write]
+// Benchmark for T-10 and T-33: 4,000 rows to a ZIP through the worker pool. Kinds: word, image (JPEG quality 85, the
+// Phase 0 setting), jpg (JPEG quality 90, what the app writes) and png.
+// Run `npm run build` first. Usage: node scripts/bench.mjs [--rows 4000] [--runs 3] [--sizes 1,3,4]
+//   [--kinds word,image,jpg,png] [--out .work/proof/phase-2-benchmark.md] [--write]
 import { mkdir, mkdtemp, rm, stat, writeFile } from "node:fs/promises";
 import { availableParallelism, cpus, loadavg, tmpdir, totalmem } from "node:os";
 import { join } from "node:path";
@@ -18,7 +20,7 @@ const RUNS = Number(arg("runs", 3));
 const SIZES = arg("sizes", `1,${Math.max(1, availableParallelism() - 1)},${availableParallelism()}`)
   .split(",")
   .map(Number);
-const KINDS = arg("kinds", "word,image").split(",");
+const KINDS = arg("kinds", "word,image,jpg,png").split(",");
 const WORKER = workerFileIn(fileURLToPath(new URL("../out/main", import.meta.url)));
 
 const FIELDS = [
@@ -95,19 +97,16 @@ const box = (field, y, fontSize, style) => ({
   maxLines: 1,
   overflow: "shrink",
 });
-const imageInit = {
-  kind: "image",
-  format: { type: "jpeg", quality: 85 },
-  template: {
-    background: new Uint8Array(canvas.toBuffer("image/png")),
-    boxes: [
-      box("ten", 300, 96, "bold"),
-      box("phong_ban", 460, 48, "normal"),
-      box("dia_chi", 560, 40, "italic"),
-      box("so_hop_dong", 800, 36, "normal"),
-    ],
-  },
+const imageTemplate = {
+  background: new Uint8Array(canvas.toBuffer("image/png")),
+  boxes: [
+    box("ten", 300, 96, "bold"),
+    box("phong_ban", 460, 48, "normal"),
+    box("dia_chi", 560, 40, "italic"),
+    box("so_hop_dong", 800, 36, "normal"),
+  ],
 };
+const imageInit = (format) => ({ kind: "image", format, template: imageTemplate });
 const wordInit = { kind: "word", template: wordTemplate };
 
 const median = (xs) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
@@ -150,10 +149,13 @@ async function once(label, init, extension, size) {
 }
 
 const results = [];
-for (const [label, init, extension] of [
-  ["word", wordInit, "docx"],
-  ["image", imageInit, "jpg"],
-]) {
+const CASES = {
+  word: [wordInit, "docx"],
+  image: [imageInit({ type: "jpeg", quality: 85 }), "jpg"],
+  jpg: [imageInit({ type: "jpeg", quality: 90 }), "jpg"],
+  png: [imageInit({ type: "png" }), "png"],
+};
+for (const [label, [init, extension]] of KINDS.map((kind) => [kind, CASES[kind]])) {
   await once(label, init, extension, SIZES[SIZES.length - 1]); // warm-up, not reported
   for (let r = 0; r < RUNS; r++) {
     for (const size of SIZES) {
@@ -167,13 +169,13 @@ for (const [label, init, extension] of [
 }
 
 const lines = [
-  "# Phase 0 benchmark (T-10)",
+  "# Benchmark (T-10, T-33)",
   "",
   `Machine: ${cpus()[0]?.model}, ${availableParallelism()} cores, ${(totalmem() / 1e9).toFixed(1)} GB RAM, load at start ${loadavg()
     .map((n) => n.toFixed(2))
     .join(" ")}`,
   `Node ${process.version}; ${ROWS} rows; ${RUNS} runs per size (alternating), one warm-up per kind not reported.`,
-  `Word: contract of 120 paragraphs, a table, header and footer, 8 tags. Image: 1600x1000 JPEG (quality 85), 4 text boxes, font ${family}.`,
+  `Word: contract of 120 paragraphs, a table, header and footer, 8 tags. Image: 1600x1000 gradient PNG background, 4 text boxes, font ${family}; image = JPEG quality 85, jpg = JPEG quality 90, png = PNG output.`,
   "",
   "| Kind | Pool size | Median s | Range s | Rows/s | Failed | ZIP MB | Main-thread lag p99 ms | Lag max ms | Peak RSS MB |",
   "|---|---|---|---|---|---|---|---|---|---|",
@@ -191,5 +193,5 @@ const text = `${lines.join("\n")}\n`;
 console.log(text);
 if (process.argv.includes("--write")) {
   await mkdir(".work/proof", { recursive: true });
-  await writeFile(arg("out", ".work/proof/phase-0-benchmark.md"), text);
+  await writeFile(arg("out", ".work/proof/phase-2-benchmark.md"), text);
 }

@@ -4,6 +4,7 @@ import { join } from "node:path";
 import type { FontFamilyInfo, RenderRequest, RenderResponse } from "../../shared/ipc/images";
 import type { ImageInit, ImageJob, ImageReply } from "../../worker/image-job";
 import { WorkerPool } from "../../worker/pool";
+import type { ImageTemplate, OutputFormat } from "../../worker/render/types";
 
 export const imageWorkerFileIn = (directory: string) => join(directory, "image-worker.js");
 
@@ -43,6 +44,17 @@ export class ImageService {
           code: reply.code,
           ...(reply.field === undefined ? {} : { field: reply.field }),
         };
+  }
+
+  /** Bytes of the first sample rows drawn in `format`, for the size estimate. Rows that fail are left out. */
+  async sample(
+    template: ImageTemplate,
+    rows: Record<string, string>[],
+    format: OutputFormat,
+  ): Promise<number[]> {
+    const reply = await this.#run({ kind: "sample", template, rows, format });
+    if (reply.kind !== "sample") throw new Error("unexpected reply");
+    return reply.sizes;
   }
 
   async close(): Promise<void> {
