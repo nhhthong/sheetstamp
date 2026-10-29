@@ -3,6 +3,7 @@ import { app, BrowserWindow } from "electron";
 import { appPageFile, isAppUrl } from "./app-url";
 import { registerIpc } from "./ipc";
 import { guardClose } from "./ipc/export";
+import { applySavedTheme } from "./ipc/settings";
 import { runSelfTest } from "./selftest/selftest";
 
 function createWindow(): BrowserWindow {
@@ -52,6 +53,7 @@ app.whenReady().then(async () => {
     return;
   }
   registerIpc();
+  await applySavedTheme();
   createWindow();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

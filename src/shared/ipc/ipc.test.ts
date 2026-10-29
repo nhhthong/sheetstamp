@@ -11,6 +11,7 @@ import {
   string,
 } from "./define";
 import { CHANNEL_NAMES } from "./registry";
+import { setTheme } from "./settings";
 
 describe("validators", () => {
   it("accepts app:info only without an argument", () => {
@@ -35,7 +36,16 @@ describe("validators", () => {
     expect(() => nothing(1)).toThrow();
   });
 
+  it("accepts only the three themes", () => {
+    for (const theme of ["light", "dark", "system"])
+      expect(setTheme.parse({ theme })).toEqual({ theme });
+    for (const bad of [undefined, {}, { theme: "pink" }, { theme: 1 }, "dark"]) {
+      expect(() => setTheme.parse(bad)).toThrow(IpcValidationError);
+    }
+  });
+
   it("registers every channel once", () => {
     expect(CHANNEL_NAMES.has("app:info")).toBe(true);
+    expect(CHANNEL_NAMES.has("settings:set-theme")).toBe(true);
   });
 });

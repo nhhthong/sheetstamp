@@ -66,6 +66,16 @@ export const DEFAULT_CHOICES: Choices = {
   removeDiacritics: false,
 };
 
+export const THEMES = ["light", "dark", "system"] as const;
+export type Theme = (typeof THEMES)[number];
+
+/** What the user set in Cài đặt, kept apart from the remembered choices so one corrupt file never costs the other. */
+export interface Settings {
+  theme: Theme;
+}
+
+export const DEFAULT_SETTINGS: Settings = { theme: "system" };
+
 /** Fields the caller sets when creating a template; the rest is generated. */
 export interface NewTemplate {
   name: string;
@@ -168,4 +178,7 @@ export interface Storage {
 
   getChoices(): Promise<Choices>;
   setChoices(patch: Partial<Choices>): Promise<Choices>;
+
+  getSettings(): Promise<Settings>;
+  setSettings(patch: Partial<Settings>): Promise<Settings>;
 }
