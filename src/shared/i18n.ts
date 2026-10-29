@@ -14,8 +14,15 @@ let current: Lang | null = null;
 
 export function getLang(): Lang {
   if (current) return current;
-  const fromBridge = (globalThis as { sheetstamp?: { lang?: unknown } }).sheetstamp?.lang;
-  current = isLang(fromBridge) ? fromBridge : DEFAULT_LANG;
+  const g = globalThis as {
+    sheetstamp?: { lang?: unknown };
+    process?: { env?: Record<string, string | undefined> };
+  };
+  // The renderer asks the preload bridge; a Node process (main before it reads settings.json, the e2e specs that
+  // open the storage themselves) follows SHEETSTAMP_LANG when it is set.
+  const fromEnv = g.process?.env?.SHEETSTAMP_LANG;
+  const found = g.sheetstamp?.lang ?? fromEnv;
+  current = isLang(found) ? found : DEFAULT_LANG;
   return current;
 }
 
