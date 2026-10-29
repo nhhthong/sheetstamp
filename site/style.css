@@ -268,16 +268,20 @@ a:hover {
 }
 .hero-video {
   margin-top: var(--space-xl);
-  border-radius: var(--radius-card);
+}
+.hero-video .app-frame {
+  --border-radius: var(--radius-card);
+  --box-shadow: 0 36px 72px -28px color-mix(in oklab, var(--color-shade) 55%, transparent);
   overflow: hidden;
-  background: var(--color-card);
-  box-shadow: var(--shadow-card);
 }
 .hero-video video {
   display: block;
   width: 100%;
   height: auto;
   aspect-ratio: 3 / 2;
+}
+.hero-video video:focus-visible {
+  outline-color: var(--color-night-ink);
 }
 video:focus-visible {
   outline: 2px solid var(--color-focus);
@@ -725,7 +729,11 @@ footer a {
   }
   .hero-video {
     margin-inline: calc(-1 * var(--gutter));
-    border-radius: 0;
+  }
+  .hero-video .app-frame {
+    --border-radius: 0;
+    --box-shadow: none;
+    border-inline-width: 0;
   }
   .pill {
     padding-inline: var(--space-md);
@@ -780,7 +788,7 @@ footer a {
 /* On very wide screens the video keeps its measure, so the hero still fits a 1080 screen */
 @media (min-width: 100rem) {
   .hero-video {
-    max-width: 920px;
+    max-width: 800px;
     margin-inline: auto;
   }
 }

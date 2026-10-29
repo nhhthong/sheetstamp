@@ -36,6 +36,7 @@
       } catch (e) {}
     </script>
     <link rel="stylesheet" href="../assets/devices-surface-book.css" />
+    <link rel="stylesheet" href="../assets/app-frame.css" />
     <link rel="stylesheet" href="../style.css" />
     <script type="application/ld+json">
       {
@@ -88,6 +89,7 @@
             </div>
           </div>
           <div class="hero-video">
+            <div class="app-frame mac centered" data-title="Sheetstamp">
             <video
               src="../assets/demo.mp4"
               poster="../assets/demo-poster.jpg"
@@ -100,8 +102,9 @@
               controls
               preload="auto"
               data-autoplay
-              aria-label="Video demo: từ file Excel đến một file ZIP chứa các thiệp sinh nhật đã điền tên, trong bốn bước."
+              aria-label="Video demo: từ file Excel đến một file ZIP chứa các hợp đồng Word đã điền, trong bốn bước."
             ></video>
+            </div>
           </div>
         </div>
       </section>
@@ -323,14 +326,29 @@
           var SIZE = 48;
           var box = cells.parentElement;
           var cols = Math.ceil(box.clientWidth / SIZE);
-          var rows = Math.min(Math.ceil(box.clientHeight / SIZE), 10);
-          for (var i = 0; i < Math.min(18, cols * rows / 8); i++) {
+          var head = document.querySelector(".head2");
+          var reach = head.getBoundingClientRect().bottom - box.getBoundingClientRect().top;
+          var rows = Math.min(Math.ceil(reach / SIZE), 10);
+          var top0 = box.getBoundingClientRect().top;
+          var left0 = box.getBoundingClientRect().left;
+          // Cells stay off the text: skip any cell that touches the headline, the sentence, the buttons or the note.
+          var keep = [].map.call(document.querySelectorAll(".hero h1, .hero .lead, .hero .actions, .hero .fine"), function (el) {
+            var r = el.getBoundingClientRect();
+            return { l: r.left - left0 - 8, r: r.right - left0 + 8, t: r.top - top0 - 8, b: r.bottom - top0 + 8 };
+          });
+          var made = 0;
+          for (var tries = 0; tries < 90 && made < Math.min(18, cols * rows / 8); tries++) {
+            var x = Math.floor(Math.random() * cols) * SIZE;
+            var y = Math.floor(Math.random() * rows) * SIZE;
+            var hits = keep.some(function (k) { return x < k.r && x + SIZE > k.l && y < k.b && y + SIZE > k.t; });
+            if (hits) continue;
             var c = document.createElement("i");
-            c.style.left = Math.floor(Math.random() * cols) * SIZE + "px";
-            c.style.top = Math.floor(Math.random() * rows) * SIZE + "px";
+            c.style.left = x + "px";
+            c.style.top = y + "px";
             c.style.animationDelay = (Math.random() * -9).toFixed(2) + "s";
             c.style.animationDuration = (5 + Math.random() * 5).toFixed(2) + "s";
             cells.appendChild(c);
+            made++;
           }
         }
 
