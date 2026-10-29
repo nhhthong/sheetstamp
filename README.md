@@ -1,32 +1,94 @@
+<div align="center">
+
+<img src="site/assets/icon.png" alt="Sheetstamp" width="96" height="96">
+
 # Sheetstamp
 
-Fill Word (`.docx`) templates with rows from a CSV or Excel file, then save every generated file in one ZIP.
-Everything runs on your computer: no upload, no account, no telemetry.
+**Fill Word and image templates from Excel or CSV. Export hundreds of files in one ZIP.**
 
-Made for HR, accounting and administrative staff who produce contracts, payroll documents, transfer letters or
-letters for hundreds of people. The interface is in Vietnamese.
+Offline desktop app for Windows and Ubuntu. No upload, no account, no telemetry.
 
-> **Status:** feature complete for the first release (Phase 2); installers build in CI but nothing is published yet.
-> Word and image templates both work end to end. See [docs/specification.md](docs/specification.md).
+[![CI](https://github.com/nhhthong/sheetstamp/actions/workflows/ci.yml/badge.svg)](https://github.com/nhhthong/sheetstamp/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Ubuntu-lightgrey)
 
-## What it does
+[Website](https://nhhthong.github.io/sheetstamp/) ·
+[Download](https://github.com/nhhthong/sheetstamp/releases/latest) ·
+[Tiếng Việt](https://nhhthong.github.io/sheetstamp/vi/) ·
+[Specification](docs/specification.md)
 
-- Reads `.csv` and `.xlsx` (several sheets supported). Detects Vietnamese encodings (UTF-8, Windows-1258) and keeps
-  leading zeros in ID and phone numbers.
-- Word templates: put `{{ten}}` tags in a normal Word file, including tables, headers and footers. Templates are kept
-  in a library on your computer.
-- Matches columns to tags automatically (ignoring diacritics, with an HR synonym list); you only fix what it cannot
-  match, and a preview shows the first rows filled in.
-- Names files from a pattern such as `{{ten}}`, avoids duplicates and characters Windows rejects.
-- Exports one ZIP with progress and a Cancel button. One bad row never stops the batch; a CSV report lists the rows that failed.
+</div>
 
-- Image templates: put text boxes on a PNG or JPEG background in an editor (any installed font, shrink / wrap / truncate
-  / error when text is too long), export PNG or JPG.
-- Light, dark or system theme, and an About page in Settings. No automatic updates and no network calls.
+<p align="center">
+  <img src="site/assets/app-ghep-cot.png" alt="Sheetstamp matching spreadsheet columns to template tags" width="860">
+</p>
 
-## Platforms
+## Why Sheetstamp
 
-Windows 10/11 (x64) and Ubuntu 22.04/24.04 (x64). macOS builds exist for testing only.
+HR, accounting and administrative teams produce the same document for hundreds of people: contracts, payroll
+slips, transfer letters, certificates. Copying values by hand is slow and error-prone, and uploading employee data to
+a web service is often not allowed.
+
+Sheetstamp does it on your own computer. Pick a template, pick a spreadsheet, check a preview, export.
+
+## Features
+
+| | |
+|---|---|
+| **Word templates** | Put `{{name}}` tags in a normal `.docx`, including tables, headers and footers. Templates live in a local library. |
+| **Image templates** | Place text boxes on a PNG or JPEG background in a built-in editor. Any installed font; shrink, wrap, truncate or error when text is too long. Export PNG or JPG. |
+| **Spreadsheets** | Reads `.csv` and `.xlsx` (several sheets). Detects Vietnamese encodings (UTF-8, Windows-1258) and keeps leading zeros in IDs and phone numbers. |
+| **Automatic matching** | Matches columns to tags ignoring diacritics, with an HR synonym list. A preview shows the first rows filled in. |
+| **Safe file names** | Names files from a pattern such as `{{name}}`, avoids duplicates and characters Windows rejects. |
+| **One ZIP** | Progress and a Cancel button. One bad row never stops the batch; a CSV report lists the rows that failed. |
+| **Private by design** | Works offline. No automatic updates, no network calls, no account. |
+| **Themes** | Light, dark or system. |
+
+## How it works
+
+<table>
+  <tr>
+    <td width="33%"><img src="site/assets/app-chon-mau.png" alt="Step 1: choose a template and data"></td>
+    <td width="33%"><img src="site/assets/app-ghep-cot.png" alt="Step 2: match columns to tags"></td>
+    <td width="33%"><img src="site/assets/app-soan-anh.png" alt="Image template editor"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>1. Data and template</b></td>
+    <td align="center"><b>2. Match columns</b></td>
+    <td align="center"><b>3. Image editor</b></td>
+  </tr>
+</table>
+
+Then choose the file-name pattern and export. The result is one ZIP.
+
+## Install
+
+Download from the [latest release](https://github.com/nhhthong/sheetstamp/releases/latest).
+
+| Platform | File |
+|---|---|
+| Windows 10/11 (x64) | `Sheetstamp-Setup-x64.exe` |
+| Ubuntu 22.04 / 24.04 (x64) | `Sheetstamp-x64.deb` or `Sheetstamp-x64.AppImage` |
+| macOS | Coming soon. Builds exist for testing only. |
+
+Each release also publishes `SHA256SUMS.txt`:
+
+```bash
+sha256sum -c SHA256SUMS.txt --ignore-missing   # Linux
+certutil -hashfile Sheetstamp-Setup-x64.exe SHA256   # Windows
+```
+
+The Windows installer is not code-signed yet, so Windows SmartScreen may warn when you run it.
+
+```bash
+sudo apt install ./Sheetstamp-x64.deb   # Ubuntu
+```
+
+## Privacy
+
+- Files are read and written only on your computer.
+- The app makes no network calls and sends no telemetry.
+- Source code is open under the MIT license, so this can be checked.
 
 ## Develop
 
@@ -50,16 +112,21 @@ containers set `--use-openssl-ca`, which Electron rejects), clear it for that co
 (used by `tests/e2e/preview.spec.ts`). To run one spec by hand, run `npm run build:e2e` first, then
 `npx playwright test tests/e2e/<spec>`. The plain `npm run build` never produces that page.
 
-Layout: `src/main` (Electron main process and the file work), `src/preload`, `src/renderer` (React UI),
-`src/shared` (types and IPC contracts), `src/worker` (heavy work off the main thread). Project notes are in
-`docs/` and `GLOSSARY.md`; decisions are in `docs/adr/`.
+The website in `site/` is generated: edit `scripts/site/` and run `npm run build:site`.
 
-## Code signing policy
+### Project layout
 
-The first Windows release is not signed, so Windows SmartScreen will warn when you run the installer. Each release
-publishes `SHA256SUMS.txt` so you can check your download. After the first release the project will apply to
-[SignPath](https://signpath.org) for free open-source code signing. The policy page is on the
-[download page](https://nhhthong.github.io/sheetstamp/#code-signing-policy).
+| Path | Contents |
+|---|---|
+| `src/main` | Electron main process and the file work |
+| `src/preload` | Preload bridge |
+| `src/renderer` | React UI (Vietnamese) |
+| `src/shared` | Types and IPC contracts |
+| `src/worker` | Heavy work off the main thread |
+| `docs/` | [Specification](docs/specification.md), decisions in `docs/adr/` |
+| `GLOSSARY.md` | Project terms |
+
+Built with Electron, React, TypeScript, Vite, Tailwind CSS, Konva, `easy-template-x` and ExcelJS.
 
 ## License
 
