@@ -16,7 +16,7 @@
   "lead": "Excel hoặc CSV vào mẫu Word và ảnh, xuất một file ZIP.",
   "dlWin": "Tải cho Windows",
   "dlUbuntu": "Tải cho Ubuntu",
-  "note": "Phiên bản 0.1.0. Bộ cài Windows chưa được ký số nên SmartScreen có thể cảnh báo; kiểm tra file tải về bằng SHA256SUMS.txt.",
+  "note": "Bộ cài Windows chưa được ký số nên SmartScreen có thể cảnh báo; kiểm tra file tải về bằng SHA256SUMS.txt.",
   "videoLabel": "Video demo: từ file Excel đến một file ZIP chứa các hợp đồng Word đã điền, trong bốn bước.",
   "howTitle": "Làm theo từng bước, mỗi lần một việc",
   "howT1": "Dữ liệu và mẫu",
