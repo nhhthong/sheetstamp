@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 /*
- * Colour tokens. Light is the default; dark follows the operating system.
- * (A user-chosen theme arrives with the Settings screen in Phase 2: it only has to set data-theme on <html>.)
+ * Colour tokens. Light is the default; dark follows prefers-color-scheme, which main keeps in step with the choice
+ * in Cài đặt (nativeTheme.themeSource) and the operating system. Sáng and Tối also set data-theme on <html>.
+ * src/renderer/styles.test.ts checks the contrast of these tokens.
  */
 :root {
   --bg: #ffffff;

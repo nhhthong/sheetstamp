@@ -152,6 +152,33 @@ describe("corrupt files", () => {
     );
   });
 
+  it("settings: default System, remembered across reopen, written atomically", async () => {
+    const a = await openStorage(dataDir);
+    expect(await a.getSettings()).toEqual({ theme: "system" });
+    expect(await listDir()).not.toContain("settings.json");
+    await a.setSettings({ theme: "dark" });
+    expect((await listDir()).filter((f) => f.startsWith("settings"))).toEqual(["settings.json"]);
+    expect(await (await openStorage(dataDir)).getSettings()).toEqual({ theme: "dark" });
+    await expect(a.setSettings({ theme: "pink" as never })).rejects.toThrow(StorageError);
+    expect(await a.getSettings()).toEqual({ theme: "dark" });
+  });
+
+  it("a corrupt or unknown-theme settings.json falls back to System and costs no other file", async () => {
+    await fsp.writeFile(path.join(dataDir, "settings.json"), '{"schemaVersion": 1, "data": {oops');
+    const s = await openStorage(dataDir);
+    expect(s.warnings.map((w) => w.file)).toEqual(["settings.json"]);
+    expect(await s.getSettings()).toEqual({ theme: "system" });
+    expect(await listDir()).toContain("settings.json.bak");
+
+    await fsp.writeFile(
+      path.join(dataDir, "settings.json"),
+      JSON.stringify({ schemaVersion: 1, data: { theme: "pink" } }),
+    );
+    const t = await openStorage(dataDir);
+    expect(t.warnings.map((w) => w.file)).toEqual(["settings.json"]);
+    expect(await t.getSettings()).toEqual({ theme: "system" });
+  });
+
   it("treats valid JSON of the wrong shape as corrupt", async () => {
     await fsp.writeFile(
       path.join(dataDir, "choices.json"),
