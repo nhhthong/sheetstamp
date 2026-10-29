@@ -4,7 +4,7 @@
 **Parent:** E-2
 **Requirements:** R4.8, R4.4, R9.5, R6.4, R6.5, R11.1
 **Blocked by:** T-32
-**Status:** ready
+**Status:** done
 **New infrastructure:** none
 **Files:** src/renderer/pages/home, src/main/export-session, src/main/export, src/worker, src/shared/ipc/export.ts, tests/e2e
 **Proof:** `npm run test:e2e` runs the whole flow with an image template and 4 rows (one with a text too long under "report an error"): the ZIP on disk holds 3 PNG files with the names from the pattern, the error report names row 4 with code only, and cancelling mid-way leaves nothing.
