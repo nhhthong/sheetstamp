@@ -17,6 +17,9 @@ export const ied = {
   listLabel: "Các ô chữ",
   empty: "Chưa có ô chữ nào. Bấm “+ Thêm chữ” để bắt đầu.",
   boxName: (label: string, n: number) => `Ô ${n}: ${label}`,
+  outsideBanner: (n: number) =>
+    `${n} ô chữ không nằm hết trong ảnh nền. Kéo vào trong ảnh, hoặc xóa ô nếu không cần.`,
+  outsideBadge: "ngoài ảnh",
   position: (x: number, y: number, width: number) => `x ${x}, y ${y}, rộng ${width}`,
   selected: (label: string, x: number, y: number) => `Đã chọn ô chữ ${label}, vị trí ${x}, ${y}.`,
   moved: (x: number, y: number) => `Vị trí ${x}, ${y}.`,

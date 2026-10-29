@@ -14,11 +14,14 @@ type Props = {
   /** First data row's values per field, when data is loaded. */
   sample: Readonly<Record<string, string>>;
   selectedId: string | null;
+  /** Boxes that do not fit inside the background: drawn in the warning colour. */
+  flaggedIds?: ReadonlySet<string>;
   onSelect: (id: string | null) => void;
   onChange: (id: string, change: BoxChange) => void;
 };
 
 const OUTLINE = "#2563eb";
+const FLAGGED = "#d97706";
 const MIN_WIDTH = 20;
 const LINE_HEIGHT = 1.25;
 const konvaStyle = { normal: "normal", bold: "bold", italic: "italic", bolditalic: "italic bold" };
@@ -33,6 +36,7 @@ export function EditorCanvas({
   labels,
   sample,
   selectedId,
+  flaggedIds,
   onSelect,
   onChange,
 }: Props) {
@@ -72,6 +76,7 @@ export function EditorCanvas({
             <KonvaImage name="background" image={background} />
             {boxes.map((box) => {
               const selected = box.id === selectedId;
+              const flagged = flaggedIds?.has(box.id) === true;
               const height = box.fontSize * LINE_HEIGHT * box.maxLines;
               return (
                 <Group
@@ -89,8 +94,8 @@ export function EditorCanvas({
                     width={box.width}
                     height={height}
                     fill="rgba(37,99,235,0.08)"
-                    stroke={OUTLINE}
-                    strokeWidth={(selected ? 3 : 1) / scale}
+                    stroke={flagged ? FLAGGED : OUTLINE}
+                    strokeWidth={(selected || flagged ? 3 : 1) / scale}
                     dash={selected ? undefined : [6 / scale, 4 / scale]}
                   />
                   <Text

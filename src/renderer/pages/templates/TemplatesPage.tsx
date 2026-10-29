@@ -10,6 +10,7 @@ import { cn } from "../../lib/cn";
 import { call } from "../../lib/ipc";
 import { tpl } from "../../strings/templates";
 import { vi } from "../../strings/vi";
+import { EditImageTemplateDialog } from "./EditImageTemplateDialog";
 import { EditTemplateDialog } from "./EditTemplateDialog";
 import { GroupsDialog } from "./GroupsDialog";
 import { ImageEditorPage } from "./image-editor/ImageEditorPage";
@@ -39,6 +40,7 @@ export function TemplatesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
+  const [editingImageInfo, setEditingImageInfo] = useState<string | null>(null);
   const [groupsOpen, setGroupsOpen] = useState(false);
   const [editingImage, setEditingImage] = useState<string | null>(null);
   const storage = useStorageStatus();
@@ -179,14 +181,24 @@ export function TemplatesPage() {
               ) : (
                 <div className="flex shrink-0 gap-2">
                   {t.kind === "image" ? (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      aria-label={`${tpl.editImage} ${t.name}`}
-                      onClick={() => setEditingImage(t.id)}
-                    >
-                      {tpl.editImage}
-                    </Button>
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        aria-label={`${tpl.editImageInfo} ${t.name}`}
+                        onClick={() => setEditingImageInfo(t.id)}
+                      >
+                        {tpl.editImageInfo}
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        aria-label={`${tpl.editImage} ${t.name}`}
+                        onClick={() => setEditingImage(t.id)}
+                      >
+                        {tpl.editImage}
+                      </Button>
+                    </>
                   ) : (
                     <Button
                       variant="secondary"
@@ -226,6 +238,12 @@ export function TemplatesPage() {
         open={editing !== null}
         templateId={editing}
         onOpenChange={(open) => !open && setEditing(null)}
+        onSaved={() => void refresh()}
+      />
+      <EditImageTemplateDialog
+        open={editingImageInfo !== null}
+        templateId={editingImageInfo}
+        onOpenChange={(open) => !open && setEditingImageInfo(null)}
         onSaved={() => void refresh()}
       />
       <GroupsDialog

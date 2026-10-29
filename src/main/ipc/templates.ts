@@ -11,12 +11,14 @@ import {
   groupsDelete,
   groupsList,
   groupsRename,
+  imageReplacePreview,
   list,
   parseFile,
   parseImage,
   remove,
   replacePreview,
   update,
+  updateImage,
 } from "../../shared/ipc/templates";
 import {
   createGroup,
@@ -27,6 +29,7 @@ import {
   updateTemplate,
 } from "../templates/edit";
 import { createImageTemplate, parseImageFile } from "../templates/image";
+import { previewImageReplace, updateImageTemplate } from "../templates/image-edit";
 import {
   createTemplate,
   getTemplate,
@@ -74,5 +77,9 @@ export function register(): void {
   handle(groupsDelete, async ({ id }) => deleteGroup(await getStorage(), id));
   handle(replacePreview, async ({ id, path }) => previewReplace(await getStorage(), id, path));
   handle(update, async (request) => updateTemplate(await getStorage(), request));
+  handle(imageReplacePreview, async ({ id, path }) =>
+    previewImageReplace(await getStorage(), id, path),
+  );
+  handle(updateImage, async (request) => updateImageTemplate(await getStorage(), request));
   handle(checkPattern, ({ pattern, keys }) => patternMessages(pattern, keys));
 }
