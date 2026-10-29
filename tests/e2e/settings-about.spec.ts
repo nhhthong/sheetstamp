@@ -1,4 +1,4 @@
-// T-35: Cài đặt > Giới thiệu shows the version, licence, notices and Electron date; "Kiểm tra bản mới" only asks main
+// T-35: Cài đặt > Giới thiệu shows the version, the local-only line and Electron date; "Kiểm tra bản mới" only asks main
 // to open the fixed download page (shell.openExternal is replaced here, so no browser opens).
 import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -34,13 +34,12 @@ test("Giới thiệu shows the facts and Kiểm tra bản mới opens only the d
 
   const { version } = JSON.parse(read("package.json")) as { version: string };
   await expect(about.getByText(`Sheetstamp phiên bản ${version}`)).toBeVisible();
-  await expect(about.getByText("Giấy phép MIT. Chạy hoàn toàn trên máy này")).toBeVisible();
-  await expect(about.getByRole("region", { name: "Nội dung giấy phép MIT" })).toContainText(
-    read("LICENSE").trim(),
-  );
-  const notices = about.getByRole("region", { name: "Thông báo về phần mềm bên thứ ba" });
-  await expect(notices).toContainText("Third-party notices");
-  await expect(notices).toContainText("@base-ui/react");
+  await expect(
+    about.getByText("Chạy hoàn toàn trên máy này, không gửi dữ liệu đi đâu."),
+  ).toBeVisible();
+  // The licence texts are not shown in the app; the files still ship beside it (electron-builder.yml).
+  await expect(about.getByText("MIT")).toHaveCount(0);
+  await expect(about.getByText("bên thứ ba")).toHaveCount(0);
   await expect(about.getByText("hỗ trợ bảo mật đến 27/04/2027")).toBeVisible();
   await expect(about.getByText(URL_OF_DOWNLOAD_PAGE)).toBeVisible();
 

@@ -15,6 +15,11 @@ test("the built app opens with its shell, hardened and keyboard friendly", async
   const page = await app.firstWindow();
   await expect(page).toHaveTitle("Sheetstamp");
 
+  // No File/Edit/View bar on Windows and Linux; macOS keeps its menu.
+  expect(await app.evaluate(({ Menu }) => Menu.getApplicationMenu() !== null)).toBe(
+    process.platform === "darwin",
+  );
+
   // Hardening: no Node in the renderer, only the bridge.
   const exposed = await page.evaluate(() => ({
     require: typeof (globalThis as { require?: unknown }).require,

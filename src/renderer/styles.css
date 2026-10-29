@@ -85,6 +85,28 @@ body {
   line-height: 1.5;
 }
 
+/* Slim, pale scrollbars without arrow buttons: the thumb is the text colour at low strength, the track is invisible. */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+*::-webkit-scrollbar-button {
+  display: none;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--text) 22%, transparent);
+  background-clip: content-box;
+  border: 2px solid transparent;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--text) 40%, transparent);
+}
+
 /* Keyboard focus is always visible. */
 :focus-visible {
   outline: 2px solid var(--accent);

@@ -9,9 +9,7 @@ export const settingsStrings = {
   about: {
     legend: "Giới thiệu",
     version: (version: string) => `Sheetstamp phiên bản ${version}`,
-    licenceLine: "Giấy phép MIT. Chạy hoàn toàn trên máy này, không gửi dữ liệu đi đâu.",
-    licenceText: "Nội dung giấy phép MIT",
-    notices: "Thông báo về phần mềm bên thứ ba",
+    localLine: "Chạy hoàn toàn trên máy này, không gửi dữ liệu đi đâu.",
     electronEnd: (date: string) =>
       `Phiên bản Electron đi kèm được hỗ trợ bảo mật đến ${date}; hãy cập nhật Sheetstamp trước thời điểm đó.`,
     downloadPage: "Trang tải về",

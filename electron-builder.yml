@@ -6,10 +6,12 @@ directories:
 files:
   - out/**/*
   - package.json
-# Shown in Cài đặt > Giới thiệu; read from resources/ (outside the archive).
+# Shipped beside the app in resources/ (outside the archive): the licence texts stay with every install, the window icon is read from here.
 extraResources:
   - LICENSE
   - THIRD-PARTY-NOTICES.md
+  - from: build/icon.png
+    to: icon.png
 asar: true
 # Native modules cannot load from inside the ASAR archive.
 asarUnpack:
