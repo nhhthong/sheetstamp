@@ -26,13 +26,13 @@ A write-up that sounds right proves nothing. Find the one fact the change's safe
    - **Data that leaves the process**: the JSON a route returns, a database column, a queue message, a file format, another service or language that reads the same bytes.
    - **When code runs**: startup and shutdown, retries, concurrency, caches, the other branch of a feature flag.
    - **Distant callers**: generated code, scripts, migrations, jobs, and tests that pin the old behaviour.
-   - **Memory**: `memo_callback` with the module name, for earlier `issue` and `decision` memos about it.
+   - **Notes**: `grep -i` the module name in `.work/notes.md`, for earlier `I-` and `D-` lines about it.
 
    For a large diff or one that crosses services, give each area to its own subagent and merge their lists. The safety fact and its proof stay with you.
 
 4. **Rate each risk.** For each one: how it breaks, the `file:line`, its chance and its cost (low, medium, high), and the proof level it reached. Never invent a caller or an API. A risk you checked and found fine moves to Cleared with the reason. Done when every place from step 3 is a risk or cleared.
 
-5. **Prove the safety fact.** Write the smallest script or test that calls the real code and fails loudly if the fact is false, run it, and keep the lines of output that decide it. Then break the fact on purpose (for example, let the call drop an entry that has not expired) and see the script go red, as "able to fail" in [PROOF.md](../test-plan/PROOF.md) requires; revert the break. A script that only proves goes to `.work/proof/`. When you cannot get past level 3, the fact is `unproven`; say so. Done when the fact has a level and its evidence.
+5. **Prove the safety fact.** Write the smallest script or test that calls the real code and fails loudly if the fact is false, run it, and keep the lines of output that decide it. Then break the fact on purpose (for example, let the call drop an entry that has not expired) and see the script go red, as "able to fail" in [PROOF.md](../test-plan/PROOF.md) requires. Do this on a copy of the code under `.work/proof/`, never by editing a file git tracks: the break is yours to make and undo, not a change to the repo. A script that only proves goes to `.work/proof/`. When you cannot get past level 3, the fact is `unproven`; say so. Done when the fact has a level and its evidence.
 
 ## Reply
 
