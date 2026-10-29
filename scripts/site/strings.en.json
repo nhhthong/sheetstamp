@@ -17,8 +17,6 @@
   "dlWin": "Download for Windows",
   "dlUbuntu": "Download for Ubuntu",
   "note": "Version 0.1.0. The Windows installer is not code-signed yet, so SmartScreen may warn; verify your download with SHA256SUMS.txt.",
-  "videoSrc": "assets/demo-en.mp4",
-  "videoPoster": "assets/demo-en-poster.jpg",
   "videoLabel": "Demo video: from an Excel file to one ZIP of filled Word contracts, in four steps.",
   "howTitle": "Four steps, one thing at a time",
   "howT1": "Data and template",
