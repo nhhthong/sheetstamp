@@ -4,8 +4,9 @@ export const tpl = {
   tabDocs: "Tài liệu",
   tabImages: "Ảnh",
   newTemplate: "+ Mẫu mới",
-  imagesSoon: "Sắp có: mẫu ảnh sẽ có trong bản sau.",
   emptyDocs: "Chưa có mẫu tài liệu nào.",
+  emptyImages: "Chưa có mẫu ảnh nào.",
+  listImages: "Danh sách mẫu ảnh",
   createFirst: "Tạo mẫu đầu tiên",
   loadError:
     "Không tải được danh sách mẫu. Khởi động lại ứng dụng; nếu vẫn lỗi, kiểm tra thư mục dữ liệu.",
@@ -52,6 +53,15 @@ export const tpl = {
     fileNeeded: "Chọn file Word trước.",
     nameNeeded: "Nhập tên mẫu.",
     groupNeeded: "Nhập tên nhóm mới.",
+  },
+  imageDialog: {
+    dropHere: "Thả ảnh nền (PNG, JPG) vào đây",
+    dropLabel: "Vùng thả ảnh nền",
+    chooseButton: "Chọn ảnh…",
+    changeFile: "Chọn ảnh khác",
+    size: (width: number, height: number) => `${width} × ${height} điểm ảnh`,
+    large: "Ảnh lớn, mỗi file có thể mất vài giây.",
+    fileNeeded: "Chọn ảnh nền trước.",
   },
   manageGroups: "Quản lý nhóm",
   editDialog: {

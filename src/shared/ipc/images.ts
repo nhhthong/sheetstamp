@@ -18,9 +18,12 @@ export type { FontStyle, RenderErrorCode, TextBox };
 /** An installed family with only the styles it really has a face for. */
 export type FontFamilyInfo = { family: string; styles: FontStyle[] };
 
-/** Provisional: spike T-24 sets the final background limits. */
+/** Background limits decided in spike T-24 (`.work/phase-2/T-24-report.md`). */
 export const MAX_BACKGROUND_BYTES = 20 * 1024 * 1024;
-const MAX_BOXES = 200;
+export const MAX_BACKGROUND_PIXELS = 25_000_000;
+/** Above this a warning shows; the image is still accepted. */
+export const LARGE_BACKGROUND_PIXELS = 4_000_000;
+export const MAX_BOXES = 200;
 const MAX_VALUES = 5000;
 
 export type RenderRequest = {
@@ -48,7 +51,7 @@ function finite(value: unknown, what: string, min: number, max: number): number 
   return value;
 }
 
-function parseBox(value: unknown, index: number): TextBox {
+export function parseBox(value: unknown, index: number): TextBox {
   const box = record(value, `box ${index}`);
   const color = string(box.color, "color", { max: 9 });
   if (!HEX_COLOR.test(color)) throw new IpcValidationError("color must be a hex color");

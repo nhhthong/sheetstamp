@@ -3,7 +3,9 @@ import { BrowserWindow, dialog } from "electron";
 import {
   checkPattern,
   chooseFile,
+  chooseImage,
   create,
+  createImage,
   get,
   groupsCreate,
   groupsDelete,
@@ -11,6 +13,7 @@ import {
   groupsRename,
   list,
   parseFile,
+  parseImage,
   remove,
   replacePreview,
   update,
@@ -23,6 +26,7 @@ import {
   renameGroup,
   updateTemplate,
 } from "../templates/edit";
+import { createImageTemplate, parseImageFile } from "../templates/image";
 import {
   createTemplate,
   getTemplate,
@@ -49,7 +53,20 @@ export function register(): void {
       : await dialog.showOpenDialog(options);
     return result.canceled ? null : (result.filePaths[0] ?? null);
   });
+  handle(chooseImage, async (_request, event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    const options = {
+      properties: ["openFile" as const],
+      filters: [{ name: "Ảnh", extensions: ["png", "jpg", "jpeg"] }],
+    };
+    const result = win
+      ? await dialog.showOpenDialog(win, options)
+      : await dialog.showOpenDialog(options);
+    return result.canceled ? null : (result.filePaths[0] ?? null);
+  });
   handle(parseFile, ({ path }) => parseChosenFile(path));
+  handle(parseImage, ({ path }) => parseImageFile(path));
+  handle(createImage, async (request) => createImageTemplate(await getStorage(), request));
   handle(create, async (request) => createTemplate(await getStorage(), request));
   handle(groupsList, async () => (await getStorage()).listGroups());
   handle(groupsCreate, async ({ name }) => createGroup(await getStorage(), name));
