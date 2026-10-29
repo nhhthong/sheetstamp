@@ -27,11 +27,15 @@ export type FieldRowProps = {
   columns: readonly string[];
   /** The field had no column when the step opened: once settled it shows "Đã chọn" and stays in place. */
   pinned: boolean;
+  /** The first data row's cell for the chosen column; undefined when the field has no column. */
+  value?: string;
+  /** Another field took this field's column and the user has not chosen again. */
+  taken?: boolean;
   onChange: (entry: FieldMapping | null) => void;
 };
 
 /** One field: its label, a dropdown for the column, and the text box for fixed text. */
-export function FieldRow({ label, entry, columns, pinned, onChange }: FieldRowProps) {
+export function FieldRow({ label, entry, columns, pinned, value, taken, onChange }: FieldRowProps) {
   const id = useId();
   const resolved = isResolved(entry);
   const open = !resolved;
@@ -102,6 +106,11 @@ export function FieldRow({ label, entry, columns, pinned, onChange }: FieldRowPr
         <option value={FIXED}>{t.fixedOption}</option>
         <option value={EMPTY}>{t.emptyOption}</option>
       </Select>
+      {value !== undefined ? (
+        <p data-testid="first-value" className="text-sm text-muted">
+          {t.firstValue(value === "" ? t.emptyCell : value)}
+        </p>
+      ) : null}
       {entry?.kind === "fixed" ? (
         <Input
           value={text}
@@ -112,7 +121,13 @@ export function FieldRow({ label, entry, columns, pinned, onChange }: FieldRowPr
           onBlur={commitNow}
         />
       ) : null}
-      {open ? <p className="text-sm text-muted">{t.explanation(label)}</p> : null}
+      {taken ? (
+        <Status kind="warning" alert>
+          {t.takenAlert}
+        </Status>
+      ) : open ? (
+        <p className="text-sm text-muted">{t.explanation(label)}</p>
+      ) : null}
     </li>
   );
 }
