@@ -90,9 +90,13 @@ function Mapping({
   const [entries, setEntries] = useState<Entries>(view.entries);
   const [showMatched, setShowMatched] = useState(false);
   const [error, setError] = useState("");
+  // Fields that gave their column to another field. They stay in the list of fields to settle, and show the
+  // alert until the user chooses again.
+  const [moved, setMoved] = useState<ReadonlySet<string>>(new Set());
+  const [taken, setTaken] = useState<ReadonlySet<string>>(new Set());
 
   const keys = useMemo(() => view.fields.map((f) => f.key), [view]);
-  const pinned = useMemo(() => new Set(view.unmatched), [view]);
+  const pinned = useMemo(() => new Set([...view.unmatched, ...moved]), [view, moved]);
   const first = view.fields.filter((f) => pinned.has(f.key));
   const matched = view.fields.filter((f) => !pinned.has(f.key));
   const labelOf = useMemo(() => new Map(view.fields.map((f) => [f.key, f.label])), [view]);
@@ -101,12 +105,21 @@ function Mapping({
   function change(key: string, entry: FieldMapping | null) {
     setEntries((now) => {
       const { [key]: _old, ...rest } = now;
-      return entry ? { ...rest, [key]: entry } : rest;
+      if (!entry) return rest;
+      if (entry.kind !== "column") return { ...rest, [key]: entry };
+      const kept = Object.entries(rest).filter(
+        ([, other]) => !(other.kind === "column" && other.column === entry.column),
+      );
+      return { ...Object.fromEntries(kept), [key]: entry };
     });
+    setTaken((now) => new Set([...now].filter((k) => k !== key)));
     setError("");
     call(setEntry, { templateId, key, entry }).then(
       (result) => {
-        if (!result.ok) setError(result.message);
+        if (!result.ok) return setError(result.message);
+        if (result.cleared.length === 0) return;
+        setMoved((now) => new Set([...now, ...result.cleared]));
+        setTaken((now) => new Set([...now, ...result.cleared]));
       },
       () => setError(t.saveFailed),
     );
@@ -120,6 +133,11 @@ function Mapping({
     });
   }
 
+  const valueOf = (entry: FieldMapping | undefined): string | undefined => {
+    if (entry?.kind !== "column") return undefined;
+    return view.firstRow[view.columns.indexOf(entry.column)] ?? "";
+  };
+
   const row = (field: { key: string; label: string }) => (
     <FieldRow
       key={field.key}
@@ -127,6 +145,8 @@ function Mapping({
       entry={entries[field.key]}
       columns={view.columns}
       pinned={pinned.has(field.key)}
+      value={valueOf(entries[field.key])}
+      taken={taken.has(field.key)}
       onChange={(entry) => change(field.key, entry)}
     />
   );

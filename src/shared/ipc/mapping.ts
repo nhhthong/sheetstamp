@@ -108,6 +108,8 @@ export type MappingView = {
   unmatched: string[];
   /** Fields that lost their column because the data changed. */
   lost: LostField[];
+  /** The cells of the first data row, in the order of `columns` (empty when the file has no rows). */
+  firstRow: string[];
 };
 
 export type OpenedMapping = { ok: true; view: MappingView } | { ok: false; message: string };
@@ -126,7 +128,12 @@ export const openMapping: Channel<{ templateId: string }, OpenedMapping> = chann
 
 export type SetEntryRequest = { templateId: string; key: string; entry: FieldMapping | null };
 export type SetEntryResult =
-  | { ok: true; entries: Record<string, FieldMapping> }
+  | {
+      ok: true;
+      entries: Record<string, FieldMapping>;
+      /** Fields that gave their column up because the chosen field took it. */
+      cleared: string[];
+    }
   | { ok: false; message: string };
 
 /** Save one field's choice with the template (null clears it). Column names must exist in the loaded data. */

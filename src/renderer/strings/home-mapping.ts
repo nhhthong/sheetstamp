@@ -13,6 +13,9 @@ const viHomeMapping = {
   allDone: (n: number) => `Tất cả ${n} trường đã ghép.`,
   listLabel: "Các trường cần ghép",
   unmatchedMarker: "Cần chọn cột",
+  takenAlert: "Cột này đã chuyển sang trường khác. Chọn cột khác.",
+  firstValue: (value: string) => `Dòng đầu: ${value}`,
+  emptyCell: "(trống)",
   resolvedMarker: "Đã chọn",
   explanation: (label: string) =>
     `Chưa có cột nào giống ‘${label}’. Chọn cột khác, nhập chữ cố định hoặc để trống.`,
@@ -62,6 +65,9 @@ const enHomeMapping: typeof viHomeMapping = {
   allDone: (n: number) => `All ${n} fields are matched.`,
   listLabel: "Fields to match",
   unmatchedMarker: "Choose a column",
+  takenAlert: "This column moved to another field. Choose another column.",
+  firstValue: (value: string) => `First row: ${value}`,
+  emptyCell: "(empty)",
   resolvedMarker: "Chosen",
   explanation: (label: string) =>
     `No column looks like ‘${label}’. Choose another column, type a fixed text or leave it empty.`,
