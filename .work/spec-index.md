@@ -1,6 +1,6 @@
 # Sheetstamp: spec index
 
-Source: `docs/specification.md`, kept unchanged. Indexed on 2026-10-28.
+Source: `docs/specification.md`, kept unchanged. Indexed on 2026-10-28; R2.1, R2.5-R2.7, R4.11, R4.12 added 2026-10-29 for epic E-3.
 Markers: ✅ decided · ⚠️ open · ❌ blocked by an outside party.
 Decision references use the dates and tags in `.work/notes.md` (the `memo` server is not installed, so there are no `D-n` codes).
 
@@ -35,11 +35,13 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 ### R2 Mapping
 | ID | Where in the source | Status |
 |---|---|---|
-| R2.1 | Auto match: exact without diacritics, HR synonyms, fuzzy | ✅ |
+| R2.1 | Auto match: exact without diacritics, then fuzzy (no synonym dictionary); image fields by position | ✅ |
 | R2.2 | List UI: matched fields collapsed, unmatched highlighted first | ✅ |
 | R2.3 | Unmatched field: choose column, fixed text, or empty with warning | ✅ |
 | R2.4 | Save mapping per template; preview any row | ✅ |
-| R2.5 | HR dictionary (tag to label, synonyms) | ✅ draft in `data/hr-dictionary.json` |
+| R2.5 | No HR dictionary: a Word tag's label is the tag with underscores as spaces and a capital first letter (superseded 2026-10-29) | ✅ |
+| R2.6 | One column serves one field; choosing a taken column empties the other field and shows an alert icon | ✅ |
+| R2.7 | Each mapping row shows the chosen column's value from the first data row | ✅ |
 
 ### R3 Word templates
 | ID | Where in the source | Status |
@@ -64,6 +66,8 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 | R4.8 | Export PNG or JPEG | ✅ |
 | R4.9 | Image editor sub-page (canvas, inspector, "Nâng cao") | ✅ |
 | R4.10 | No synthetic bold or italic until tested | ✅ O-9 resolved |
+| R4.11 | Image field: name typed as free text, no suggestions; fields numbered in order; deleting one renumbers | ✅ |
+| R4.12 | Image fields are matched to data columns by position, left to right | ✅ |
 
 ### R5 Filenames
 | ID | Where in the source | Status |
@@ -201,7 +205,7 @@ Decision references use the dates and tags in `.work/notes.md` (the `memo` serve
 - ✅ O-13: not in practice: one Release run uploaded 566 MB of artifacts to a public repository without error; all artifacts use `retention-days: 1` (ticket T-9). Owner may confirm on the Billing page.
 
 - ⚠️ O-14: Transitive dependency `buffers@0.1.1` (via exceljs) declares no license. Owed by owner, since 2026-10-28. Needed before the first release (R11.4, R13.10). Options in `.work/phase-0-report.md` (T-12).
-- ✅ O-15 (owner delegated analysed decisions, 2026-10-29): Where do an image template's fields come from (no file to scan)? Recommended: HR dictionary labels plus a typed new field. Owner to confirm. Needed before T-29 (R4.2).
+- ✅ O-15 (superseded 2026-10-29 by R4.11: no dictionary; owner delegated analysed decisions, 2026-10-29): Where do an image template's fields come from (no file to scan)? Recommended: HR dictionary labels plus a typed new field. Owner to confirm. Needed before T-29 (R4.2).
 - ✅ O-16 (owner delegated analysed decisions, 2026-10-29): Where is PNG or JPG chosen? Recommended: a choice in Step 4, default the background's format, remembered. Owner to confirm. Needed before T-33 (R4.8).
 
 ## Decisions
