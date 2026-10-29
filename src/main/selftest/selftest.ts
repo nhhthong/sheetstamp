@@ -1,11 +1,10 @@
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createCanvas } from "@napi-rs/canvas";
 import JSZip from "jszip";
-import { listFamilies } from "../../worker/render/fonts";
 import { type TextBox } from "../../worker/render/types";
 import { runBatch, workerFileIn } from "../export/batch";
+import { createImageService, imageWorkerFileIn } from "../images/service";
 import { makeDocx, paragraph, run, textOf } from "./make-docx";
 
 const ROWS = 12;
@@ -17,7 +16,13 @@ export type SelfTestReport = {
   packaged: boolean;
   problems: string[];
   word: { written: number; failed: number; firstText: string };
-  image: { written: number; failed: number; family: string; jpegMagic: boolean };
+  image: {
+    written: number;
+    failed: number;
+    family: string;
+    jpegMagic: boolean;
+    previewPng: boolean;
+  };
 };
 
 /**
@@ -57,8 +62,16 @@ export async function runSelfTest(
       problems.push(`word: ${word.written}/${ROWS} written`);
     if (firstText !== `Xin chào ${NAMES[0]}`) problems.push(`word: unexpected text "${firstText}"`);
 
-    const family = listFamilies().find((f) => f.styles.includes("normal"))?.family ?? "";
+    // Fonts and the preview render go through the image worker, as the window's calls do.
+    const imageService = createImageService(imageWorkerFileIn(workerDirectory), {
+      fontFolders: [],
+      systemFonts: true,
+    });
+    const family =
+      (await imageService.listFonts()).find((f) => f.styles.includes("normal"))?.family ?? "";
     if (!family) problems.push("image: no installed font family");
+    // Loaded here, not at the top: only the self-test may load the canvas library in the main process.
+    const { createCanvas } = await import("@napi-rs/canvas");
     const canvas = createCanvas(800, 300);
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#ffffff";
@@ -76,11 +89,21 @@ export async function runSelfTest(
       maxLines: 1,
       overflow: "shrink",
     };
+    const background = new Uint8Array(canvas.toBuffer("image/png"));
+    const preview = await imageService.render({
+      background,
+      boxes: [box],
+      values: { ten: NAMES[0] as string },
+    });
+    await imageService.close();
+    const previewPng = preview.ok && preview.png[0] === 0x89 && preview.png[1] === 0x50;
+    if (!previewPng)
+      problems.push(`image: preview render failed (${preview.ok ? "bytes" : preview.code})`);
     const image = await runBatch(
       {
         init: {
           kind: "image",
-          template: { background: new Uint8Array(canvas.toBuffer("image/png")), boxes: [box] },
+          template: { background, boxes: [box] },
           format: { type: "jpeg", quality: 85 },
         },
         rows,
@@ -105,7 +128,7 @@ export async function runSelfTest(
       packaged,
       problems,
       word: { written: word.written, failed: word.failed.length, firstText },
-      image: { written: image.written, failed: image.failed.length, family, jpegMagic },
+      image: { written: image.written, failed: image.failed.length, family, jpegMagic, previewPng },
     };
     await writeFile(outFile, JSON.stringify(report, null, 2));
   } catch (error) {
