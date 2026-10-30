@@ -213,7 +213,12 @@ function Form({ open, onOpenChange, onChanged }: GroupsDialogProps) {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
         />
-        <Button type="submit" size="sm" disabled={newName.trim() === ""}>
+        <Button
+          type="submit"
+          size="sm"
+          className="shrink-0 whitespace-nowrap"
+          disabled={newName.trim() === ""}
+        >
           {t.add}
         </Button>
       </form>
