@@ -87,9 +87,7 @@ test("the whole flow: data, template, mapping, file name, folder, export, ZIP an
   await expect(page.getByTestId("done-title")).toHaveText("Đã tạo 11 file");
   await expect(page.getByTestId("failed-rows")).toContainText("1 dòng bị lỗi");
   const zipPath = (await page.getByTestId("zip-path").textContent()) ?? "";
-  expect(zipPath).toBe(
-    join(out, `Hợp đồng thử việc ${new Date().toLocaleDateString("sv-SE")}.zip`),
-  );
+  expect(zipPath).toMatch(/Sheetstamp_\d{4}-\d{2}-\d{2}_\d{6}\.zip$/);
   await shoot(page, "flow", "done");
 
   // On disk: the ZIP, its error report, and nothing temporary.
@@ -156,12 +154,12 @@ test("the whole flow: data, template, mapping, file name, folder, export, ZIP an
   await expect(page.getByRole("button", { name: /Thả file Excel hoặc CSV vào đây/ })).toBeVisible();
   await expect(page.getByTestId("file-name")).toHaveCount(0);
 
-  // Run it again from the start: the second ZIP is numbered, nothing is overwritten.
+  // Run it again from the start: the second ZIP has its own name, nothing is overwritten.
   await toStepExport(app, page, csv);
   await page.getByRole("button", { name: "Xuất 12 file" }).click();
   await expect(page.getByTestId("done-title")).toHaveText("Đã tạo 11 file", { timeout: 45_000 });
   const second = (await page.getByTestId("zip-path").textContent()) ?? "";
-  expect(second).toMatch(/ \(2\)\.zip$/);
+  expect(second).not.toBe(zipPath);
   expect(await readdir(out)).toHaveLength(4);
   await app.close();
 });

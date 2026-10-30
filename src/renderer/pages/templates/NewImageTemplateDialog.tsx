@@ -132,7 +132,7 @@ function Form({ open, onOpenChange, onCreated }: NewImageTemplateDialogProps) {
       onOpenChange={onOpenChange}
       title={tpl.dialog.title}
       footer={
-        <Button onClick={() => void save()} disabled={saving || reading}>
+        <Button onClick={() => void save()} disabled={saving || reading || duplicate}>
           {saving ? tpl.dialog.saving : tpl.dialog.save}
         </Button>
       }
@@ -183,7 +183,7 @@ function Form({ open, onOpenChange, onCreated }: NewImageTemplateDialogProps) {
         {(p) => <Input {...p} value={name} onChange={(e) => setName(e.target.value)} />}
       </Field>
       {duplicate ? (
-        <Status kind="warning" className="-mt-2 text-sm">
+        <Status kind="danger" className="-mt-2 text-sm">
           {tpl.dialog.duplicate}
         </Status>
       ) : null}

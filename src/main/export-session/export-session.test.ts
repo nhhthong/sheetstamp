@@ -105,24 +105,9 @@ describe("hasUnwritableCharacter", () => {
 });
 
 describe("zipNameFor and effectivePattern", () => {
-  it("names the ZIP from the template and the local date, with the filename rules", () => {
-    expect(zipNameFor("Hợp đồng thử việc", new Date(2026, 9, 28))).toBe(
-      "Hợp đồng thử việc 2026-10-28.zip",
-    );
-    const odd = zipNameFor('A/B: "C"?', new Date(2026, 0, 5));
-    expect(odd).toBe("A_B_ _C__ 2026-01-05.zip");
-    expect(/[\\/:*?"<>|]/.test(odd)).toBe(false);
-  });
-
-  it("caps a long template name by characters and by UTF-8 bytes, and keeps the date", () => {
-    const name = zipNameFor("Hợp đồng lao động ệ".repeat(8), new Date(2026, 9, 28));
-    expect(name.endsWith(" 2026-10-28.zip")).toBe(true);
-    const base = name.slice(0, -".zip".length);
-    expect(base.length).toBeLessThanOrEqual(100);
-    expect(new TextEncoder().encode(base).length).toBeLessThanOrEqual(200);
-    const letters = zipNameFor("ệ".repeat(100), new Date(2026, 9, 28));
-    expect(new TextEncoder().encode(letters).length).toBeLessThanOrEqual(204);
-    expect(zipNameFor("", new Date(2026, 9, 28))).toBe("2026-10-28.zip");
+  it("names the ZIP Sheetstamp_<date>_<time> in local time", () => {
+    expect(zipNameFor(new Date(2026, 9, 28, 14, 5, 9))).toBe("Sheetstamp_2026-10-28_140509.zip");
+    expect(zipNameFor(new Date(2026, 0, 5, 0, 0, 0))).toBe("Sheetstamp_2026-01-05_000000.zip");
   });
 
   it("falls back from the default {{ten}} to the first field", () => {
@@ -298,7 +283,7 @@ describe("ExportSession", () => {
     expect(result).toEqual({
       ok: true,
       done: {
-        zipPath: join(dir, "documents", "Giấy xác nhận 2026-10-28.zip"),
+        zipPath: join(dir, "documents", "Sheetstamp_2026-10-28_000000.zip"),
         written: 2,
         failed: 0,
         hasReport: false,
@@ -316,7 +301,7 @@ describe("ExportSession", () => {
       extension: ".docx",
       removeDiacritics: true,
       folder: join(dir, "documents"),
-      zipName: "Giấy xác nhận 2026-10-28.zip",
+      zipName: "Sheetstamp_2026-10-28_000000.zip",
     });
     expect(request?.init.kind).toBe("word");
     expect(request?.signal).toBeInstanceOf(AbortSignal);
@@ -325,7 +310,7 @@ describe("ExportSession", () => {
     expect(stored?.lastUsedAt).not.toBeNull();
     expect((await storage.getChoices()).lastOutputFolder).toBe(join(dir, "documents"));
     expect(session.pathToReveal("zip")).toBe(
-      join(dir, "documents", "Giấy xác nhận 2026-10-28.zip"),
+      join(dir, "documents", "Sheetstamp_2026-10-28_000000.zip"),
     );
   });
 

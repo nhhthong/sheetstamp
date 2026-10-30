@@ -33,6 +33,11 @@ const viTpl = {
     chooseButton: "Chọn file…",
     changeFile: "Chọn file khác",
     dropLabel: "Vùng thả file Word",
+    tagNote:
+      "Chữ trong thẻ {{…}} nên giống tiêu đề cột của file dữ liệu (ví dụ {{ho_ten}} và cột “Họ tên”) để ghép cột nhanh.",
+    tagExample: "Xem ví dụ",
+    tagExampleAlt:
+      "Bên trái là file CSV có các tiêu đề cột, bên phải là hợp đồng có các thẻ; đường nối mỗi tiêu đề với thẻ cùng tên.",
     reading: "Đang đọc file…",
     name: "Tên mẫu",
     group: "Nhóm",
@@ -50,8 +55,7 @@ const viTpl = {
       loop: "vòng lặp",
       note: "nằm trong chú thích cuối trang",
     },
-    duplicate:
-      "Đã có mẫu cùng tên trong nhóm này. Vẫn có thể lưu, nhưng nên đặt tên khác để dễ phân biệt.",
+    duplicate: "Đã có mẫu cùng tên trong nhóm này. Đặt tên khác hoặc chọn nhóm khác.",
     save: "Lưu mẫu",
     saving: "Đang lưu…",
     fileNeeded: "Chọn file Word trước.",
@@ -128,6 +132,9 @@ const viTpl = {
     deleted: (moved: number) =>
       moved === 0 ? "Đã xóa nhóm." : `Đã xóa nhóm. ${moved} mẫu chuyển sang “Chưa phân nhóm”.`,
     renamed: "Đã đổi tên nhóm.",
+    addLabel: "Tên nhóm mới",
+    add: "Thêm nhóm",
+    added: "Đã thêm nhóm.",
     close: "Xong",
     actionFailed: "Không thực hiện được. Thử lại.",
   },
@@ -165,6 +172,11 @@ const enTpl: typeof viTpl = {
     chooseButton: "Choose a file…",
     changeFile: "Choose another file",
     dropLabel: "Drop zone for a Word file",
+    tagNote:
+      "The text in a {{…}} tag should match a column header in the data file (for example {{full_name}} and the column “Full name”), so the columns match quickly.",
+    tagExample: "See an example",
+    tagExampleAlt:
+      "A CSV file with column headers on the left and a contract with tags on the right; a line joins each header to the tag with the same name.",
     reading: "Reading the file…",
     name: "Template name",
     group: "Group",
@@ -184,7 +196,7 @@ const enTpl: typeof viTpl = {
       note: "inside a footnote",
     },
     duplicate:
-      "A template with the same name already exists in this group. You can still save it, but a different name is easier to tell apart.",
+      "A template with the same name already exists in this group. Use another name or choose another group.",
     save: "Save template",
     saving: "Saving…",
     fileNeeded: "Choose a Word file first.",
@@ -269,6 +281,9 @@ const enTpl: typeof viTpl = {
         ? "Group deleted."
         : `Group deleted. ${moved} ${plural(moved, "template")} moved to “Ungrouped”.`,
     renamed: "Group renamed.",
+    addLabel: "New group name",
+    add: "Add group",
+    added: "Group added.",
     close: "Done",
     actionFailed: "Could not do that. Try again.",
   },

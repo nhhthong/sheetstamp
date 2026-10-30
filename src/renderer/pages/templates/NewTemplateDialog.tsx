@@ -9,6 +9,7 @@ import { Status } from "../../components/ui/status";
 import { useToast } from "../../components/ui/toast";
 import { call } from "../../lib/ipc";
 import { tpl } from "../../strings/templates";
+import { TagNote } from "./TagNote";
 
 const NEW_GROUP = "__new__";
 
@@ -144,7 +145,7 @@ function Form({ open, onOpenChange, onCreated }: NewTemplateDialogProps) {
       onOpenChange={onOpenChange}
       title={tpl.dialog.title}
       footer={
-        <Button onClick={() => void save()} disabled={saving || reading}>
+        <Button onClick={() => void save()} disabled={saving || reading || duplicate}>
           {saving ? tpl.dialog.saving : tpl.dialog.save}
         </Button>
       }
@@ -180,12 +181,13 @@ function Form({ open, onOpenChange, onCreated }: NewTemplateDialogProps) {
           </Status>
         ) : null}
       </section>
+      <TagNote />
 
       <Field label={tpl.dialog.name}>
         {(p) => <Input {...p} value={name} onChange={(e) => setName(e.target.value)} />}
       </Field>
       {duplicate ? (
-        <Status kind="warning" className="-mt-2 text-sm">
+        <Status kind="danger" className="-mt-2 text-sm">
           {tpl.dialog.duplicate}
         </Status>
       ) : null}

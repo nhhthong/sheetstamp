@@ -109,14 +109,14 @@ test("create, keep across restart, and delete a Word template", async () => {
   // The stored copy exists in the data folder.
   expect(readdirSync(join(dataDir, "sources"))).toHaveLength(1);
 
-  // Duplicate name in the same group warns without blocking.
+  // Duplicate name in the same group is blocked.
   await page.getByRole("button", { name: "+ Mẫu mới" }).click();
   await stubOpenDialog(app, file);
   await dialog.getByRole("button", { name: "Chọn file…" }).click();
   await dialog.getByLabel("Nhóm").selectOption({ label: "Tuyển dụng" });
   await dialog.getByLabel("Tên mẫu").fill("Hợp đồng lao động");
   await expect(dialog.getByText(/Đã có mẫu cùng tên trong nhóm này/)).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Lưu mẫu" })).toBeEnabled();
+  await expect(dialog.getByRole("button", { name: "Lưu mẫu" })).toBeDisabled();
   await dialog.getByRole("button", { name: "Hủy" }).click();
   await expect(dialog).toBeHidden();
   await expect(row).toHaveCount(1);
