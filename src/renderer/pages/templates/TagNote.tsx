@@ -1,6 +1,7 @@
 import { tpl } from "../../strings/templates";
 
 const demo = tpl.dialog.tagDemo;
+const INDEXES = [0, 1, 2] as const;
 
 /** Word templates: the tag text should equal the header of the data file, so the columns match at once. */
 export function TagNote() {
@@ -11,32 +12,38 @@ export function TagNote() {
         <summary className="cursor-pointer font-semibold text-accent">
           {tpl.dialog.tagExample}
         </summary>
-        <div
-          role="img"
-          aria-label={demo.label}
-          className="mt-2 flex flex-col gap-3 rounded-control border border-line bg-panel p-3"
-        >
-          <div className="grid grid-cols-3 gap-px overflow-hidden rounded-control border border-line bg-line">
-            {demo.headers.map((header) => (
-              <span key={header} className="ss-demo-head bg-raised px-2 py-1 font-semibold">
-                {header}
-              </span>
-            ))}
-            {demo.values.map((value) => (
-              <span key={value} className="bg-raised px-2 py-1 text-muted">
-                {value}
-              </span>
-            ))}
-          </div>
-          <div className="flex flex-col gap-1 rounded-control bg-raised p-3 shadow-card">
-            {demo.lines.map((line, i) => (
-              <p key={line} className="flex items-baseline gap-2">
-                <span>{line}</span>
-                <span className="ss-demo-slot">
-                  <span className="ss-demo-tag">{`{{${demo.headers[i]}}}`}</span>
-                  <span className="ss-demo-value">{demo.values[i]}</span>
+        <div role="img" aria-label={demo.label} className="ss-demo mt-2">
+          <div className="ss-demo-stage">
+            <p className="ss-demo-cap">{demo.data}</p>
+            <div className="ss-demo-table">
+              {INDEXES.map((i) => (
+                <span key={demo.headers[i]} className="ss-demo-head">
+                  <span className={`ss-demo-hl ss-i${i}`} />
+                  {demo.headers[i]}
                 </span>
-              </p>
+              ))}
+              {INDEXES.map((i) => (
+                <span key={demo.values[i]} className="ss-demo-cell">
+                  {demo.values[i]}
+                </span>
+              ))}
+            </div>
+            <p className="ss-demo-cap">{demo.contract}</p>
+            <div className="ss-demo-paper">
+              {INDEXES.map((i) => (
+                <p key={demo.lines[i]} className="ss-demo-line">
+                  <span className="text-muted">{demo.lines[i]}</span>
+                  <span className="ss-demo-slot">
+                    <span className={`ss-demo-tag ss-i${i}`}>{`{{${demo.headers[i]}}}`}</span>
+                    <span className={`ss-demo-value ss-i${i}`}>{demo.values[i]}</span>
+                  </span>
+                </p>
+              ))}
+            </div>
+            {INDEXES.map((i) => (
+              <span key={i} aria-hidden="true" className={`ss-demo-chip ss-i${i}`}>
+                {demo.headers[i]}
+              </span>
             ))}
           </div>
         </div>
