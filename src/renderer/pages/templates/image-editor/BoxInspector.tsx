@@ -17,7 +17,6 @@ export type InspectorChange = Partial<
 >;
 
 const ALIGNS = ["left", "center", "right"] as const;
-const OVERFLOWS = ["shrink", "wrap", "truncate", "error"] as const;
 
 /** A number input that keeps what the user types and applies only a whole number in range. */
 function NumberField({
@@ -219,37 +218,6 @@ export function BoxInspector({
         value={box.align}
         onPick={(align) => onChange({ align })}
       />
-      <details className="flex flex-col gap-3">
-        <summary className="cursor-pointer font-semibold">{ied.advanced}</summary>
-        <div className="mt-3 flex flex-col gap-3">
-          <NumberField
-            label={ied.maxLines}
-            value={box.maxLines}
-            min={1}
-            max={100}
-            error={ied.maxLinesInvalid}
-            onValid={(maxLines) => onChange({ maxLines })}
-          />
-          <Field label={ied.overflow}>
-            {(props) => (
-              <Select
-                {...props}
-                value={box.overflow}
-                onChange={(e) => {
-                  const overflow = OVERFLOWS.find((o) => o === e.target.value);
-                  if (overflow) onChange({ overflow });
-                }}
-              >
-                {OVERFLOWS.map((o) => (
-                  <option key={o} value={o}>
-                    {ied.overflows[o]}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </Field>
-        </div>
-      </details>
       <Button variant="danger" size="sm" onClick={onDelete}>
         {ied.deleteBox}
       </Button>

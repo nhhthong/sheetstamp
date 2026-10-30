@@ -1,12 +1,10 @@
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { _electron as electron, expect, type Page, test } from "@playwright/test";
 
 const root = join(import.meta.dirname, "../..");
 const backgroundPath = join(root, "tests/fixtures/image/golden/four-styles.png");
-const background = readFileSync(backgroundPath);
-const size = { width: background.readUInt32BE(16), height: background.readUInt32BE(20) };
 
 // The e2e build installs only the family "Sheetstamp Test" (4 styles), so these tests do not depend on the runner.
 const launch = (dataDir: string) =>
@@ -29,7 +27,7 @@ async function createTemplate(app: Awaited<ReturnType<typeof launch>>, page: Pag
   await expect(page.getByRole("button", { name: "‹ Mẫu" })).toBeVisible();
 }
 
-test("inspector: pick the test font, size, colour, style and alignment, then preview with diacritics", async () => {
+test("inspector: pick the test font, size, colour, style and alignment, and neither Advanced nor Preview is shown", async () => {
   const app = await launch(join(mkdtempSync(join(tmpdir(), "sheetstamp-e2e-")), "data"));
   const page = await app.firstWindow();
   await createTemplate(app, page);
@@ -57,36 +55,9 @@ test("inspector: pick the test font, size, colour, style and alignment, then pre
   await page.getByText("Giữa", { exact: true }).click();
   await expect(page.getByRole("radio", { name: "Giữa" })).toBeChecked();
 
-  // "Nâng cao" is collapsed until opened.
-  await expect(page.getByLabel("Số dòng tối đa")).toBeHidden();
-  await page.getByText("Nâng cao", { exact: true }).click();
-  await expect(page.getByLabel("Khi chữ quá dài")).toBeVisible();
-
-  // No data is loaded, so the sample is the field label (with diacritics); the preview is as big as the background.
-  await page.getByRole("button", { name: "Xem trước", exact: true }).click();
-  const image = page.getByTestId("preview-image");
-  await expect(image).toBeVisible();
-  const drawn = await image.evaluate(async (img: HTMLImageElement) => {
-    await img.decode();
-    const canvas = document.createElement("canvas");
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-    ctx.drawImage(img, 0, 0);
-    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    let red = 0;
-    for (let i = 0; i < data.length; i += 4)
-      if ((data[i] ?? 0) > 150 && (data[i + 1] ?? 255) < 60) red++;
-    return { width: img.naturalWidth, height: img.naturalHeight, red };
-  });
-  expect({ width: drawn.width, height: drawn.height }).toEqual(size);
-  expect(drawn.red).toBeGreaterThan(50);
-
-  // A too-long text under "report an error" is the row-level message in the preview.
-  await page.getByLabel("Khi chữ quá dài").selectOption({ label: "Báo lỗi cho dòng đó" });
-  await page.getByLabel("Cỡ chữ").fill("400");
-  await page.getByRole("button", { name: "Xem trước", exact: true }).click();
-  await expect(page.getByTestId("preview-error")).toContainText("quá dài");
+  // Advanced and Preview are gone from the editor.
+  await expect(page.getByText("Nâng cao", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Xem trước", exact: true })).toHaveCount(0);
 
   await app.close();
 });
