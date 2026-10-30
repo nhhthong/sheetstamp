@@ -16,7 +16,7 @@
   "lead": "Excel hoặc CSV vào mẫu Word và ảnh, xuất một file ZIP.",
   "dlWin": "Tải cho Windows",
   "dlUbuntu": "Tải cho Ubuntu",
-  "note": "Phiên bản 0.2.0. Bộ cài Windows chưa được ký số nên SmartScreen có thể cảnh báo; kiểm tra file tải về bằng SHA256SUMS.txt.",
+  "note": "Phiên bản 0.2.1. Bộ cài Windows chưa được ký số nên SmartScreen có thể cảnh báo; kiểm tra file tải về bằng SHA256SUMS.txt.",
   "videoLabel": "Video demo (giao diện tiếng Anh): từ file Excel đến một file ZIP chứa các hợp đồng Word đã điền, trong bốn bước.",
   "howVideoLabel": "Hoạt ảnh (chữ tiếng Anh): file CSV, hợp đồng có mã trong dấu ngoặc nhọn kép, các mã được ghép với tiêu đề cột, giá trị bay vào hợp đồng, và bốn hợp đồng hoàn chỉnh.",
   "howTitle": "Viết mã. Ghép cột. Xuất file.",

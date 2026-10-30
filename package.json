@@ -1,6 +1,6 @@
 {
   "name": "sheetstamp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Fill Word and image templates from CSV or Excel files, offline.",
   "homepage": "https://github.com/nhhthong/sheetstamp",
   "license": "MIT",
