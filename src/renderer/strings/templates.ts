@@ -38,7 +38,7 @@ const viTpl = {
     tagDemo: {
       label: "Mỗi tiêu đề cột trong file dữ liệu điền vào thẻ cùng tên trong hợp đồng.",
       headers: ["ho_ten", "chuc_vu", "luong"],
-      values: ["Anna Nguyễn", "Kế toán", "1.200 USD"],
+      values: ["Nguyễn An", "Kế toán", "1.200 USD"],
       lines: ["Họ tên:", "Chức vụ:", "Lương:"],
       data: "Dữ liệu",
       contract: "Hợp đồng",
@@ -183,7 +183,7 @@ const enTpl: typeof viTpl = {
       label:
         "Each column header in the data file fills the tag with the same name in the contract.",
       headers: ["full_name", "position", "salary"],
-      values: ["Anna Nguyen", "Accountant", "1,200 USD"],
+      values: ["Anna Lee", "Accountant", "1,200 USD"],
       lines: ["Name:", "Position:", "Salary:"],
       data: "Data",
       contract: "Contract",
