@@ -1,3 +1,4 @@
+import { Menu } from "lucide-react";
 import { createContext, useContext, useEffect, useState } from "react";
 import logo from "../assets/icon.png?inline";
 import { ToastProvider } from "../components/ui/toast";
@@ -19,12 +20,34 @@ function firstPage(): PageId {
   return "home";
 }
 
+const MENU_KEY = "sheetstamp.menu";
+
+function menuClosed(): boolean {
+  try {
+    return localStorage.getItem(MENU_KEY) === "closed";
+  } catch {
+    return false;
+  }
+}
+
 /**
  * The shell: a left sidebar of about 224 px with the three destinations. Below about 820 px it becomes a
  * top bar. The sidebar holds nothing else.
  */
 export function App() {
   const [current, setCurrent] = useState<PageId>(firstPage);
+  // The burger button at the top left closes the menu to give the page the whole window; remembered per computer.
+  const [closed, setClosed] = useState(menuClosed);
+  function toggleMenu() {
+    setClosed((now) => {
+      try {
+        localStorage.setItem(MENU_KEY, now ? "open" : "closed");
+      } catch {
+        // Not remembered, still works.
+      }
+      return !now;
+    });
+  }
   useEffect(() => {
     try {
       sessionStorage.removeItem(STAY_ON_SETTINGS);
@@ -38,12 +61,25 @@ export function App() {
   return (
     <ToastProvider>
       <NavigationContext.Provider value={{ go: setCurrent, current }}>
-        <div className="flex h-full max-[819px]:flex-col">
-          <nav
-            aria-label={vi.nav.label}
-            className="flex w-56 shrink-0 flex-col gap-1 border-r border-line bg-panel p-4 max-[819px]:w-full max-[819px]:flex-row max-[819px]:items-center max-[819px]:gap-2 max-[819px]:border-r-0 max-[819px]:border-b"
+        <div className="relative flex h-full max-[819px]:flex-col">
+          <button
+            type="button"
+            aria-label={closed ? vi.nav.open : vi.nav.close}
+            title={closed ? vi.nav.open : vi.nav.close}
+            aria-expanded={!closed}
+            aria-controls="main-nav"
+            onClick={toggleMenu}
+            className="absolute top-2 left-2 z-20 flex size-9 items-center justify-center rounded-control text-muted hover:bg-panel hover:text-text"
           >
-            <p className="mb-4 flex items-center gap-2 px-3 text-lg font-bold max-[819px]:mb-0">
+            <Menu aria-hidden="true" className="size-5" />
+          </button>
+          <nav
+            id="main-nav"
+            hidden={closed}
+            aria-label={vi.nav.label}
+            className="flex w-56 shrink-0 flex-col gap-1 glass-side p-4 max-[819px]:w-full max-[819px]:flex-row max-[819px]:items-center max-[819px]:gap-2 max-[819px]:border-r-0 max-[819px]:border-b max-[819px]:border-line"
+          >
+            <p className="mb-4 flex items-center gap-2 pr-3 pl-11 text-lg font-bold max-[819px]:mb-0">
               <img src={logo} alt="" className="size-7" />
               {vi.app.name}
             </p>
@@ -68,7 +104,9 @@ export function App() {
               ))}
             </ul>
           </nav>
-          <main className="relative min-w-0 flex-1 overflow-y-auto">
+          <main
+            className={cn("relative min-w-0 flex-1 overflow-y-auto", closed && "max-[819px]:pt-10")}
+          >
             {Active ? <Active /> : null}
           </main>
         </div>

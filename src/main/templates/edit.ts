@@ -171,17 +171,21 @@ export async function updateTemplate(
           name: t.name,
           label: request.labels[t.name]?.trim() || t.label,
         }));
-    const problems = patternMessages(
-      request.filenamePattern,
-      tags.map((t) => t.name),
-    );
-    if (problems.length > 0) throw new StorageError("invalid", problems.join(" "));
+    if (request.filenamePattern !== undefined) {
+      const problems = patternMessages(
+        request.filenamePattern,
+        tags.map((t) => t.name),
+      );
+      if (problems.length > 0) throw new StorageError("invalid", problems.join(" "));
+    }
     return {
       name,
       groupId: request.groupId,
       note: request.note.trim(),
       tags,
-      filenamePattern: request.filenamePattern,
+      ...(request.filenamePattern === undefined
+        ? {}
+        : { filenamePattern: request.filenamePattern }),
       ...(fields
         ? {
             mapping: reconcileMapping(

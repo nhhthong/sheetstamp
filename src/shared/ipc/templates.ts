@@ -86,7 +86,8 @@ export type UpdateRequest = {
   name: string;
   groupId: string;
   note: string;
-  filenamePattern: string;
+  /** Left out by the edit dialog: the stored pattern stays (the export step checks it). */
+  filenamePattern?: string;
   /** Display label per tag key; keys the template will not have are ignored. */
   labels: Record<string, string>;
   /** New source file; null keeps the current one. Tags are read from it in main. */
@@ -180,7 +181,9 @@ export const updateImage: Channel<UpdateImageRequest, Outcome<{ id: string }>> =
       name: string(r.name, "name", { min: 1, max: 200 }),
       groupId: string(r.groupId, "groupId", { min: 1, max: 200 }),
       note: string(r.note, "note", { max: 2000 }),
-      filenamePattern: string(r.filenamePattern, "filenamePattern", { max: 500 }),
+      ...(r.filenamePattern === undefined
+        ? {}
+        : { filenamePattern: string(r.filenamePattern, "filenamePattern", { max: 500 }) }),
       replacePath: r.replacePath === null ? null : parsePath({ path: r.replacePath }).path,
     };
   },
@@ -208,7 +211,9 @@ export const update: Channel<UpdateRequest, Outcome<{ id: string }>> = channel(
       name: string(r.name, "name", { min: 1, max: 200 }),
       groupId: string(r.groupId, "groupId", { min: 1, max: 200 }),
       note: string(r.note, "note", { max: 2000 }),
-      filenamePattern: string(r.filenamePattern, "filenamePattern", { max: 500 }),
+      ...(r.filenamePattern === undefined
+        ? {}
+        : { filenamePattern: string(r.filenamePattern, "filenamePattern", { max: 500 }) }),
       labels: parseLabels(r.labels),
       replacePath,
     };

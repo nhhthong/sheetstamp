@@ -93,7 +93,6 @@ test("edit an image template, then replace the background with a smaller image",
   await expect(dialog.getByLabel("Tên mẫu")).toHaveValue("Thư mời");
   await dialog.getByLabel("Tên mẫu").fill("Thư mời 2026");
   await dialog.getByLabel("Ghi chú").fill("Bản in A5");
-  await dialog.getByLabel("Mẫu tên file").fill("{{ho_ten}}_{{ngay}}");
   await dialog.getByRole("button", { name: "Lưu mẫu" }).click();
   await expect(dialog).toBeHidden();
   await expect(row).toContainText("Thư mời 2026");

@@ -86,7 +86,7 @@ test("replace the file: flags, kept mapping, unreadable file changes nothing", a
   await page.getByRole("button", { name: /^Sửa Hợp đồng/ }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByLabel("Tên mẫu")).toHaveValue("Hợp đồng lao động");
-  await expect(dialog.getByLabel("Mẫu tên file")).toHaveValue("{{ho_ten}}_{{ten_con}}");
+  await expect(dialog.getByLabel("Mẫu tên file")).toHaveCount(0);
   await expect(dialog.getByTestId("edit-file-name")).toHaveText("v1.docx");
 
   // An unreadable file: the reason is shown and nothing is selected.
@@ -113,13 +113,8 @@ test("replace the file: flags, kept mapping, unreadable file changes nothing", a
   await expect(tagRows.filter({ hasText: "so_hop_dong" })).toContainText("mới");
   await expect(tagRows.filter({ hasText: "ho_ten" })).not.toContainText("mới");
 
-  // The pattern still uses the removed tag: inline message, saving is refused.
-  await expect(dialog.getByText("{{ten_con}} không có trong mẫu này.").first()).toBeVisible();
-  await dialog.getByRole("button", { name: "Lưu mẫu" }).click();
-  await expect(dialog).toBeVisible();
   await shoot(page, "replace");
 
-  await dialog.getByLabel("Mẫu tên file").fill("{{ho_ten}}_{{so_hop_dong}}");
   await dialog.getByLabel("Tên hiển thị của so_hop_dong").fill("Số HĐ");
   await dialog.getByRole("button", { name: "Lưu mẫu" }).click();
   await expect(page.getByText("Đã lưu mẫu.")).toBeVisible();
@@ -138,7 +133,8 @@ test("replace the file: flags, kept mapping, unreadable file changes nothing", a
     ngay_sinh: { kind: "fixed", text: "01/01/2000" },
   });
   expect(t?.sourceFileName).toBe("v2.docx");
-  expect(t?.filenamePattern).toBe("{{ho_ten}}_{{so_hop_dong}}");
+  // The stored pattern is not edited here; the export step checks it against the tags.
+  expect(t?.filenamePattern).toBe("{{ho_ten}}_{{ten_con}}");
   expect((await storage.readSource(id)).byteLength).toBeGreaterThan(0);
 });
 
@@ -174,7 +170,7 @@ test("a failed replace leaves the stored template untouched", async () => {
   expect(t?.tags).toHaveLength(3);
 });
 
-test("edit name, group, note, pattern and labels; they survive a restart", async () => {
+test("edit name, group, note and labels; they survive a restart", async () => {
   const work = mkdtempSync(join(tmpdir(), "sheetstamp-e2e-edit-"));
   const dataDir = join(work, "data");
   await seed(work, dataDir);
@@ -185,23 +181,12 @@ test("edit name, group, note, pattern and labels; they survive a restart", async
   await page.getByRole("button", { name: /^Sửa Hợp đồng/ }).click();
   let dialog = page.getByRole("dialog");
   await expect(dialog.getByLabel("Ghi chú")).toHaveValue("Bản đầu");
-  await expect(dialog.getByText(/Viết \{\{tên trường\}\}/)).toBeVisible();
+  await expect(dialog.getByLabel("Mẫu tên file")).toHaveCount(0);
 
   await dialog.getByLabel("Tên mẫu").fill("Hợp đồng thử việc");
   await dialog.getByLabel("Nhóm").selectOption({ label: "+ Thêm nhóm mới…" });
   await dialog.getByLabel("Tên nhóm mới").fill("Tuyển dụng");
   await dialog.getByLabel("Ghi chú").fill("Bản 2026");
-
-  // Pattern checks: unknown tag, path characters, empty.
-  const pattern = dialog.getByLabel("Mẫu tên file");
-  await pattern.fill("{{khong_co}}");
-  await expect(dialog.getByText("{{khong_co}} không có trong mẫu này.")).toBeVisible();
-  await pattern.fill("a/b");
-  await expect(dialog.getByText(/không được chứa/)).toBeVisible();
-  await pattern.fill("");
-  await expect(dialog.getByText(/Nhập mẫu tên file/)).toBeVisible();
-  await pattern.fill("{{ho_ten}}_Thử việc");
-  await expect(dialog.getByText(/Viết \{\{tên trường\}\}/)).toBeVisible();
 
   await dialog.getByText("Xem tên hiển thị").click();
   await dialog.getByLabel("Tên hiển thị của ten_con").fill("Tên con nhỏ");
@@ -222,7 +207,6 @@ test("edit name, group, note, pattern and labels; they survive a restart", async
   await expect(dialog.getByLabel("Tên mẫu")).toHaveValue("Hợp đồng thử việc");
   await expect(dialog.getByLabel("Nhóm").locator("option:checked")).toHaveText("Tuyển dụng");
   await expect(dialog.getByLabel("Ghi chú")).toHaveValue("Bản 2026");
-  await expect(dialog.getByLabel("Mẫu tên file")).toHaveValue("{{ho_ten}}_Thử việc");
   await dialog.getByText("Xem tên hiển thị").click();
   await expect(dialog.getByLabel("Tên hiển thị của ten_con")).toHaveValue("Tên con nhỏ");
   await expect(dialog.getByLabel("Tên hiển thị của ho_ten")).toHaveValue("Họ và tên");

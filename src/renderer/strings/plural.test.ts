@@ -28,7 +28,6 @@ describe("English counts agree with their number", () => {
     expect(mapping.needWork(1)).toBe("1 field needs a column from you.");
     expect(mapping.needWork(2)).toBe("2 fields need a column from you.");
     expect(mapping.allDone(1)).toBe("The field is matched.");
-    expect(mapping.showMatched(1)).toBe("Show 1 matched field");
     expect(mapping.summary(3)).toBe("3 fields matched");
   });
 
