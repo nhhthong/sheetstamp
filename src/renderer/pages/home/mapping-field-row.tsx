@@ -82,7 +82,7 @@ export function FieldRow({ label, entry, columns, pinned, value, taken, onChange
       data-state={open ? "unresolved" : "resolved"}
       className={cn(
         "grid min-w-0 gap-3 rounded-control border px-3 py-3 @xl:grid-cols-[minmax(0,1fr)_1.5rem_minmax(0,1fr)] @xl:items-start",
-        open ? "border-warning bg-warning-bg" : "border-line bg-raised shadow-card",
+        open ? "border-warning bg-warning-bg" : "glass",
       )}
     >
       <div className="flex min-w-0 flex-col gap-2 @xl:col-start-1 @xl:row-start-1">

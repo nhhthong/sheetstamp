@@ -120,7 +120,7 @@ export function SettingsPage() {
     <Page title={vi.pages.settings.title} subtitle={vi.pages.settings.subtitle}>
       <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
         <legend className="mb-3 p-0 text-lg font-bold">{settingsStrings.appearance.legend}</legend>
-        <div className="inline-flex gap-0.5 self-start rounded-control bg-panel p-0.5">
+        <div className="inline-flex gap-0.5 self-start rounded-control glass p-0.5">
           {THEMES.map((option) => (
             <label
               key={option}
@@ -146,7 +146,7 @@ export function SettingsPage() {
       </fieldset>
       <fieldset className="m-0 mt-8 flex flex-col gap-3 border-0 p-0">
         <legend className="mb-3 p-0 text-lg font-bold">{settingsStrings.language.legend}</legend>
-        <div className="inline-flex gap-0.5 self-start rounded-control bg-panel p-0.5">
+        <div className="inline-flex gap-0.5 self-start rounded-control glass p-0.5">
           {LANGS.map((option) => (
             <label
               key={option}

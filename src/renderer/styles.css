@@ -23,6 +23,12 @@
   --danger-bg: #fdecea;
   --shadow-1: 0 1px 2px rgb(20 40 80 / 0.06), 0 1px 1px rgb(20 40 80 / 0.04);
   --shadow-2: 0 12px 32px rgb(20 40 80 / 0.16), 0 2px 6px rgb(20 40 80 / 0.08);
+  --glass: rgb(255 255 255 / 0.58);
+  --glass-strong: rgb(255 255 255 / 0.78);
+  --glass-line: rgb(20 40 80 / 0.12);
+  --glass-hi: rgb(255 255 255 / 0.8);
+  --wash-a: 18%;
+  --wash-b: 11%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,6 +48,12 @@
     --danger-bg: #3d1c19;
     --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
     --shadow-2: 0 16px 40px rgb(0 0 0 / 0.5), 0 2px 8px rgb(0 0 0 / 0.3);
+    --glass: rgb(31 36 46 / 0.55);
+    --glass-strong: rgb(31 36 46 / 0.78);
+    --glass-line: rgb(255 255 255 / 0.1);
+    --glass-hi: rgb(255 255 255 / 0.07);
+    --wash-a: 24%;
+    --wash-b: 15%;
   }
 }
 
@@ -61,6 +73,12 @@
   --danger-bg: #3d1c19;
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
   --shadow-2: 0 16px 40px rgb(0 0 0 / 0.5), 0 2px 8px rgb(0 0 0 / 0.3);
+  --glass: rgb(31 36 46 / 0.55);
+  --glass-strong: rgb(31 36 46 / 0.78);
+  --glass-line: rgb(255 255 255 / 0.1);
+  --glass-hi: rgb(255 255 255 / 0.07);
+  --wash-a: 24%;
+  --wash-b: 15%;
 }
 
 @theme inline {
@@ -99,7 +117,20 @@ h3 {
 
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
+  /* Glass trial: one quiet wash in the brand blue, so the blur has something to show. Two corners, no blobs. */
+  background-image:
+    radial-gradient(
+      70rem 46rem at 0% 0%,
+      color-mix(in srgb, var(--accent) var(--wash-a), transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      60rem 44rem at 100% 100%,
+      color-mix(in srgb, var(--accent) var(--wash-b), transparent),
+      transparent 72%
+    );
+  background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 16px;
@@ -751,5 +782,51 @@ body {
   100% {
     opacity: 0;
     transform: translateX(0);
+  }
+}
+
+/*
+ * Glass: a translucent fill with a blur of what is behind it, a hairline and a top highlight. Text stays on the
+ * token colours; the fill is dense enough for the contrast checked in styles.test.ts against the surfaces.
+ * Solid fallback without backdrop-filter and with the "reduce transparency" setting.
+ */
+@utility glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  backdrop-filter: blur(18px) saturate(1.5);
+  border: 1px solid var(--glass-line);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    var(--shadow-1);
+}
+@utility glass-strong {
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  backdrop-filter: blur(28px) saturate(1.6);
+  border: 1px solid var(--glass-line);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    var(--shadow-2);
+}
+@utility glass-side {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
+  backdrop-filter: blur(22px) saturate(1.5);
+  border-right: 1px solid var(--glass-line);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass-strong,
+  .glass-side {
+    background: var(--raised);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-strong,
+  .glass-side {
+    background: var(--raised);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
