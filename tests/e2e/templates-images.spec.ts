@@ -151,7 +151,7 @@ test("an image above 4 megapixels shows a warning and one above 25 is refused", 
   await app.close();
 });
 
-test("a duplicate name in the same group warns under the name field", async () => {
+test("a duplicate name in the same group is blocked under the name field", async () => {
   const work = mkdtempSync(join(tmpdir(), "sheetstamp-e2e-"));
   const png = join(work, "nen.png");
   writeFileSync(png, makePng(16, 16));
@@ -171,6 +171,7 @@ test("a duplicate name in the same group warns under the name field", async () =
       await page.getByRole("button", { name: "‹ Mẫu" }).click();
     } else {
       await expect(dialog.getByText(/Đã có mẫu cùng tên trong nhóm này/)).toBeVisible();
+      await expect(dialog.getByRole("button", { name: "Lưu mẫu" })).toBeDisabled();
     }
   }
   await app.close();

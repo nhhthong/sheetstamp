@@ -159,6 +159,10 @@ test("auto-matching leaves the odd column, the user fixes it, pages through rows
 
   // The preview already shows row 1: matched values filled, the unmapped field marked.
   await expect(page.getByTestId("pager")).toHaveText("Dòng 1/5");
+  await expect(page.getByTestId("zoom")).toHaveText("100%");
+  await page.getByRole("button", { name: "Phóng to" }).click();
+  await expect(page.getByTestId("zoom")).toHaveText("125%");
+  await page.getByRole("button", { name: "Về 100%" }).click();
   await expect(preview(page)).toContainText("Nguyễn Văn An");
   await expect(preview(page)).toContainText("012345678901");
   await expect(preview(page)).toContainText("(thiếu)");

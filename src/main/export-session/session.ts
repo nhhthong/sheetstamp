@@ -22,13 +22,7 @@ import type { ImageInit } from "../../worker/image-job";
 import type { ImageTemplate, OutputFormat, TextBox } from "../../worker/render/types";
 import type { DataTable } from "../data";
 import type { BatchRequest } from "../export/batch";
-import {
-  maxNameLength,
-  planFileNames,
-  sanitizeName,
-  truncate,
-  validatePattern,
-} from "../export/filename";
+import { maxNameLength, planFileNames, sanitizeName, validatePattern } from "../export/filename";
 import { ExportCancelledError, type ExportResult, sweepStaleTemps } from "../export/zip";
 import { toProfile, toRecord } from "../mapping";
 import { DEFAULT_FILENAME_PATTERN, type Storage, type Template } from "../storage";
@@ -84,24 +78,13 @@ type ImageSetup =
   | { blocker: ExportBlocker }
   | { blocker: null; template: ImageTemplate; backgroundFormat: ImageFormat };
 
-const ZIP_BASE_MAX_CHARS = 100;
-const ZIP_BASE_MAX_BYTES = 200;
-
 const pad = (n: number) => String(n).padStart(2, "0");
-const isoDay = (date: Date) =>
-  `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
-/** `<template name> <yyyy-mm-dd>.zip`, sanitized with the filename rules. An existing name is numbered by `exportZip`. */
-export function zipNameFor(templateName: string, date: Date): string {
-  const day = isoDay(date);
-  // About 100 characters and 200 UTF-8 bytes, cut at grapheme boundaries, so no file system refuses the final name
-  // (255 bytes on most) after every row was done. The date always stays.
-  const name = truncate(
-    sanitizeName(templateName),
-    ZIP_BASE_MAX_CHARS - day.length - 1,
-    ZIP_BASE_MAX_BYTES - day.length - 1,
-  );
-  return `${sanitizeName(`${name} ${day}`)}.zip`;
+/** `Sheetstamp_<yyyy-mm-dd>_<HHmmss>.zip` in local time. An existing name is numbered by `exportZip`. */
+export function zipNameFor(date: Date): string {
+  const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  const time = `${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+  return `Sheetstamp_${day}_${time}.zip`;
 }
 
 /** The stored default `{{ten}}` falls back to the first field when the template has no `ten`. */
@@ -257,7 +240,7 @@ export class ExportSession {
       toRecord(toProfile(template.mapping)),
       template.kind === "word",
     );
-    const zipName = zipNameFor(template.name, (this.deps.now ?? (() => new Date()))());
+    const zipName = zipNameFor((this.deps.now ?? (() => new Date()))());
     const [name] = planFileNames(first, request.pattern, {
       extension: extensionOf(template, await this.#imageFormatOf(template, request.imageFormat)),
       removeDiacritics: request.removeDiacritics,
@@ -373,7 +356,7 @@ export class ExportSession {
         extension: extensionOf(template, format),
         removeDiacritics: request.removeDiacritics,
         folder,
-        zipName: zipNameFor(template.name, (this.deps.now ?? (() => new Date()))()),
+        zipName: zipNameFor((this.deps.now ?? (() => new Date()))()),
         signal: controller.signal,
         onProgress: send,
         poolSize: this.deps.poolSize,

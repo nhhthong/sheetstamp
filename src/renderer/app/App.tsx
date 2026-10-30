@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import logo from "../assets/icon.png?inline";
 import { ToastProvider } from "../components/ui/toast";
 import { cn } from "../lib/cn";
 import { STAY_ON_SETTINGS } from "../lib/stay-on-settings";
@@ -42,7 +43,10 @@ export function App() {
             aria-label={vi.nav.label}
             className="flex w-56 shrink-0 flex-col gap-1 border-r border-line bg-panel p-4 max-[819px]:w-full max-[819px]:flex-row max-[819px]:items-center max-[819px]:gap-2 max-[819px]:border-r-0 max-[819px]:border-b"
           >
-            <p className="mb-4 px-3 text-lg font-bold max-[819px]:mb-0">{vi.app.name}</p>
+            <p className="mb-4 flex items-center gap-2 px-3 text-lg font-bold max-[819px]:mb-0">
+              <img src={logo} alt="" className="size-7" />
+              {vi.app.name}
+            </p>
             <ul className="m-0 flex list-none flex-col gap-1 p-0 max-[819px]:flex-row">
               {PAGES.map(({ id, label, icon: Icon }) => (
                 <li key={id}>
