@@ -111,7 +111,7 @@ export function TemplatesPage() {
       <div
         role="group"
         aria-label={tpl.tabsLabel}
-        className="mb-6 inline-flex gap-0.5 rounded-control bg-panel p-0.5"
+        className="mb-6 inline-flex gap-0.5 rounded-control glass p-0.5"
       >
         {(
           [
@@ -139,7 +139,7 @@ export function TemplatesPage() {
       ) : templates === null ? (
         <p className="text-muted">{vi.common.loading}</p>
       ) : rows.length === 0 ? (
-        <div className="flex flex-col items-start gap-4 rounded-dialog border border-line bg-raised p-6 shadow-card">
+        <div className="flex flex-col items-start gap-4 rounded-dialog glass p-6">
           <p>{tab === "docs" ? tpl.emptyDocs : tpl.emptyImages}</p>
           <Button onClick={() => setDialogOpen(true)}>{tpl.createFirst}</Button>
         </div>
@@ -152,7 +152,7 @@ export function TemplatesPage() {
             <li
               key={t.id}
               data-testid="template-row"
-              className="flex items-center gap-4 rounded-dialog border border-line bg-raised px-4 py-3 shadow-card"
+              className="flex items-center gap-4 rounded-dialog glass px-4 py-3"
             >
               <Icon aria-hidden="true" className="size-6 shrink-0 text-muted" />
               <div className="min-w-0 flex-1">

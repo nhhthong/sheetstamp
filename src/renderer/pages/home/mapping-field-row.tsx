@@ -81,7 +81,7 @@ export function FieldRow({ label, entry, columns, pinned, value, taken, onChange
       data-state={open ? "unresolved" : "resolved"}
       className={cn(
         "flex min-w-0 flex-col gap-2 rounded-control border px-3 py-3",
-        open ? "border-warning bg-warning-bg" : "border-line bg-raised shadow-card",
+        open ? "border-warning bg-warning-bg" : "glass",
       )}
     >
       <div className="flex items-center justify-between gap-2">

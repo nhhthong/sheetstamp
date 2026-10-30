@@ -41,7 +41,7 @@ export function App() {
         <div className="flex h-full max-[819px]:flex-col">
           <nav
             aria-label={vi.nav.label}
-            className="flex w-56 shrink-0 flex-col gap-1 border-r border-line bg-panel p-4 max-[819px]:w-full max-[819px]:flex-row max-[819px]:items-center max-[819px]:gap-2 max-[819px]:border-r-0 max-[819px]:border-b"
+            className="flex w-56 shrink-0 flex-col gap-1 glass-side p-4 max-[819px]:w-full max-[819px]:flex-row max-[819px]:items-center max-[819px]:gap-2 max-[819px]:border-r-0 max-[819px]:border-b"
           >
             <p className="mb-4 flex items-center gap-2 px-3 text-lg font-bold max-[819px]:mb-0">
               <img src={logo} alt="" className="size-7" />

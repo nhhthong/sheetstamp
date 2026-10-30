@@ -23,8 +23,8 @@ export function Dialog({
   return (
     <BaseDialog.Root open={open} onOpenChange={onOpenChange}>
       <BaseDialog.Portal>
-        <BaseDialog.Backdrop className="fixed inset-0 bg-black/40" />
-        <BaseDialog.Popup className="fixed top-1/2 left-1/2 max-h-[calc(100vh-32px)] w-[min(520px,calc(100vw-32px))] overflow-y-auto -translate-x-1/2 -translate-y-1/2 rounded-dialog border border-line bg-raised p-6 shadow-pop">
+        <BaseDialog.Backdrop className="fixed inset-0 bg-black/30 backdrop-blur-[6px]" />
+        <BaseDialog.Popup className="fixed top-1/2 left-1/2 max-h-[calc(100vh-32px)] w-[min(520px,calc(100vw-32px))] overflow-y-auto -translate-x-1/2 -translate-y-1/2 rounded-dialog glass-strong p-6">
           <BaseDialog.Title className="mb-4 text-xl font-semibold">{title}</BaseDialog.Title>
           <div className="flex flex-col gap-4">{children}</div>
           <div className="mt-6 flex justify-start gap-3">
