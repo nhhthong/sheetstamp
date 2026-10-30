@@ -14,7 +14,7 @@ import { BoxInspector, type InspectorChange } from "./BoxInspector";
 import { defaultFont } from "./default-font";
 import { EditorCanvas } from "./EditorCanvas";
 import { FieldNameInput } from "./FieldNameInput";
-import { labelFor, newField, sampleText } from "./fields";
+import { labelFor, newField } from "./fields";
 import { missingFamilies } from "./inspector";
 import { newBox } from "./new-box";
 
@@ -44,10 +44,6 @@ export function ImageEditorPage({
   const [message, setMessage] = useState<{ kind: "success" | "danger"; text: string } | null>(null);
   const [leaving, setLeaving] = useState(false);
   const [fonts, setFonts] = useState<FontFamilyInfo[] | null>(null);
-  const [sample, setSample] = useState<{ hasData: boolean; values: Record<string, string> }>({
-    hasData: false,
-    values: {},
-  });
   const counter = useRef(0);
 
   useEffect(() => {
@@ -101,23 +97,6 @@ export function ImageEditorPage({
 
   // In the order the fields were added: main pairs the n-th field with the n-th column.
   const orderedFields = [...new Set(boxes.map((b) => b.field))];
-  const usedFields = orderedFields.join("\n");
-  // The first data row's cells for the fields in use; main pairs columns with fields by the mapping rules.
-  useEffect(() => {
-    if (!loaded) return;
-    let live = true;
-    const fields =
-      usedFields === ""
-        ? []
-        : usedFields.split("\n").map((key) => ({ key, label: labelFor(key, labels) }));
-    call(imageIpc.sampleRow, { fields })
-      .then((row) => live && setSample(row))
-      .catch(() => {});
-    return () => {
-      live = false;
-    };
-  }, [loaded, usedFields, labels]);
-
   // Boxes left outside the image (for example after the background was replaced): flagged, never moved here.
   const flagged = new Set(
     loaded
@@ -283,7 +262,6 @@ export function ImageEditorPage({
                   background={loaded.bitmap}
                   boxes={boxes}
                   labels={labels}
-                  sample={sample.values}
                   selectedId={selectedId}
                   flaggedIds={flagged}
                   onSelect={select}
@@ -335,9 +313,6 @@ export function ImageEditorPage({
                   </Field>
                   <p className="text-sm text-muted">
                     {ied.fieldColumnHint(orderedFields.indexOf(selected.field) + 1)}
-                  </p>
-                  <p className="text-sm text-muted">
-                    {sampleText(selected.field, labels, sample.values)}
                   </p>
                   <BoxInspector
                     box={selected}

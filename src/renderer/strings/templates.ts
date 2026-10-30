@@ -33,11 +33,16 @@ const viTpl = {
     chooseButton: "Chọn file…",
     changeFile: "Chọn file khác",
     dropLabel: "Vùng thả file Word",
-    tagNote:
-      "Chữ trong thẻ {{…}} nên giống tiêu đề cột của file dữ liệu (ví dụ {{ho_ten}} và cột “Họ tên”) để ghép cột nhanh.",
+    tagNote: "Chữ trong thẻ {{…}} nên giống tiêu đề cột trong file dữ liệu.",
     tagExample: "Xem ví dụ",
-    tagExampleAlt:
-      "Bên trái là file CSV có các tiêu đề cột, bên phải là hợp đồng có các thẻ; đường nối mỗi tiêu đề với thẻ cùng tên.",
+    tagDemo: {
+      label: "Mỗi tiêu đề cột trong file dữ liệu điền vào thẻ cùng tên trong hợp đồng.",
+      headers: ["ho_ten", "chuc_vu", "luong"],
+      values: ["Nguyễn An", "Kế toán", "1.200 USD"],
+      lines: ["Họ tên:", "Chức vụ:", "Lương:"],
+      data: "Dữ liệu",
+      contract: "Hợp đồng",
+    },
     reading: "Đang đọc file…",
     name: "Tên mẫu",
     group: "Nhóm",
@@ -172,11 +177,17 @@ const enTpl: typeof viTpl = {
     chooseButton: "Choose a file…",
     changeFile: "Choose another file",
     dropLabel: "Drop zone for a Word file",
-    tagNote:
-      "The text in a {{…}} tag should match a column header in the data file (for example {{full_name}} and the column “Full name”), so the columns match quickly.",
+    tagNote: "The text in a {{…}} tag should match a column header in the data file.",
     tagExample: "See an example",
-    tagExampleAlt:
-      "A CSV file with column headers on the left and a contract with tags on the right; a line joins each header to the tag with the same name.",
+    tagDemo: {
+      label:
+        "Each column header in the data file fills the tag with the same name in the contract.",
+      headers: ["full_name", "position", "salary"],
+      values: ["Anna Lee", "Accountant", "1,200 USD"],
+      lines: ["Name:", "Position:", "Salary:"],
+      data: "Data",
+      contract: "Contract",
+    },
     reading: "Reading the file…",
     name: "Template name",
     group: "Group",

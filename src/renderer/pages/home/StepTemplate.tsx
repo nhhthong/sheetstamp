@@ -208,7 +208,9 @@ function TemplateList() {
                 onClick={() => setSelected(x.id)}
                 className={cn(
                   "flex w-full items-center gap-4 rounded-control border-2 px-4 py-3 text-left transition-colors hover:bg-panel",
-                  selected === x.id ? "border-accent bg-panel" : "border-line",
+                  selected === x.id
+                    ? "border-accent bg-raised shadow-card"
+                    : "border-line bg-raised",
                 )}
               >
                 {x.kind === "image" ? (

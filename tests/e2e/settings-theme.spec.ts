@@ -13,8 +13,8 @@ const launch = (dataDir: string) =>
     env: { ...process.env, SHEETSTAMP_DATA_DIR: dataDir },
   });
 
-const DARK_BG = "rgb(20, 23, 28)";
-const LIGHT_BG = "rgb(255, 255, 255)";
+const DARK_BG = "rgb(17, 20, 26)";
+const LIGHT_BG = "rgb(246, 248, 252)";
 
 const openSettings = async (page: Page) => {
   await page.getByRole("navigation").getByRole("button", { name: "Cài đặt" }).click();

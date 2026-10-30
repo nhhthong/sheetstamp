@@ -7,8 +7,8 @@ const button = cva(
   {
     variants: {
       variant: {
-        primary: "bg-accent text-on-accent hover:opacity-90",
-        secondary: "border border-line bg-transparent text-text hover:bg-panel",
+        primary: "bg-accent text-on-accent shadow-card hover:opacity-90",
+        secondary: "border border-line bg-raised text-text shadow-card hover:bg-panel",
         ghost: "bg-transparent text-accent hover:bg-panel",
         danger: "bg-danger text-on-accent hover:opacity-90",
       },

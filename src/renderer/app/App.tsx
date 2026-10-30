@@ -56,7 +56,9 @@ export function App() {
                     onClick={() => setCurrent(id)}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-control px-3 py-2 text-left font-semibold",
-                      id === current ? "bg-accent text-on-accent" : "text-text hover:bg-bg",
+                      id === current
+                        ? "bg-raised text-accent shadow-card"
+                        : "text-text hover:bg-raised/60",
                     )}
                   >
                     <Icon aria-hidden="true" className="size-5" />
