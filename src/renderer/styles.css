@@ -143,3 +143,190 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * The tag example in the new-template dialog: a 10 s loop. Header i lights up, then its tag in the contract is
+ * replaced by the value. Values reset together at the end. Transform and opacity only; with reduced motion the
+ * finished state is shown still.
+ */
+.ss-demo-slot {
+  position: relative;
+  display: inline-grid;
+}
+.ss-demo-slot > * {
+  grid-area: 1 / 1;
+}
+.ss-demo-tag {
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 0 6px;
+  color: var(--accent);
+  opacity: 0;
+}
+.ss-demo-value {
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ss-demo-tag {
+    opacity: 1;
+  }
+  .ss-demo-value {
+    opacity: 0;
+  }
+  .ss-demo-head:nth-of-type(1) {
+    animation: ss-hl-0 10s linear infinite;
+  }
+  .ss-demo-head:nth-of-type(2) {
+    animation: ss-hl-1 10s linear infinite;
+  }
+  .ss-demo-head:nth-of-type(3) {
+    animation: ss-hl-2 10s linear infinite;
+  }
+  p:nth-child(1) > .ss-demo-slot > .ss-demo-tag {
+    animation: ss-tag-0 10s linear infinite;
+  }
+  p:nth-child(2) > .ss-demo-slot > .ss-demo-tag {
+    animation: ss-tag-1 10s linear infinite;
+  }
+  p:nth-child(3) > .ss-demo-slot > .ss-demo-tag {
+    animation: ss-tag-2 10s linear infinite;
+  }
+  p:nth-child(1) > .ss-demo-slot > .ss-demo-value {
+    animation: ss-val-0 10s linear infinite;
+  }
+  p:nth-child(2) > .ss-demo-slot > .ss-demo-value {
+    animation: ss-val-1 10s linear infinite;
+  }
+  p:nth-child(3) > .ss-demo-slot > .ss-demo-value {
+    animation: ss-val-2 10s linear infinite;
+  }
+}
+
+@keyframes ss-hl-0 {
+  0%,
+  4% {
+    color: var(--text);
+  }
+  6%,
+  20% {
+    color: var(--accent);
+  }
+  22%,
+  100% {
+    color: var(--text);
+  }
+}
+@keyframes ss-hl-1 {
+  0%,
+  24% {
+    color: var(--text);
+  }
+  26%,
+  40% {
+    color: var(--accent);
+  }
+  42%,
+  100% {
+    color: var(--text);
+  }
+}
+@keyframes ss-hl-2 {
+  0%,
+  44% {
+    color: var(--text);
+  }
+  46%,
+  60% {
+    color: var(--accent);
+  }
+  62%,
+  100% {
+    color: var(--text);
+  }
+}
+@keyframes ss-tag-0 {
+  0%,
+  19% {
+    opacity: 1;
+  }
+  21%,
+  92% {
+    opacity: 0;
+  }
+  96%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes ss-tag-1 {
+  0%,
+  39% {
+    opacity: 1;
+  }
+  41%,
+  92% {
+    opacity: 0;
+  }
+  96%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes ss-tag-2 {
+  0%,
+  59% {
+    opacity: 1;
+  }
+  61%,
+  92% {
+    opacity: 0;
+  }
+  96%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes ss-val-0 {
+  0%,
+  19% {
+    opacity: 0;
+  }
+  21%,
+  92% {
+    opacity: 1;
+  }
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes ss-val-1 {
+  0%,
+  39% {
+    opacity: 0;
+  }
+  41%,
+  92% {
+    opacity: 1;
+  }
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes ss-val-2 {
+  0%,
+  59% {
+    opacity: 0;
+  }
+  61%,
+  92% {
+    opacity: 1;
+  }
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
