@@ -23,20 +23,6 @@ const FAST_STEP = 10;
 
 type Loaded = { name: string; bitmap: ImageBitmap; bytes: Uint8Array };
 type Patch = Partial<Omit<LayoutBox, "id">>;
-type Preview =
-  | { kind: "idle" }
-  | { kind: "busy" }
-  | { kind: "image"; url: string }
-  | { kind: "error"; message: string };
-
-const toDataUrl = (png: Uint8Array) =>
-  new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(new Blob([png.slice()], { type: "image/png" }));
-  });
-
 /** The editor sub-page of an image template: the background, its text boxes, and "Lưu mẫu". No undo. */
 export function ImageEditorPage({
   templateId,
@@ -62,7 +48,6 @@ export function ImageEditorPage({
     hasData: false,
     values: {},
   });
-  const [preview, setPreview] = useState<Preview>({ kind: "idle" });
   const counter = useRef(0);
 
   useEffect(() => {
@@ -142,25 +127,6 @@ export function ImageEditorPage({
       : [],
   );
   const missing = fonts ? missingFamilies(boxes, fonts) : [];
-
-  async function showPreview() {
-    if (!loaded) return;
-    setPreview({ kind: "busy" });
-    try {
-      const values = Object.fromEntries(
-        boxes.map((b) => [b.field, sampleText(b.field, labels, sample.values)]),
-      );
-      const result = await call(imageIpc.render, { background: loaded.bytes, boxes, values });
-      if (result.ok) setPreview({ kind: "image", url: await toDataUrl(result.png) });
-      else if (result.code === "text-too-long")
-        setPreview({ kind: "error", message: ied.textTooLong(labelOf(result.field ?? "")) });
-      else if (result.code === "font-missing")
-        setPreview({ kind: "error", message: ied.fontMissingRender(result.field ?? "") });
-      else setPreview({ kind: "error", message: ied.badBackground });
-    } catch {
-      setPreview({ kind: "error", message: ied.previewFailed });
-    }
-  }
 
   function addBox() {
     if (!loaded || boxes.length >= MAX_BOXES) return;
@@ -385,33 +351,6 @@ export function ImageEditorPage({
               )}
             </aside>
           </div>
-          <section aria-label={ied.previewTitle} className="mt-6 flex flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <h2 className="text-lg font-bold">{ied.previewTitle}</h2>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => void showPreview()}
-                disabled={preview.kind === "busy"}
-              >
-                {preview.kind === "busy" ? ied.previewing : ied.preview}
-              </Button>
-              <span className="text-sm text-muted">{ied.previewSource(sample.hasData)}</span>
-            </div>
-            {preview.kind === "error" ? (
-              <div data-testid="preview-error">
-                <Status kind="danger">{preview.message}</Status>
-              </div>
-            ) : null}
-            {preview.kind === "image" ? (
-              <img
-                src={preview.url}
-                alt={ied.previewAlt}
-                data-testid="preview-image"
-                className="max-h-[70vh] max-w-full self-start rounded-dialog border border-line object-contain"
-              />
-            ) : null}
-          </section>
           <p role="status" aria-live="polite" className="sr-only" data-testid="editor-live">
             {announcement}
           </p>

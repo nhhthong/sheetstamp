@@ -49,35 +49,11 @@ const viIed = {
   styleMissing: "Font này không có kiểu chữ đó.",
   align: "Căn lề",
   aligns: { left: "Trái", center: "Giữa", right: "Phải" },
-  advanced: "Nâng cao",
-  maxLines: "Số dòng tối đa",
-  maxLinesInvalid: "Nhập số nguyên từ 1 đến 100.",
-  overflow: "Khi chữ quá dài",
-  overflows: {
-    shrink: "Thu nhỏ chữ",
-    wrap: "Xuống dòng",
-    truncate: "Cắt bớt và thêm …",
-    error: "Báo lỗi cho dòng đó",
-  },
   missingFont: (families: string[]) =>
     `Font đã lưu trong mẫu không còn trên máy này: ${families.join(", ")}. Chọn font khác cho từng khung chữ bên dưới; ứng dụng không tự thay font.`,
   fontMissingOption: (family: string) => `${family} (không còn trên máy)`,
   saveBlockedMissingFont:
     "Chưa lưu: còn khung chữ dùng font không có trên máy. Chọn font khác cho khung đó rồi lưu lại.",
-  preview: "Xem trước",
-  previewing: "Đang vẽ…",
-  previewTitle: "Xem trước",
-  previewAlt: "Ảnh xem trước với chữ đã vẽ",
-  previewFailed: "Không vẽ được bản xem trước. Thử lại.",
-  previewSource: (hasData: boolean): string =>
-    hasData
-      ? "Dùng dòng đầu tiên của dữ liệu đã nạp."
-      : "Chưa nạp dữ liệu: dùng tên trường làm chữ mẫu.",
-  textTooLong: (label: string) =>
-    `Chữ của “${label}” quá dài so với khung. Tăng chiều rộng hoặc số dòng, hoặc đổi cách xử lý khi chữ quá dài.`,
-  fontMissingRender: (family: string) =>
-    `Font “${family}” không còn trên máy này. Chọn font khác cho khung chữ dùng nó.`,
-  badBackground: "Không đọc được ảnh nền. Tải lại ảnh nền hoặc chọn ảnh khác.",
   fieldCount: (n: number) => `${n} trường được dùng.`,
 };
 
@@ -130,36 +106,11 @@ const enIed: typeof viIed = {
   styleMissing: "This font does not have that style.",
   align: "Alignment",
   aligns: { left: "Left", center: "Centre", right: "Right" },
-  advanced: "Advanced",
-  maxLines: "Maximum lines",
-  maxLinesInvalid: "Enter a whole number from 1 to 100.",
-  overflow: "When the text is too long",
-  overflows: {
-    shrink: "Shrink the text",
-    wrap: "Wrap to the next line",
-    truncate: "Cut it and add …",
-    error: "Report an error for that row",
-  },
   missingFont: (families: string[]) =>
     `Fonts saved in the template are no longer on this computer: ${families.join(", ")}. Choose another font for each text box below; the app never replaces a font by itself.`,
   fontMissingOption: (family: string) => `${family} (not on this computer)`,
   saveBlockedMissingFont:
     "Not saved: a text box still uses a font this computer does not have. Choose another font for it and save again.",
-  preview: "Preview",
-  previewing: "Drawing…",
-  previewTitle: "Preview",
-  previewAlt: "Preview image with the text drawn",
-  previewFailed: "Could not draw the preview. Try again.",
-  previewSource: (hasData: boolean): string =>
-    hasData
-      ? "Using the first row of the loaded data."
-      : "No data loaded: the field names are used as sample text.",
-  textTooLong: (label: string) =>
-    `The text of “${label}” is too long for its box. Make it wider or give it more lines, or change what happens when the text is too long.`,
-  fontMissingRender: (family: string) =>
-    `The font “${family}” is no longer on this computer. Choose another font for the text boxes that use it.`,
-  badBackground:
-    "Could not read the background image. Load the background again or choose another image.",
   fieldCount: (n: number) => `${n} ${plural(n, "field")} in use.`,
 };
 
