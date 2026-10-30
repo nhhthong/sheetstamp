@@ -41,7 +41,8 @@ linux:
     - target: AppImage
       arch: [x64]
   artifactName: Sheetstamp-x64.${ext}
-  icon: build/icon.png
+  icon: build/icons
+  syncDesktopName: true
   category: Office
   maintainer: nhhthong <50626102+nhhthong@users.noreply.github.com>
   synopsis: Fill Word and image templates from CSV or Excel files
