@@ -1,8 +1,10 @@
+import { AlignCenter, AlignLeft, AlignRight, Bold, Italic } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { LayoutBox } from "../../../../shared/image-layout";
 import type { FontFamilyInfo, FontStyle } from "../../../../shared/ipc/images";
 import { Button } from "../../../components/ui/button";
 import { Field, Input, Select } from "../../../components/ui/input";
+import { cn } from "../../../lib/cn";
 import { ied } from "../../../strings/image-editor";
 import {
   FONT_STYLES,
@@ -17,6 +19,17 @@ export type InspectorChange = Partial<
 >;
 
 const ALIGNS = ["left", "center", "right"] as const;
+const ALIGN_ICONS = { left: AlignLeft, center: AlignCenter, right: AlignRight } as const;
+
+/** Bold and italic as two toggles: the four stored styles are their combinations. */
+const STYLE_OF = {
+  "false,false": "normal",
+  "true,false": "bold",
+  "false,true": "italic",
+  "true,true": "bolditalic",
+} as const;
+const isBold = (s: FontStyle) => s === "bold" || s === "bolditalic";
+const isItalic = (s: FontStyle) => s === "italic" || s === "bolditalic";
 
 /** A number input that keeps what the user types and applies only a whole number in range. */
 function NumberField({
@@ -108,7 +121,14 @@ function ColorField({ value, onValid }: { value: string; onValid: (hex: string) 
   );
 }
 
-function Segmented<T extends string>({
+const iconButton = (on: boolean) =>
+  cn(
+    "flex size-9 cursor-pointer items-center justify-center rounded-control border shadow-card focus-visible:outline-2 has-[:focus-visible]:outline has-[:focus-visible]:outline-2",
+    on ? "border-accent bg-panel text-accent" : "border-line bg-raised text-text hover:bg-panel",
+  );
+
+/** Icon radio group (alignment). The label text stays for screen readers and as a tooltip. */
+function IconChoice({
   legend,
   name,
   options,
@@ -117,31 +137,31 @@ function Segmented<T extends string>({
 }: {
   legend: string;
   name: string;
-  options: readonly { value: T; label: string; disabled?: boolean }[];
-  value: T;
-  onPick: (value: T) => void;
+  options: readonly { value: (typeof ALIGNS)[number]; label: string }[];
+  value: (typeof ALIGNS)[number];
+  onPick: (value: (typeof ALIGNS)[number]) => void;
 }) {
   return (
     <fieldset className="m-0 flex min-w-0 flex-col gap-1 border-0 p-0">
       <legend className="mb-1 p-0 font-semibold">{legend}</legend>
-      <div className="flex flex-wrap gap-1">
-        {options.map((o) => (
-          <label
-            key={o.value}
-            className={`flex cursor-pointer items-center gap-1 rounded-control border px-2 py-1 text-sm has-[:focus-visible]:outline has-[:focus-visible]:outline-2 ${o.value === value ? "border-accent bg-panel font-semibold" : "border-line"} ${o.disabled ? "cursor-not-allowed opacity-50" : ""}`}
-          >
-            <input
-              type="radio"
-              name={name}
-              value={o.value}
-              checked={o.value === value}
-              disabled={o.disabled}
-              onChange={() => onPick(o.value)}
-              className="sr-only"
-            />
-            {o.label}
-          </label>
-        ))}
+      <div className="flex gap-1">
+        {options.map((o) => {
+          const Icon = ALIGN_ICONS[o.value];
+          return (
+            <label key={o.value} title={o.label} className={iconButton(o.value === value)}>
+              <input
+                type="radio"
+                name={name}
+                value={o.value}
+                checked={o.value === value}
+                onChange={() => onPick(o.value)}
+                className="sr-only"
+              />
+              <Icon aria-hidden="true" className="size-5" />
+              <span className="sr-only">{o.label}</span>
+            </label>
+          );
+        })}
       </div>
     </fieldset>
   );
@@ -160,13 +180,13 @@ export function BoxInspector({
   onDelete: () => void;
 }) {
   const installed = fonts.some((f) => f.family === box.fontFamily);
-  const styleOptions = FONT_STYLES.map((s: FontStyle) => ({
-    value: s,
-    label: ied.styles[s],
-    disabled: !styleAvailable(fonts, box.fontFamily, s),
-  }));
-  const lacking = styleOptions.some((o) => o.disabled);
-  const radioName = `style-${box.id}`;
+  const bold = isBold(box.style);
+  const italic = isItalic(box.style);
+  const styleFor = (nextBold: boolean, nextItalic: boolean): FontStyle =>
+    STYLE_OF[`${nextBold},${nextItalic}`];
+  const canBold = styleAvailable(fonts, box.fontFamily, styleFor(!bold, italic));
+  const canItalic = styleAvailable(fonts, box.fontFamily, styleFor(bold, !italic));
+  const lacking = FONT_STYLES.some((s: FontStyle) => !styleAvailable(fonts, box.fontFamily, s));
   return (
     <>
       <Field label={ied.font} hint={ied.fontNote}>
@@ -203,15 +223,35 @@ export function BoxInspector({
         onValid={(fontSize) => onChange({ fontSize })}
       />
       <ColorField value={box.color} onValid={(color) => onChange({ color })} />
-      <Segmented
-        legend={ied.fontStyle}
-        name={radioName}
-        options={styleOptions}
-        value={box.style}
-        onPick={(style) => onChange({ style })}
-      />
+      <fieldset className="m-0 flex min-w-0 flex-col gap-1 border-0 p-0">
+        <legend className="mb-1 p-0 font-semibold">{ied.fontStyle}</legend>
+        <div className="flex gap-1">
+          <button
+            type="button"
+            title={ied.styles.bold}
+            aria-label={ied.styles.bold}
+            aria-pressed={bold}
+            disabled={!canBold}
+            onClick={() => onChange({ style: styleFor(!bold, italic) })}
+            className={cn(iconButton(bold), "disabled:cursor-not-allowed disabled:opacity-50")}
+          >
+            <Bold aria-hidden="true" className="size-5" />
+          </button>
+          <button
+            type="button"
+            title={ied.styles.italic}
+            aria-label={ied.styles.italic}
+            aria-pressed={italic}
+            disabled={!canItalic}
+            onClick={() => onChange({ style: styleFor(bold, !italic) })}
+            className={cn(iconButton(italic), "disabled:cursor-not-allowed disabled:opacity-50")}
+          >
+            <Italic aria-hidden="true" className="size-5" />
+          </button>
+        </div>
+      </fieldset>
       {lacking ? <p className="text-sm text-muted">{ied.styleMissing}</p> : null}
-      <Segmented
+      <IconChoice
         legend={ied.align}
         name={`align-${box.id}`}
         options={ALIGNS.map((a) => ({ value: a, label: ied.aligns[a] }))}

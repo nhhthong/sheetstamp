@@ -147,7 +147,7 @@ test("auto-matching leaves the odd column, the user fixes it, pages through rows
   // Exactly one field is left: highlighted, with marker text, explanation and a disabled primary button.
   await expect(heading(page)).toHaveText("1 trường cần bạn chọn cột.");
   const rows = page.getByTestId("mapping-row");
-  await expect(rows).toHaveCount(1);
+  await expect(rows).toHaveCount(3);
   await expect(rows.first()).toHaveAttribute("data-field", "Nơi sinh");
   await expect(rows.first()).toHaveAttribute("data-state", "unresolved");
   await expect(rows.first()).toContainText("Cần chọn cột");
@@ -155,7 +155,7 @@ test("auto-matching leaves the odd column, the user fixes it, pages through rows
     "Chưa có cột nào giống ‘Nơi sinh’. Chọn cột khác, nhập chữ cố định hoặc để trống.",
   );
   await expect(next(page)).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Xem 2 trường đã khớp" })).toBeVisible();
+  await expect(page.getByTestId("mapping-row")).toHaveCount(3);
 
   // The preview already shows row 1: matched values filled, the unmapped field marked.
   await expect(page.getByTestId("pager")).toHaveText("Dòng 1/5");
@@ -233,10 +233,9 @@ test("the saved mapping is reused after a restart; changing the data keeps valid
   await toStepMapping(app, page);
   // Same template, same data: nothing to fix.
   await expect(heading(page)).toHaveText("Tất cả 3 trường đã ghép.");
-  await expect(page.getByTestId("mapping-row")).toHaveCount(0);
+  await expect(page.locator('[data-testid="mapping-row"][data-state="unresolved"]')).toHaveCount(0);
   await expect(next(page)).toBeEnabled();
   await expect(page.getByTestId("lost-fields")).toHaveCount(0);
-  await page.getByRole("button", { name: "Xem 3 trường đã khớp" }).click();
   await expect(page.getByTestId("mapping-row")).toHaveCount(3);
   await next(page).click();
   await expect(step(page, "export")).toHaveAttribute("data-status", "active");
@@ -255,10 +254,11 @@ test("the saved mapping is reused after a restart; changing the data keeps valid
     "Trường ‘CCCD’ mất cột ‘CCCD’. Chọn cột khác.",
   );
   await expect(heading(page)).toHaveText("1 trường cần bạn chọn cột.");
-  await expect(page.getByTestId("mapping-row")).toHaveCount(1);
-  await expect(page.getByTestId("mapping-row")).toHaveAttribute("data-field", "CCCD");
+  const unresolved = page.locator('[data-testid="mapping-row"][data-state="unresolved"]');
+  await expect(unresolved).toHaveCount(1);
+  await expect(unresolved).toHaveAttribute("data-field", "CCCD");
   await expect(next(page)).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Xem 2 trường đã khớp" })).toBeVisible();
+  await expect(page.getByTestId("mapping-row")).toHaveCount(3);
   await expect(page.getByTestId("pager")).toHaveText("Dòng 1/1");
   await expect(page.getByRole("button", { name: "Dòng trước" })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Dòng sau" })).toBeDisabled();
@@ -267,7 +267,7 @@ test("the saved mapping is reused after a restart; changing the data keeps valid
   await shoot(page, "lost");
 
   // Leaving it empty settles the field.
-  await page.getByTestId("mapping-row").getByRole("combobox").selectOption({ label: "Để trống" });
+  await unresolved.getByRole("combobox").selectOption({ label: "Để trống" });
   await expect(heading(page)).toHaveText("Tất cả 3 trường đã ghép.");
   await expect(next(page)).toBeEnabled();
   await app.close();
@@ -290,7 +290,6 @@ test("fixed text previews as you type and is saved; narrow window stacks the col
   const page = await app.firstWindow();
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.setSize(1200, 900));
   await toStepMapping(app, page);
-  await page.getByRole("button", { name: "Xem 3 trường đã khớp" }).click();
 
   // Change a matched field to fixed text: unresolved until something is typed.
   const row = page.getByTestId("mapping-row").filter({ hasText: "Nơi sinh" });
@@ -331,7 +330,6 @@ test("every row shows its first-row value, and a column taken by another field i
   const page = await app.firstWindow();
   await toStepMapping(app, page);
 
-  await page.getByRole("button", { name: "Xem 2 trường đã khớp" }).click();
   const rows = page.getByTestId("mapping-row");
   const nameRow = rows.filter({ hasText: "Họ và tên" });
   await expect(nameRow.getByTestId("first-value")).toHaveText("Dòng đầu: Nguyễn Văn An");

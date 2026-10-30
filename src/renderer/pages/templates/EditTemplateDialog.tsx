@@ -50,12 +50,10 @@ function Form({
   const [groupId, setGroupId] = useState("");
   const [newGroup, setNewGroup] = useState("");
   const [note, setNote] = useState("");
-  const [pattern, setPattern] = useState("");
   const [labels, setLabels] = useState<Record<string, string>>({});
   const [replacement, setReplacement] = useState<Replacement | null>(null);
   const [replaceError, setReplaceError] = useState("");
   const [reading, setReading] = useState(false);
-  const [patternProblems, setPatternProblems] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
 
@@ -71,7 +69,6 @@ function Form({
         setName(detail.name);
         setGroupId(detail.groupId);
         setNote(detail.note);
-        setPattern(detail.filenamePattern);
         setLabels(Object.fromEntries(detail.tags.map((t) => [t.name, t.label])));
       })
       .catch(() => live && setLoadFailed(true));
@@ -98,21 +95,6 @@ function Form({
     return [...stored, ...fresh];
   }, [loaded, replacement]);
   const keys = useMemo(() => rows.filter((r) => !r.removed).map((r) => r.key), [rows]);
-  const keysSignature = keys.join("\u0000");
-
-  useEffect(() => {
-    if (!loaded) return;
-    let live = true;
-    void call(ipc.checkPattern, {
-      pattern,
-      keys: keysSignature ? keysSignature.split("\u0000") : [],
-    })
-      .then((m) => live && setPatternProblems(m))
-      .catch(() => live && setPatternProblems([]));
-    return () => {
-      live = false;
-    };
-  }, [loaded, pattern, keysSignature]);
 
   const duplicate = useMemo(() => {
     if (groupId === NEW_GROUP || norm(name) === "") return false;
@@ -152,7 +134,6 @@ function Form({
   async function save() {
     setSaveError("");
     if (name.trim() === "") return setSaveError(tpl.dialog.nameNeeded);
-    if (patternProblems.length > 0) return setSaveError(patternProblems.join(" "));
     setSaving(true);
     try {
       let targetGroup = groupId;
@@ -167,7 +148,6 @@ function Form({
         name: name.trim(),
         groupId: targetGroup,
         note,
-        filenamePattern: pattern,
         labels,
         replacePath: replacement?.path ?? null,
       });
@@ -303,14 +283,6 @@ function Form({
 
           <Field label={tpl.dialog.note}>
             {(p) => <Input {...p} value={note} onChange={(e) => setNote(e.target.value)} />}
-          </Field>
-
-          <Field
-            label={tpl.editDialog.filenamePattern}
-            hint={patternProblems.length === 0 ? tpl.editDialog.patternHint : undefined}
-            error={patternProblems.length > 0 ? patternProblems.join(" ") : undefined}
-          >
-            {(p) => <Input {...p} value={pattern} onChange={(e) => setPattern(e.target.value)} />}
           </Field>
 
           <details

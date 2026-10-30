@@ -20,9 +20,6 @@ const viHomeMapping = {
   resolvedMarker: "Đã chọn",
   explanation: (label: string) =>
     `Chưa có cột nào giống ‘${label}’. Chọn cột khác, nhập chữ cố định hoặc để trống.`,
-  showMatched: (n: number) => `Xem ${n} trường đã khớp`,
-  hideMatched: (n: number) => `Ẩn ${n} trường đã khớp`,
-  matchedLabel: "Các trường đã khớp",
   columnFor: (label: string) => `Cột cho trường ${label}`,
   choose: "Chọn cột…",
   fixedOption: "Nhập chữ cố định",
@@ -77,9 +74,6 @@ const enHomeMapping: typeof viHomeMapping = {
   resolvedMarker: "Chosen",
   explanation: (label: string) =>
     `No column looks like ‘${label}’. Choose another column, type a fixed text or leave it empty.`,
-  showMatched: (n: number) => `Show ${n} matched ${plural(n, "field")}`,
-  hideMatched: (n: number) => `Hide ${n} matched ${plural(n, "field")}`,
-  matchedLabel: "Matched fields",
   columnFor: (label: string) => `Column for field ${label}`,
   choose: "Choose a column…",
   fixedOption: "Type a fixed text",

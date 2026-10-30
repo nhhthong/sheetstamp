@@ -80,15 +80,17 @@ export function FieldRow({ label, entry, columns, pinned, value, taken, onChange
       data-field={label}
       data-state={open ? "unresolved" : "resolved"}
       className={cn(
-        "flex flex-col gap-2 rounded-control border-2 px-4 py-3",
-        open ? "border-warning bg-warning-bg" : "border-line bg-raised",
+        "flex min-w-0 flex-col gap-2 rounded-control border px-3 py-3",
+        open ? "border-warning bg-warning-bg" : "border-line bg-raised shadow-card",
       )}
     >
-      {open ? <Status kind="warning">{t.unmatchedMarker}</Status> : null}
-      {!open && pinned ? <Status kind="success">{t.resolvedMarker}</Status> : null}
-      <label htmlFor={id} className="font-semibold">
-        {label}
-      </label>
+      <div className="flex items-center justify-between gap-2">
+        <label htmlFor={id} className="min-w-0 truncate font-semibold" title={label}>
+          {label}
+        </label>
+        {open ? <Status kind="warning">{t.unmatchedMarker}</Status> : null}
+        {!open && pinned ? <Status kind="success">{t.resolvedMarker}</Status> : null}
+      </div>
       <Select
         id={id}
         aria-label={t.columnFor(label)}

@@ -47,12 +47,19 @@ test("inspector: pick the test font, size, colour, style and alignment, and neit
   await hex.fill("#c00000");
   await expect(page.getByText(/Mã màu chưa đúng/)).toHaveCount(0);
 
-  // The test family has all four styles, so none is disabled.
-  for (const name of ["Thường", "Đậm", "Nghiêng", "Đậm nghiêng"])
-    await expect(page.getByRole("radio", { name, exact: true })).toBeEnabled();
-  await page.getByText("Đậm", { exact: true }).click();
-  await expect(page.getByRole("radio", { name: "Đậm", exact: true })).toBeChecked();
-  await page.getByText("Giữa", { exact: true }).click();
+  // The test family has all four styles, so bold and italic are both available as toggles.
+  const bold = page.getByRole("button", { name: "Đậm", exact: true });
+  const italic = page.getByRole("button", { name: "Nghiêng", exact: true });
+  await expect(bold).toBeEnabled();
+  await expect(italic).toBeEnabled();
+  await bold.click();
+  await expect(bold).toHaveAttribute("aria-pressed", "true");
+  await italic.click();
+  await expect(italic).toHaveAttribute("aria-pressed", "true");
+  await bold.click();
+  await expect(bold).toHaveAttribute("aria-pressed", "false");
+  await expect(italic).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("radio", { name: "Giữa" }).check({ force: true });
   await expect(page.getByRole("radio", { name: "Giữa" })).toBeChecked();
 
   // Advanced and Preview are gone from the editor.

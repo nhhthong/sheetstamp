@@ -49,11 +49,9 @@ function Form({
   const [groupId, setGroupId] = useState("");
   const [newGroup, setNewGroup] = useState("");
   const [note, setNote] = useState("");
-  const [pattern, setPattern] = useState("");
   const [replacement, setReplacement] = useState<Replacement | null>(null);
   const [replaceError, setReplaceError] = useState("");
   const [reading, setReading] = useState(false);
-  const [patternProblems, setPatternProblems] = useState<string[]>([]);
   const [confirming, setConfirming] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -70,7 +68,6 @@ function Form({
         setName(detail.name);
         setGroupId(detail.groupId);
         setNote(detail.note);
-        setPattern(detail.filenamePattern);
       })
       .catch(() => live && setLoadFailed(true));
     return () => {
@@ -79,20 +76,6 @@ function Form({
   }, [templateId]);
 
   const keysSignature = loaded ? loaded.tags.map((t) => t.name).join("\u0000") : "";
-  useEffect(() => {
-    if (!loaded) return;
-    let live = true;
-    void call(ipc.checkPattern, {
-      pattern,
-      keys: keysSignature ? keysSignature.split("\u0000") : [],
-    })
-      .then((m) => live && setPatternProblems(m))
-      .catch(() => live && setPatternProblems([]));
-    return () => {
-      live = false;
-    };
-  }, [loaded, pattern, keysSignature]);
-
   const duplicate = useMemo(() => {
     if (groupId === NEW_GROUP || norm(name) === "") return false;
     return others.some(
@@ -131,7 +114,6 @@ function Form({
   async function save(confirmed: boolean) {
     setSaveError("");
     if (name.trim() === "") return setSaveError(tpl.dialog.nameNeeded);
-    if (patternProblems.length > 0) return setSaveError(patternProblems.join(" "));
     // Boxes that would be cut are listed above; replacing the image asks once more before anything is stored.
     if (outside.length > 0 && !confirmed) return setConfirming(true);
     setConfirming(false);
@@ -149,7 +131,6 @@ function Form({
         name: name.trim(),
         groupId: targetGroup,
         note,
-        filenamePattern: pattern,
         replacePath: replacement?.path ?? null,
       });
       if (!result.ok) return setSaveError(result.message);
@@ -289,14 +270,6 @@ function Form({
 
           <Field label={tpl.dialog.note}>
             {(p) => <Input {...p} value={note} onChange={(e) => setNote(e.target.value)} />}
-          </Field>
-
-          <Field
-            label={tpl.editDialog.filenamePattern}
-            hint={patternProblems.length === 0 ? tpl.editDialog.patternHint : undefined}
-            error={patternProblems.length > 0 ? patternProblems.join(" ") : undefined}
-          >
-            {(p) => <Input {...p} value={pattern} onChange={(e) => setPattern(e.target.value)} />}
           </Field>
         </>
       ) : null}

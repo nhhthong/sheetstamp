@@ -79,16 +79,20 @@ export async function updateImageTemplate(
   const image = request.replacePath === null ? null : await readImage(request.replacePath);
   if (image && !image.ok) return image;
   const patchFor = (template: Template) => {
-    const problems = patternMessages(
-      request.filenamePattern,
-      template.tags.map((t) => t.name),
-    );
-    if (problems.length > 0) throw new StorageError("invalid", problems.join(" "));
+    if (request.filenamePattern !== undefined) {
+      const problems = patternMessages(
+        request.filenamePattern,
+        template.tags.map((t) => t.name),
+      );
+      if (problems.length > 0) throw new StorageError("invalid", problems.join(" "));
+    }
     return {
       name,
       groupId: request.groupId,
       note: request.note.trim(),
-      filenamePattern: request.filenamePattern,
+      ...(request.filenamePattern === undefined
+        ? {}
+        : { filenamePattern: request.filenamePattern }),
     };
   };
   try {

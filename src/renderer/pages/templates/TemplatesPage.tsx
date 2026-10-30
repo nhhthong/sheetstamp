@@ -111,7 +111,7 @@ export function TemplatesPage() {
       <div
         role="group"
         aria-label={tpl.tabsLabel}
-        className="mb-6 inline-flex rounded-control border border-line p-0.5"
+        className="mb-6 inline-flex gap-0.5 rounded-control bg-panel p-0.5"
       >
         {(
           [
@@ -125,8 +125,8 @@ export function TemplatesPage() {
             aria-pressed={tab === id}
             onClick={() => setTab(id)}
             className={cn(
-              "rounded-control px-4 py-1.5 font-semibold",
-              tab === id ? "bg-accent text-on-accent" : "text-text hover:bg-panel",
+              "rounded-[8px] px-4 py-1.5 font-semibold transition-colors",
+              tab === id ? "bg-raised text-text shadow-card" : "text-muted hover:text-text",
             )}
           >
             {label}

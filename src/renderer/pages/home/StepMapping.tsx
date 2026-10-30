@@ -88,7 +88,6 @@ function Mapping({
   body: Body;
 }) {
   const [entries, setEntries] = useState<Entries>(view.entries);
-  const [showMatched, setShowMatched] = useState(false);
   const [error, setError] = useState("");
   // Fields that gave their column to another field. They stay in the list of fields to settle, and show the
   // alert until the user chooses again.
@@ -160,7 +159,7 @@ function Mapping({
   return (
     <div className="flex flex-col gap-4">
       <div className={`grid gap-6 ${body.kind === "word" ? "" : "min-[1000px]:grid-cols-2"}`}>
-        <div className="flex min-w-0 flex-col gap-4">
+        <div className="@container flex min-w-0 flex-col gap-4">
           {view.lost.length > 0 ? (
             <div role="status" data-testid="lost-fields" className="flex flex-col gap-1">
               <Status kind="warning">{t.lostTitle}</Status>
@@ -174,13 +173,26 @@ function Mapping({
             </div>
           ) : null}
 
-          <h3 data-testid="mapping-heading" className="text-lg font-semibold">
-            {view.fields.length === 0
-              ? t.noFields
-              : left > 0
-                ? t.needWork(left)
-                : t.allDone(view.fields.length)}
-          </h3>
+          <div className="flex flex-col gap-2">
+            <h3 data-testid="mapping-heading" className="text-lg font-semibold">
+              {view.fields.length === 0
+                ? t.noFields
+                : left > 0
+                  ? t.needWork(left)
+                  : t.allDone(view.fields.length)}
+            </h3>
+            {view.fields.length > 0 ? (
+              <div
+                aria-hidden="true"
+                className="h-1.5 max-w-xs overflow-hidden rounded-full bg-panel"
+              >
+                <div
+                  className="h-full rounded-full bg-accent"
+                  style={{ width: `${((view.fields.length - left) / view.fields.length) * 100}%` }}
+                />
+              </div>
+            ) : null}
+          </div>
 
           {left > 0 && view.columns.length > 0 ? (
             <Button variant="secondary" className="self-start" onClick={matchInOrder}>
@@ -188,28 +200,14 @@ function Mapping({
             </Button>
           ) : null}
 
-          {first.length > 0 ? (
-            <ul aria-label={t.listLabel} className="m-0 flex list-none flex-col gap-3 p-0">
+          {view.fields.length > 0 ? (
+            <ul
+              aria-label={t.listLabel}
+              className="m-0 grid list-none grid-cols-1 gap-3 p-0 @xl:grid-cols-2"
+            >
               {first.map(row)}
+              {matched.map(row)}
             </ul>
-          ) : null}
-
-          {matched.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              <button
-                type="button"
-                aria-expanded={showMatched}
-                onClick={() => setShowMatched((v) => !v)}
-                className="self-start rounded-control px-2 py-1 font-semibold text-accent underline hover:bg-panel"
-              >
-                {showMatched ? t.hideMatched(matched.length) : t.showMatched(matched.length)}
-              </button>
-              {showMatched ? (
-                <ul aria-label={t.matchedLabel} className="m-0 flex list-none flex-col gap-3 p-0">
-                  {matched.map(row)}
-                </ul>
-              ) : null}
-            </div>
           ) : null}
           {error ? <Status kind="danger">{error}</Status> : null}
         </div>

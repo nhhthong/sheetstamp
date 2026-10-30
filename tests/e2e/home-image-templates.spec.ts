@@ -178,7 +178,6 @@ test("an image template is listed with its icon and fit, mapped, and the real im
 
   // "Để trống" counts as resolved and draws nothing for that field.
   const withText = await srcOf(page);
-  await page.getByRole("button", { name: "Xem 3 trường đã khớp" }).click();
   await page.getByLabel("Cột cho trường CCCD").selectOption({ label: "Để trống" });
   await expect.poll(() => srcOf(page)).not.toBe(withText);
   await expect(next(page)).toBeEnabled();

@@ -120,13 +120,13 @@ export function SettingsPage() {
     <Page title={vi.pages.settings.title} subtitle={vi.pages.settings.subtitle}>
       <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
         <legend className="mb-3 p-0 text-lg font-bold">{settingsStrings.appearance.legend}</legend>
-        <div className="inline-flex self-start overflow-hidden rounded-control border border-line">
+        <div className="inline-flex gap-0.5 self-start rounded-control bg-panel p-0.5">
           {THEMES.map((option) => (
             <label
               key={option}
               className={cn(
-                "flex cursor-pointer items-center gap-2 px-4 py-2 font-semibold has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-accent",
-                theme === option ? "bg-accent text-on-accent" : "text-text hover:bg-panel",
+                "flex cursor-pointer items-center gap-2 rounded-[8px] px-4 py-1.5 font-semibold transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent",
+                theme === option ? "bg-raised text-text shadow-card" : "text-muted hover:text-text",
               )}
             >
               <input
@@ -146,13 +146,15 @@ export function SettingsPage() {
       </fieldset>
       <fieldset className="m-0 mt-8 flex flex-col gap-3 border-0 p-0">
         <legend className="mb-3 p-0 text-lg font-bold">{settingsStrings.language.legend}</legend>
-        <div className="inline-flex self-start overflow-hidden rounded-control border border-line">
+        <div className="inline-flex gap-0.5 self-start rounded-control bg-panel p-0.5">
           {LANGS.map((option) => (
             <label
               key={option}
               className={cn(
-                "flex cursor-pointer items-center gap-2 px-4 py-2 font-semibold has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-accent",
-                language === option ? "bg-accent text-on-accent" : "text-text hover:bg-panel",
+                "flex cursor-pointer items-center gap-2 rounded-[8px] px-4 py-1.5 font-semibold transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent",
+                language === option
+                  ? "bg-raised text-text shadow-card"
+                  : "text-muted hover:text-text",
               )}
             >
               <input
