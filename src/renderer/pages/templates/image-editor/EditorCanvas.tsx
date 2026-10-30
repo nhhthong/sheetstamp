@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Group, Image as KonvaImage, Layer, Rect, Stage, Text } from "react-konva";
 import type { LayoutBox } from "../../../../shared/image-layout";
 import { ied } from "../../../strings/image-editor";
-import { sampleText } from "./fields";
+import { labelFor } from "./fields";
 
 export type BoxChange = Partial<Pick<LayoutBox, "x" | "y" | "width">>;
 
@@ -12,7 +12,6 @@ type Props = {
   boxes: readonly LayoutBox[];
   labels: Readonly<Record<string, string>>;
   /** First data row's values per field, when data is loaded. */
-  sample: Readonly<Record<string, string>>;
   selectedId: string | null;
   /** Boxes that do not fit inside the background: drawn in the warning colour. */
   flaggedIds?: ReadonlySet<string>;
@@ -34,7 +33,6 @@ export function EditorCanvas({
   background,
   boxes,
   labels,
-  sample,
   selectedId,
   flaggedIds,
   onSelect,
@@ -99,7 +97,7 @@ export function EditorCanvas({
                     dash={selected ? undefined : [6 / scale, 4 / scale]}
                   />
                   <Text
-                    text={sampleText(box.field, labels, sample)}
+                    text={labelFor(box.field, labels)}
                     width={box.width}
                     height={height}
                     fontSize={box.fontSize}

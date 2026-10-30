@@ -81,7 +81,7 @@ export function FieldRow({ label, entry, columns, pinned, value, taken, onChange
       data-state={open ? "unresolved" : "resolved"}
       className={cn(
         "flex flex-col gap-2 rounded-control border-2 px-4 py-3",
-        open ? "border-warning bg-warning-bg" : "border-line",
+        open ? "border-warning bg-warning-bg" : "border-line bg-raised",
       )}
     >
       {open ? <Status kind="warning">{t.unmatchedMarker}</Status> : null}

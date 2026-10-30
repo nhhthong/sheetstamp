@@ -1,16 +1,19 @@
 @import "tailwindcss";
+@import "@fontsource-variable/geist/wght.css";
 
 /*
  * Colour tokens. Light is the default; dark follows prefers-color-scheme, which main keeps in step with the choice
  * in Cài đặt (nativeTheme.themeSource) and the operating system. Sáng and Tối also set data-theme on <html>.
  * src/renderer/styles.test.ts checks the contrast of these tokens.
  */
+/* Three surfaces: --bg is the page, --panel the sidebar and quiet fills, --raised what stands on the page (cards, fields, dialogs). */
 :root {
-  --bg: #ffffff;
-  --panel: #f5f6f8;
-  --text: #15181d;
-  --muted: #505863;
-  --line: #d9dde3;
+  --bg: #f6f8fc;
+  --panel: #eaeff7;
+  --raised: #ffffff;
+  --text: #14181f;
+  --muted: #485160;
+  --line: #d3dae5;
   --accent: #1f5fd1;
   --on-accent: #ffffff;
   --success: #1b7a3d;
@@ -18,15 +21,18 @@
   --warning-bg: #fff4d6;
   --danger: #b3261e;
   --danger-bg: #fdecea;
+  --shadow-1: 0 1px 2px rgb(20 40 80 / 0.06), 0 1px 1px rgb(20 40 80 / 0.04);
+  --shadow-2: 0 12px 32px rgb(20 40 80 / 0.16), 0 2px 6px rgb(20 40 80 / 0.08);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #14171c;
-    --panel: #1d2128;
+    --bg: #11141a;
+    --panel: #181c24;
+    --raised: #1f242e;
     --text: #eef0f3;
     --muted: #a6adb8;
-    --line: #343a44;
+    --line: #313946;
     --accent: #6ea0ff;
     --on-accent: #0b1220;
     --success: #5fd08a;
@@ -34,15 +40,18 @@
     --warning-bg: #3a2f10;
     --danger: #ff8a80;
     --danger-bg: #3d1c19;
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-2: 0 16px 40px rgb(0 0 0 / 0.5), 0 2px 8px rgb(0 0 0 / 0.3);
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #14171c;
-  --panel: #1d2128;
+  --bg: #11141a;
+  --panel: #181c24;
+  --raised: #1f242e;
   --text: #eef0f3;
   --muted: #a6adb8;
-  --line: #343a44;
+  --line: #313946;
   --accent: #6ea0ff;
   --on-accent: #0b1220;
   --success: #5fd08a;
@@ -50,11 +59,14 @@
   --warning-bg: #3a2f10;
   --danger: #ff8a80;
   --danger-bg: #3d1c19;
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-2: 0 16px 40px rgb(0 0 0 / 0.5), 0 2px 8px rgb(0 0 0 / 0.3);
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-panel: var(--panel);
+  --color-raised: var(--raised);
   --color-text: var(--text);
   --color-muted: var(--muted);
   --color-line: var(--line);
@@ -65,15 +77,24 @@
   --color-warning-bg: var(--warning-bg);
   --color-danger: var(--danger);
   --color-danger-bg: var(--danger-bg);
-  --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-sans:
+    "Geist Variable", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --radius-control: 10px;
   --radius-dialog: 18px;
+  --shadow-card: var(--shadow-1);
+  --shadow-pop: var(--shadow-2);
 }
 
 html,
 body,
 #root {
   height: 100%;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.015em;
 }
 
 body {

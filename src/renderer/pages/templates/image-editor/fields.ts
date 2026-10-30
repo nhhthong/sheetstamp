@@ -20,15 +20,3 @@ export function newField(
 export function labelFor(field: string, labels: Readonly<Record<string, string>>): string {
   return labels[field] ?? field;
 }
-
-/**
- * The text a box shows on the canvas and in the preview: the first data row's cell when the field has a column
- * (`sample` comes from main, which applies the mapping rules), else the field's label, else its key.
- */
-export function sampleText(
-  field: string,
-  labels: Readonly<Record<string, string>>,
-  sample: Readonly<Record<string, string>> = {},
-): string {
-  return sample[field] ?? labelFor(field, labels);
-}
