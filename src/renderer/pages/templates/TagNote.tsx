@@ -5,6 +5,8 @@ const INDEXES = [0, 1, 2] as const;
 // The two-column picture is drawn on a 1000 x 140 grid: header centres along the table top, line centres in the contract.
 const HEAD_X = [83, 250, 417] as const;
 const LINE_Y = [26, 54, 82] as const;
+const curve = (i: 0 | 1 | 2) =>
+  `M ${HEAD_X[i]} 40 C ${HEAD_X[i]} 4 410 ${LINE_Y[i]} 550 ${LINE_Y[i]}`;
 
 /** Word templates: the tag text should equal the header of the data file, so the columns match at once. */
 export function TagNote() {
@@ -50,12 +52,7 @@ export function TagNote() {
               preserveAspectRatio="none"
             >
               {INDEXES.map((i) => (
-                <path
-                  key={i}
-                  className={`ss-arrow ss-i${i}`}
-                  pathLength={1}
-                  d={`M ${HEAD_X[i]} 40 C ${HEAD_X[i]} 4 410 ${LINE_Y[i]} 550 ${LINE_Y[i]}`}
-                />
+                <path key={i} className={`ss-arrow ss-i${i}`} pathLength={1} d={curve(i)} />
               ))}
             </svg>
             {INDEXES.map((i) => (

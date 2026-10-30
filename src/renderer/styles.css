@@ -335,7 +335,7 @@ body {
   stroke-width: 2px;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
-  stroke-dasharray: 1;
+  stroke-dasharray: 0.012 0.018;
 }
 .ss-demo-tip {
   position: absolute;
@@ -635,22 +635,22 @@ body {
   0%,
   5% {
     opacity: 0;
-    stroke-dashoffset: 1;
+    clip-path: inset(-8px 100% -8px -8px);
   }
   6% {
     opacity: 1;
-    stroke-dashoffset: 1;
+    clip-path: inset(-8px 100% -8px -8px);
     animation-timing-function: var(--ease-in-out);
   }
   15%,
   93% {
     opacity: 1;
-    stroke-dashoffset: 0;
+    clip-path: inset(-8px -8px -8px -8px);
   }
   97%,
   100% {
     opacity: 0;
-    stroke-dashoffset: 0;
+    clip-path: inset(-8px -8px -8px -8px);
   }
 }
 @keyframes ss-tip-0 {
@@ -676,22 +676,22 @@ body {
   0%,
   33% {
     opacity: 0;
-    stroke-dashoffset: 1;
+    clip-path: inset(-8px 100% -8px -8px);
   }
   34% {
     opacity: 1;
-    stroke-dashoffset: 1;
+    clip-path: inset(-8px 100% -8px -8px);
     animation-timing-function: var(--ease-in-out);
   }
   43%,
   93% {
     opacity: 1;
-    stroke-dashoffset: 0;
+    clip-path: inset(-8px -8px -8px -8px);
   }
   97%,
   100% {
     opacity: 0;
-    stroke-dashoffset: 0;
+    clip-path: inset(-8px -8px -8px -8px);
   }
 }
 @keyframes ss-tip-1 {
@@ -717,22 +717,22 @@ body {
   0%,
   61% {
     opacity: 0;
-    stroke-dashoffset: 1;
+    clip-path: inset(-8px 100% -8px -8px);
   }
   62% {
     opacity: 1;
-    stroke-dashoffset: 1;
+    clip-path: inset(-8px 100% -8px -8px);
     animation-timing-function: var(--ease-in-out);
   }
   71%,
   93% {
     opacity: 1;
-    stroke-dashoffset: 0;
+    clip-path: inset(-8px -8px -8px -8px);
   }
   97%,
   100% {
     opacity: 0;
-    stroke-dashoffset: 0;
+    clip-path: inset(-8px -8px -8px -8px);
   }
 }
 @keyframes ss-tip-2 {
