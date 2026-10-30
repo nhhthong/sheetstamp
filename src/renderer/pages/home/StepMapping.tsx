@@ -201,13 +201,20 @@ function Mapping({
           ) : null}
 
           {view.fields.length > 0 ? (
-            <ul
-              aria-label={t.listLabel}
-              className="m-0 grid list-none grid-cols-1 gap-3 p-0 @xl:grid-cols-2"
-            >
-              {first.map(row)}
-              {matched.map(row)}
-            </ul>
+            <div className="flex flex-col gap-2">
+              <div
+                aria-hidden="true"
+                className="hidden grid-cols-[minmax(0,1fr)_1.5rem_minmax(0,1fr)] gap-x-3 px-3 text-sm font-semibold text-muted @xl:grid"
+              >
+                <span>{t.excelColumn}</span>
+                <span />
+                <span>{t.templateField}</span>
+              </div>
+              <ul aria-label={t.listLabel} className="m-0 flex list-none flex-col gap-2 p-0">
+                {first.map(row)}
+                {matched.map(row)}
+              </ul>
+            </div>
           ) : null}
           {error ? <Status kind="danger">{error}</Status> : null}
         </div>

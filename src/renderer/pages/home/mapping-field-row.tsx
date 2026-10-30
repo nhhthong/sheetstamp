@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { type FieldMapping, MAX_FIXED_TEXT } from "../../../shared/ipc/mapping";
 import { isResolved } from "../../../shared/mapping/values";
@@ -80,56 +81,62 @@ export function FieldRow({ label, entry, columns, pinned, value, taken, onChange
       data-field={label}
       data-state={open ? "unresolved" : "resolved"}
       className={cn(
-        "flex min-w-0 flex-col gap-2 rounded-control border px-3 py-3",
+        "grid min-w-0 gap-3 rounded-control border px-3 py-3 @xl:grid-cols-[minmax(0,1fr)_1.5rem_minmax(0,1fr)] @xl:items-start",
         open ? "border-warning bg-warning-bg" : "border-line bg-raised shadow-card",
       )}
     >
-      <div className="flex items-center justify-between gap-2">
-        <label htmlFor={id} className="min-w-0 truncate font-semibold" title={label}>
+      <div className="flex min-w-0 flex-col gap-2 @xl:col-start-1 @xl:row-start-1">
+        <Select
+          id={id}
+          aria-label={t.columnFor(label)}
+          value={selectValue(entry, columns)}
+          onChange={(event) => choose(event.target.value)}
+        >
+          <option value="">{t.choose}</option>
+          <optgroup label={t.columnsGroup}>
+            {columns.map((column, index) => (
+              <option key={index} value={columnValue(index)}>
+                {column}
+              </option>
+            ))}
+          </optgroup>
+          <option value={FIXED}>{t.fixedOption}</option>
+          <option value={EMPTY}>{t.emptyOption}</option>
+        </Select>
+        {value !== undefined ? (
+          <p data-testid="first-value" className="text-sm text-muted">
+            {t.firstValue(value === "" ? t.emptyCell : value)}
+          </p>
+        ) : null}
+        {entry?.kind === "fixed" ? (
+          <Input
+            value={text}
+            maxLength={MAX_FIXED_TEXT}
+            aria-label={t.fixedLabel(label)}
+            placeholder={t.fixedPlaceholder}
+            onChange={(event) => type(event.target.value)}
+            onBlur={commitNow}
+          />
+        ) : null}
+        {taken ? (
+          <Status kind="warning" alert>
+            {t.takenAlert}
+          </Status>
+        ) : open ? (
+          <p className="text-sm text-muted">{t.explanation(label)}</p>
+        ) : null}
+      </div>
+      <ArrowRight
+        aria-hidden="true"
+        className="hidden size-5 self-center text-muted @xl:col-start-2 @xl:row-start-1 @xl:block"
+      />
+      <div className="order-first flex min-w-0 flex-col gap-1 @xl:order-none @xl:col-start-3 @xl:row-start-1">
+        <label htmlFor={id} className="truncate font-semibold" title={label}>
           {label}
         </label>
         {open ? <Status kind="warning">{t.unmatchedMarker}</Status> : null}
         {!open && pinned ? <Status kind="success">{t.resolvedMarker}</Status> : null}
       </div>
-      <Select
-        id={id}
-        aria-label={t.columnFor(label)}
-        value={selectValue(entry, columns)}
-        onChange={(event) => choose(event.target.value)}
-      >
-        <option value="">{t.choose}</option>
-        <optgroup label={t.columnsGroup}>
-          {columns.map((column, index) => (
-            <option key={index} value={columnValue(index)}>
-              {column}
-            </option>
-          ))}
-        </optgroup>
-        <option value={FIXED}>{t.fixedOption}</option>
-        <option value={EMPTY}>{t.emptyOption}</option>
-      </Select>
-      {value !== undefined ? (
-        <p data-testid="first-value" className="text-sm text-muted">
-          {t.firstValue(value === "" ? t.emptyCell : value)}
-        </p>
-      ) : null}
-      {entry?.kind === "fixed" ? (
-        <Input
-          value={text}
-          maxLength={MAX_FIXED_TEXT}
-          aria-label={t.fixedLabel(label)}
-          placeholder={t.fixedPlaceholder}
-          onChange={(event) => type(event.target.value)}
-          onBlur={commitNow}
-        />
-      ) : null}
-      {taken ? (
-        <Status kind="warning" alert>
-          {t.takenAlert}
-        </Status>
-      ) : open ? (
-        <p className="text-sm text-muted">{t.explanation(label)}</p>
-      ) : null}
     </li>
   );
 }
