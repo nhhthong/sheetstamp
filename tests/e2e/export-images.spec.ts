@@ -108,7 +108,7 @@ test("image template: PNG by default, JPG when chosen and remembered; ZIP names,
   await expect(page.getByTestId("done-title")).toHaveText("Đã tạo 3 file");
   await expect(page.getByTestId("failed-rows")).toContainText("1 dòng bị lỗi");
   const zipPath = (await page.getByTestId("zip-path").textContent()) ?? "";
-  expect(zipPath).toBe(join(out, `Giấy khen ${new Date().toLocaleDateString("sv-SE")}.zip`));
+  expect(zipPath).toMatch(/Sheetstamp_\d{4}-\d{2}-\d{2}_\d{6}\.zip$/);
   await shoot(page, "export-images", "done");
 
   expect((await readdir(out)).sort()).toEqual(

@@ -15,6 +15,25 @@ export const countUnresolved = (keys: readonly string[], entries: Entries): numb
   keys.filter((key) => !isResolved(entries[key])).length;
 
 /**
+ * The columns that the unresolved fields would take if matched in order: the first unresolved field takes the first
+ * column that no field uses, and so on. Fields left over, when there are fewer free columns, get nothing.
+ */
+export function fillInOrder(
+  keys: readonly string[],
+  entries: Entries,
+  columns: readonly string[],
+): [key: string, column: string][] {
+  const used = new Set(
+    Object.values(entries).flatMap((e) => (e.kind === "column" ? [e.column] : [])),
+  );
+  const free = columns.filter((c) => c.trim() !== "" && !used.has(c));
+  return keys
+    .filter((key) => !isResolved(entries[key]))
+    .slice(0, free.length)
+    .map((key, i): [string, string] => [key, free[i] as string]);
+}
+
+/**
  * The values of one row for the preview, keyed by tag key.
  *  - column: the cell text, which may be "" (shown as an empty value, red);
  *  - fixed text: what the user typed;

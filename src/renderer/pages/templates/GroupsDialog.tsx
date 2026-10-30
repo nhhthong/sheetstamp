@@ -30,6 +30,7 @@ function Form({ open, onOpenChange, onChanged }: GroupsDialogProps) {
   const [renaming, setRenaming] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [confirming, setConfirming] = useState<string | null>(null);
+  const [newName, setNewName] = useState("");
   const [error, setError] = useState("");
   const listRef = useRef<HTMLUListElement>(null);
   const [refocus, setRefocus] = useState(0);
@@ -73,6 +74,16 @@ function Form({ open, onOpenChange, onChanged }: GroupsDialogProps) {
     if (!result.ok) return setError(result.message);
     setRenaming(null);
     toast.show(t.renamed);
+    await load();
+    onChanged();
+  }
+
+  async function add() {
+    setError("");
+    const result = await call(ipc.groupsCreate, { name: newName.trim() });
+    if (!result.ok) return setError(result.message);
+    setNewName("");
+    toast.show(t.added);
     await load();
     onChanged();
   }
@@ -189,6 +200,28 @@ function Form({ open, onOpenChange, onChanged }: GroupsDialogProps) {
           </li>
         ))}
       </ul>
+      <form
+        className="flex items-center gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void add();
+        }}
+      >
+        <Input
+          aria-label={t.addLabel}
+          placeholder={t.addLabel}
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+        />
+        <Button
+          type="submit"
+          size="sm"
+          className="shrink-0 whitespace-nowrap"
+          disabled={newName.trim() === ""}
+        >
+          {t.add}
+        </Button>
+      </form>
       {error ? <Status kind="danger">{error}</Status> : null}
     </Dialog>
   );

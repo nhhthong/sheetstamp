@@ -275,6 +275,10 @@ test("manage groups: rename, unique names, delete moves templates to Chưa phân
   await expect(rows).toHaveCount(2);
   // The row that held focus is gone: focus lands on the first remaining row, not on the page body.
   await expect(dialog.getByRole("button", { name: /^Đổi tên nhóm/ }).first()).toBeFocused();
+  // Add a group.
+  await dialog.getByLabel("Tên nhóm mới").fill("Nhóm mới");
+  await dialog.getByRole("button", { name: "Thêm nhóm" }).click();
+  await expect(rows.filter({ hasText: "Nhóm mới" })).toHaveCount(1);
   await dialog.getByTestId("groups-done").click();
   await expect(page.getByTestId("template-row")).toContainText("Chưa phân nhóm");
 
@@ -290,5 +294,5 @@ test("manage groups: rename, unique names, delete moves templates to Chưa phân
   );
   await app.close();
   const groups = await (await openStorage(dataDir)).listGroups();
-  expect(groups.map((g) => g.name)).toEqual(["Thôi việc", "Tài liệu khác"]);
+  expect(groups.map((g) => g.name)).toEqual(["Thôi việc", "Tài liệu khác", "Nhóm mới"]);
 });

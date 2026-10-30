@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countUnresolved, isResolved, rowValues } from "./values";
+import { countUnresolved, type Entries, fillInOrder, isResolved, rowValues } from "./values";
 
 const columns = ["Họ tên", "Lý do"];
 
@@ -34,5 +34,32 @@ describe("resolution", () => {
     expect(
       countUnresolved(["a", "b", "c"], { a: { kind: "empty" }, b: { kind: "fixed", text: "" } }),
     ).toBe(2);
+  });
+});
+
+describe("fillInOrder", () => {
+  const cols = ["Họ và tên", "Chức vụ", "năm sinh"];
+
+  it("gives the unresolved fields the free columns, left to right", () => {
+    expect(fillInOrder(["1", "2", "3"], {}, cols)).toEqual([
+      ["1", "Họ và tên"],
+      ["2", "Chức vụ"],
+      ["3", "năm sinh"],
+    ]);
+  });
+
+  it("skips columns in use and fields already settled", () => {
+    const entries: Entries = {
+      "2": { kind: "empty" },
+      "3": { kind: "column", column: "Họ và tên" },
+    };
+    expect(fillInOrder(["1", "2", "3", "4"], entries, cols)).toEqual([
+      ["1", "Chức vụ"],
+      ["4", "năm sinh"],
+    ]);
+  });
+
+  it("leaves fields without a free column unmatched and ignores unnamed columns", () => {
+    expect(fillInOrder(["a", "b", "c"], {}, ["x", " "])).toEqual([["a", "x"]]);
   });
 });

@@ -8,7 +8,7 @@ import {
   openMapping,
   setEntry,
 } from "../../../shared/ipc/mapping";
-import { countUnresolved, type Entries } from "../../../shared/mapping/values";
+import { countUnresolved, type Entries, fillInOrder } from "../../../shared/mapping/values";
 import { Button } from "../../components/ui/button";
 import { Status } from "../../components/ui/status";
 import { call } from "../../lib/ipc";
@@ -125,6 +125,12 @@ function Mapping({
     );
   }
 
+  function matchInOrder() {
+    for (const [key, column] of fillInOrder(keys, entries, view.columns)) {
+      change(key, { kind: "column", column });
+    }
+  }
+
   function next() {
     markMappingDone();
     flow.complete("mapping", {
@@ -153,7 +159,7 @@ function Mapping({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid gap-6 min-[1000px]:grid-cols-2">
+      <div className={`grid gap-6 ${body.kind === "word" ? "" : "min-[1000px]:grid-cols-2"}`}>
         <div className="flex min-w-0 flex-col gap-4">
           {view.lost.length > 0 ? (
             <div role="status" data-testid="lost-fields" className="flex flex-col gap-1">
@@ -175,6 +181,12 @@ function Mapping({
                 ? t.needWork(left)
                 : t.allDone(view.fields.length)}
           </h3>
+
+          {left > 0 && view.columns.length > 0 ? (
+            <Button variant="secondary" className="self-start" onClick={matchInOrder}>
+              {t.matchInOrder}
+            </Button>
+          ) : null}
 
           {first.length > 0 ? (
             <ul aria-label={t.listLabel} className="m-0 flex list-none flex-col gap-3 p-0">
@@ -219,6 +231,7 @@ function Mapping({
           entries={entries}
           columns={view.columns}
           rowCount={view.rowCount}
+          wide={body.kind === "word"}
         />
       </div>
 

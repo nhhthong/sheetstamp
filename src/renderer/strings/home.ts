@@ -16,6 +16,12 @@ const viHome = {
     stateLocked: "Chưa mở",
     stepPrefix: (n: number) => `Bước ${n}: `,
   },
+  startOver: {
+    button: "Làm lại từ đầu",
+    title: "Làm lại từ đầu?",
+    body: "File dữ liệu, mẫu đã chọn và cách ghép cột của lần này sẽ bị bỏ. Mẫu đã lưu trong thư viện vẫn còn.",
+    confirm: "Làm lại",
+  },
   later: "Bước này chưa dùng được trong bản hiện tại.",
   data: {
     continue: "Tiếp tục",
@@ -76,6 +82,12 @@ const enHome: typeof viHome = {
     stateActive: "In progress",
     stateLocked: "Not open yet",
     stepPrefix: (n: number) => `Step ${n}: `,
+  },
+  startOver: {
+    button: "Start over",
+    title: "Start over?",
+    body: "The data file, the chosen template and the column matching of this run are dropped. Templates saved in the library stay.",
+    confirm: "Start over",
   },
   later: "This step is not available in the current version.",
   data: {

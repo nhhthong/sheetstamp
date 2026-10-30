@@ -159,6 +159,10 @@ test("auto-matching leaves the odd column, the user fixes it, pages through rows
 
   // The preview already shows row 1: matched values filled, the unmapped field marked.
   await expect(page.getByTestId("pager")).toHaveText("Dòng 1/5");
+  await expect(page.getByTestId("zoom")).toHaveText("100%");
+  await page.getByRole("button", { name: "Phóng to" }).click();
+  await expect(page.getByTestId("zoom")).toHaveText("125%");
+  await page.getByRole("button", { name: "Về 100%" }).click();
   await expect(preview(page)).toContainText("Nguyễn Văn An");
   await expect(preview(page)).toContainText("012345678901");
   await expect(preview(page)).toContainText("(thiếu)");
@@ -347,5 +351,25 @@ test("every row shows its first-row value, and a column taken by another field i
   await nameRow.getByRole("combobox").selectOption({ label: "Vùng miền" });
   await expect(nameRow).not.toContainText("Cột này đã chuyển sang trường khác");
   await expect(heading(page)).toHaveText("Tất cả 3 trường đã ghép.");
+  await app.close();
+});
+
+test("Start over asks first, keeps everything on cancel and returns to step 1 on confirm", async () => {
+  const app = await launch();
+  const page = await app.firstWindow();
+  await expect(page.getByRole("button", { name: "Làm lại từ đầu" })).toHaveCount(0);
+  await toStepMapping(app, page);
+
+  await page.getByRole("button", { name: "Làm lại từ đầu" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: "Hủy" }).click();
+  await expect(step(page, "mapping")).toHaveAttribute("data-status", "active");
+
+  await page.getByRole("button", { name: "Làm lại từ đầu" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Làm lại", exact: true }).click();
+  await expect(step(page, "data")).toHaveAttribute("data-status", "active");
+  await expect(step(page, "mapping")).toHaveAttribute("data-status", "locked");
+  await expect(page.getByTestId("file-name")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Làm lại từ đầu" })).toHaveCount(0);
   await app.close();
 });

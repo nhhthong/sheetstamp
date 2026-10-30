@@ -14,6 +14,7 @@ import { Status } from "../../components/ui/status";
 import { useToast } from "../../components/ui/toast";
 import { call } from "../../lib/ipc";
 import { tpl } from "../../strings/templates";
+import { TagNote } from "./TagNote";
 
 const NEW_GROUP = "__new__";
 const norm = (text: string) => text.trim().normalize("NFC").toLocaleLowerCase();
@@ -190,7 +191,7 @@ function Form({
       onOpenChange={onOpenChange}
       title={tpl.editDialog.title}
       footer={
-        <Button onClick={() => void save()} disabled={!ready || saving || reading}>
+        <Button onClick={() => void save()} disabled={!ready || saving || reading || duplicate}>
           {saving ? tpl.editDialog.saving : tpl.editDialog.save}
         </Button>
       }
@@ -269,11 +270,13 @@ function Form({
             </div>
           ) : null}
 
+          <TagNote />
+
           <Field label={tpl.dialog.name}>
             {(p) => <Input {...p} value={name} onChange={(e) => setName(e.target.value)} />}
           </Field>
           {duplicate ? (
-            <Status kind="warning" className="-mt-2 text-sm">
+            <Status kind="danger" className="-mt-2 text-sm">
               {tpl.dialog.duplicate}
             </Status>
           ) : null}
