@@ -1,5 +1,10 @@
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { _electron as electron, expect, test } from "@playwright/test";
+
+const { version } = JSON.parse(
+  readFileSync(join(import.meta.dirname, "../../package.json"), "utf8"),
+) as { version: string };
 
 const launch = () =>
   electron.launch({
@@ -47,7 +52,7 @@ test("the built app opens with its shell, hardened and keyboard friendly", async
 
   // The IPC layer answers, and refuses an unknown channel.
   const info = await page.evaluate(() => window.sheetstamp.invoke("app:info"));
-  expect(info).toMatchObject({ name: expect.any(String), version: "0.1.0" });
+  expect(info).toMatchObject({ name: expect.any(String), version });
   const refused = await page.evaluate(() =>
     window.sheetstamp.invoke("fs:read", "/etc/passwd").then(
       () => "ok",
