@@ -353,3 +353,23 @@ test("every row shows its first-row value, and a column taken by another field i
   await expect(heading(page)).toHaveText("Tất cả 3 trường đã ghép.");
   await app.close();
 });
+
+test("Start over asks first, keeps everything on cancel and returns to step 1 on confirm", async () => {
+  const app = await launch();
+  const page = await app.firstWindow();
+  await expect(page.getByRole("button", { name: "Làm lại từ đầu" })).toHaveCount(0);
+  await toStepMapping(app, page);
+
+  await page.getByRole("button", { name: "Làm lại từ đầu" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: "Hủy" }).click();
+  await expect(step(page, "mapping")).toHaveAttribute("data-status", "active");
+
+  await page.getByRole("button", { name: "Làm lại từ đầu" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Làm lại", exact: true }).click();
+  await expect(step(page, "data")).toHaveAttribute("data-status", "active");
+  await expect(step(page, "mapping")).toHaveAttribute("data-status", "locked");
+  await expect(page.getByTestId("file-name")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Làm lại từ đầu" })).toHaveCount(0);
+  await app.close();
+});

@@ -141,6 +141,7 @@ Title “Tạo file hàng loạt”, subtitle “Làm theo từng bước. Mỗi
 - Primary button, large: “Xuất <n> file”.
 - While exporting: “Đang tạo file… 5/12”, a progress bar, and a “Hủy” button. Cancelling says that nothing was saved.
 - Done: a large green check, “Đã tạo <n> file”, the ZIP path, a primary button “Mở thư mục”, and a link “Tạo đợt mới” that returns to step 1 with everything cleared. If some rows failed, a warning line “<k> dòng bị lỗi” with a link to the CSV error report is shown.
+- **Start over** (added 2026-10-30): once a file is chosen, a secondary button “Làm lại từ đầu” sits at the top right of the page, on every step except while an export runs (which has its own “Hủy”). It asks “Làm lại từ đầu?” and says the data file, the chosen template and the column matching of this run are dropped and saved templates stay; “Làm lại” clears them and opens step 1, “Hủy” changes nothing.
 
 **Screen 2: Mẫu**
 
