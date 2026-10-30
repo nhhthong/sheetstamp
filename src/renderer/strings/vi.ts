@@ -9,6 +9,8 @@ const viStrings = {
   app: { name: "Sheetstamp" },
   nav: {
     label: "Điều hướng chính",
+    close: "Đóng menu",
+    open: "Mở menu",
     home: "Tạo file",
     templates: "Mẫu",
     settings: "Cài đặt",
@@ -40,6 +42,8 @@ const enStrings: Strings = {
   app: { name: "Sheetstamp" },
   nav: {
     label: "Main navigation",
+    close: "Close menu",
+    open: "Open menu",
     home: "Create files",
     templates: "Templates",
     settings: "Settings",

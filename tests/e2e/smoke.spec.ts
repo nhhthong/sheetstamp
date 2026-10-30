@@ -86,3 +86,28 @@ test("below about 820 px the sidebar becomes a top bar", async () => {
 
   await app.close();
 });
+
+test("the burger button closes and reopens the menu", async () => {
+  const app = await launch();
+  const page = await app.firstWindow();
+  const nav = page.getByRole("navigation", { name: "Điều hướng chính" });
+  const burger = page.getByRole("button", { name: "Đóng menu" });
+  await expect(nav).toBeVisible();
+  await expect(burger).toHaveAttribute("aria-expanded", "true");
+
+  await burger.click();
+  await expect(nav).toBeHidden();
+  const reopen = page.getByRole("button", { name: "Mở menu" });
+  await expect(reopen).toHaveAttribute("aria-expanded", "false");
+  // The page keeps working with the menu closed, and the heading is not covered by the button.
+  const title = await page.getByRole("heading", { level: 1 }).boundingBox();
+  const button = await reopen.boundingBox();
+  expect(
+    title && button && (title.y >= button.y + button.height || title.x >= button.x + button.width),
+  ).toBe(true);
+
+  await reopen.click();
+  await expect(nav).toBeVisible();
+  await expect(page.getByRole("button", { name: "Đóng menu" })).toBeVisible();
+  await app.close();
+});
