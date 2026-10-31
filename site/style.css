@@ -278,7 +278,7 @@ a:hover {
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 16 / 9;
 }
 .hero-video video:focus-visible {
   outline-color: var(--color-night-ink);
