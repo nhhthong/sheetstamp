@@ -605,6 +605,9 @@ details > :not(summary) {
 .close .actions {
   margin-top: 0;
 }
+.close .dl-count {
+  margin-top: var(--space-sm);
+}
 
 /* Footer */
 footer {

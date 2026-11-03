@@ -228,10 +228,13 @@
       <section class="sec close">
         <div class="wrap">
           <h2>{{closeTitle}}</h2>
-          <div class="actions">
-            <a class="pill" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-Setup-x64.exe">{{dlWin}}</a>
-            <a class="pill ghost" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">{{dlUbuntu}}</a>
-            <a class="pill ghost" href="#macos" data-os="os-mac">{{macBtn}}</a>
+          <div>
+            <div class="actions">
+              <a class="pill" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-Setup-x64.exe">{{dlWin}}</a>
+              <a class="pill ghost" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">{{dlUbuntu}}</a>
+              <a class="pill ghost" href="#macos" data-os="os-mac">{{macBtn}}</a>
+            </div>
+            <p class="fine dl-count" data-fmt="{{dlCount}}" hidden></p>
           </div>
         </div>
       </section>
@@ -316,6 +319,32 @@
             c.style.animationDuration = (5 + Math.random() * 5).toFixed(2) + "s";
             cells.appendChild(c);
             made++;
+          }
+        }
+
+        // Total installer downloads, as GitHub counts them for the releases. Hidden if the count cannot be read.
+        var dl = document.querySelector(".dl-count");
+        if (dl) {
+          var showCount = function (n) {
+            if (!(n > 0)) return;
+            dl.textContent = dl.getAttribute("data-fmt").replace("{n}", n.toLocaleString(document.documentElement.lang));
+            dl.hidden = false;
+          };
+          var cached = null;
+          try { cached = JSON.parse(localStorage.getItem("sheetstamp.downloads")); } catch (e) {}
+          if (cached && Date.now() - cached.t < 3600000) showCount(cached.n);
+          else if (window.fetch) {
+            fetch("https://api.github.com/repos/nhhthong/sheetstamp/releases?per_page=100")
+              .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+              .then(function (releases) {
+                var n = 0;
+                releases.forEach(function (rel) {
+                  rel.assets.forEach(function (a) { if (!/^SHA256SUMS/.test(a.name)) n += a.download_count; });
+                });
+                try { localStorage.setItem("sheetstamp.downloads", JSON.stringify({ t: Date.now(), n: n })); } catch (e) {}
+                showCount(n);
+              })
+              .catch(function () {});
           }
         }
 

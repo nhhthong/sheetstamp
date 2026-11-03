@@ -63,6 +63,7 @@
   "priv3T": "Không tự cập nhật",
   "priv3D": "Nút “Kiểm tra bản mới” chỉ mở trang này trong trình duyệt.",
   "closeTitle": "Tải Sheetstamp",
+  "dlCount": "{n} lượt tải",
   "macBtn": "macOS: sắp có",
   "footLicense": "Giấy phép <a href=\"https://github.com/nhhthong/sheetstamp/blob/main/LICENSE\">MIT</a>. Giấy phép các thành phần bên thứ ba: <a href=\"https://github.com/nhhthong/sheetstamp/blob/main/THIRD-PARTY-NOTICES.md\">THIRD-PARTY-NOTICES.md</a>. Font Wix Madefor, <a href=\"{{base}}assets/fonts/OFL.txt\">SIL OFL 1.1</a>.",
   "footSource": "Mã nguồn"
