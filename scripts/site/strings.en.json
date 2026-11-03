@@ -63,6 +63,7 @@
   "priv3T": "No auto-update",
   "priv3D": "“Check for updates” only opens this page in your browser.",
   "closeTitle": "Download Sheetstamp",
+  "dlLabel": "downloads so far",
   "macBtn": "macOS: coming soon",
   "footLicense": "Licensed under <a href=\"https://github.com/nhhthong/sheetstamp/blob/main/LICENSE\">MIT</a>. Third-party licenses: <a href=\"https://github.com/nhhthong/sheetstamp/blob/main/THIRD-PARTY-NOTICES.md\">THIRD-PARTY-NOTICES.md</a>. Font Wix Madefor, <a href=\"{{base}}assets/fonts/OFL.txt\">SIL OFL 1.1</a>.",
   "footSource": "Source code"
