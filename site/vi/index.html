@@ -234,7 +234,7 @@
               <a class="pill ghost" href="https://github.com/nhhthong/sheetstamp/releases/latest/download/Sheetstamp-x64.deb">Tải cho Ubuntu</a>
               <a class="pill ghost" href="#macos" data-os="os-mac">macOS: sắp có</a>
             </div>
-            <p class="fine dl-count" data-fmt="{n} lượt tải" hidden></p>
+            <p class="dl-count" hidden><b class="dl-n"></b> <span class="dl-l">lượt tải</span></p>
           </div>
         </div>
       </section>
@@ -325,9 +325,10 @@
         // Total installer downloads, as GitHub counts them for the releases. Hidden if the count cannot be read.
         var dl = document.querySelector(".dl-count");
         if (dl) {
+          // A small count looks worse than none, so the line shows from 100 downloads.
           var showCount = function (n) {
-            if (!(n > 0)) return;
-            dl.textContent = dl.getAttribute("data-fmt").replace("{n}", n.toLocaleString(document.documentElement.lang));
+            if (!(n >= 100)) return;
+            dl.querySelector(".dl-n").textContent = n.toLocaleString(document.documentElement.lang);
             dl.hidden = false;
           };
           var cached = null;
